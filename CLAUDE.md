@@ -31,6 +31,7 @@
 - React 19 with Next.js 16 App Router
 - Use `"use client"` directive for interactive components
 - Route handlers in `app/api/` for backend
+- Next.js 16: Route params are Promises - use `await params` in route handlers
 
 **Styling:**
 - Tailwind v4 syntax (no `tailwind.config.js` - uses CSS-based config)
@@ -40,14 +41,14 @@
 
 **AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
-- Streaming responses via `@anthropic-ai/sdk`
+- Tool execution loop: Claude → tool_use → execute handler → tool_result → final response
 - Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`
 - Model: `claude-sonnet-4-20250514`
 
-**Data Flow (Planned):**
-- Google Sheets → sync script → Supabase (courses, pricing)
-- Cloudinary for image hosting
-- Guest session → auth gate at booking intent
+**Data Flow (Implemented):**
+- Supabase database with 15 seeded courses
+- Tool results embedded as base64 markers in response stream
+- Frontend parses markers and renders components with real data
 
 ---
 
@@ -59,10 +60,15 @@
 - [x] First generative component: CourseCarousel renders from AI tool call
 - [x] Input replaces static placeholder with real functionality
 
-### Active: Phase 2 - Data Layer
-- [ ] Supabase database setup
-- [ ] Google Sheets sync for course data
-- [ ] Connect AI tools to real course data
+### ✅ Completed: Phase 2 - Data Layer
+- [x] Supabase database with course schema
+- [x] Tool execution loop - AI tools return real data
+- [x] Course API endpoints with filtering
+- [x] CourseDetailCard, FleetCard, AboutCard components
+
+### Active: Phase 3 - More Components
+- [ ] ItineraryBuilder wizard
+- [ ] ItinerarySummary component
 
 ### Foundation (To Be Achieved)
 - Guest → Signed Up conversion: 15% target
@@ -73,23 +79,27 @@
 
 ## Current Phase
 
-**Focus:** Phase 2 - Data Layer (Real course data flows through the system)
+**Focus:** Phase 3 - More Components (ItineraryBuilder wizard)
 
-**Current State (After Phase 1):**
-- Chat engine functional with streaming responses
-- CourseCarousel renders on `show_courses` tool call
-- Components extracted: Sidebar, Header, MainContent, GreetingState
-- Branch: `feat/phase1-chat-foundation` pushed to GitHub
+**Current State (After Phase 2):**
+- All 4 tools execute and return real data
+- CourseCarousel shows Supabase courses
+- CourseDetailCard, FleetCard, AboutCard all functional
+- Branch: `feat/phase2-data-layer` PR open
 
-**Priorities:**
-1. Set up Supabase database with course schema
-2. Implement Google Sheets → Supabase sync
-3. Create `/api/courses` endpoints
-4. Connect AI tools to real course data
+**Setup Required:**
+1. Create Supabase project at https://supabase.com/dashboard
+2. Run `supabase/schema.sql` in SQL Editor
+3. Add to `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   ```
 
 **Decisions Made:**
 - State management: React Context (not Zustand) - simpler for current scope
 - Auth gate: Deferred to Phase 4
+- Tool result encoding: Base64 markers in response (not streaming)
 
 ---
 
@@ -101,6 +111,7 @@
 | **Guest Freedom vs Data Capture** | Allow 3+ turns before soft auth gate at save/book intent |
 | **Real-time Availability vs Complexity** | V1 uses "request" mode; real-time for V2 |
 | **B2B vs B2C** | Separate subdomain (partners.golfokay.co), shared Supabase backend |
+| **Streaming vs Tool Results** | Tool execution requires non-streaming; results appended to final response |
 
 ---
 
@@ -112,6 +123,9 @@
 **Implementation Gotchas**
 - [2024-11]: ESLint `react-hooks/set-state-in-effect` error - use `useLayoutEffect` + `requestAnimationFrame` for mount animations instead of `useEffect` with direct `setState`
 - [2024-11]: Framer Motion 3D flip requires explicit `backface-visibility: hidden` CSS and `perspective` on parent
+- [2024-11]: Anthropic tool_use requires sending tool_result back before getting final response - can't stream during tool execution
+- [2024-11]: TypeScript `Record<string, unknown>` to specific type requires double cast: `input as unknown as SpecificType`
+- [2024-11]: Next.js 16 route params are Promises: `const { id } = await params;`
 
 ---
 
@@ -119,12 +133,13 @@
 
 **Key Files:**
 - `src/app/page.tsx` - Main page with ChatProvider wrapper
-- `src/app/api/chat/route.ts` - Anthropic streaming endpoint
-- `src/components/chat/` - Chat UI components
-- `src/components/generative-ui/` - CourseCarousel, CourseCard
-- `src/hooks/useChat.ts` - Chat state management
-- `src/lib/tools.ts` - AI tool definitions and system prompt
-- `plan.md` - Full project plan with phases, data models
+- `src/app/api/chat/route.ts` - Tool execution loop + Anthropic
+- `src/app/api/courses/` - Course REST endpoints
+- `src/lib/tool-handlers.ts` - Tool execution handlers
+- `src/lib/supabase.ts` - Database client
+- `src/components/generative-ui/` - All generative UI components
+- `src/hooks/useChat.ts` - Chat state + tool result parsing
+- `supabase/schema.sql` - Database schema + seed data
 
 **Design Tokens (from prototype):**
 ```typescript

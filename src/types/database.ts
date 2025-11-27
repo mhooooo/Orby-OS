@@ -1,0 +1,50 @@
+export type Region = 'bangkok' | 'phuket' | 'hua_hin' | 'chiang_mai' | 'pattaya';
+
+export interface GreenFee {
+  weekday: { guest: number; member: number };
+  weekend: { guest: number; member: number };
+}
+
+export interface CourseRow {
+  id: string;
+  name: string;
+  region: Region;
+  location: string;
+  par: number;
+  yardage: number;
+  holes: number;
+  tags: string[];
+  hero_image: string | null;
+  description: string | null;
+  green_fee: GreenFee;
+  created_at: string;
+}
+
+export interface Database {
+  public: {
+    Tables: {
+      courses: {
+        Row: CourseRow;
+        Insert: Omit<CourseRow, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Omit<CourseRow, 'id' | 'created_at'>>;
+      };
+    };
+  };
+}
+
+// Helper type to convert database row to frontend Course type
+export function dbRowToCourse(row: CourseRow) {
+  return {
+    id: row.id,
+    name: row.name,
+    region: row.region,
+    location: row.location,
+    par: row.par,
+    yardage: row.yardage,
+    holes: row.holes as 9 | 18,
+    tags: row.tags,
+    heroImage: row.hero_image || '',
+    description: row.description || '',
+    greenFee: row.green_fee,
+  };
+}
