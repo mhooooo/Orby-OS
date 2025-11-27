@@ -46,7 +46,7 @@ Missing:
 
 The existing `page.tsx` contains the design language:
 - Colors: `#131314` (bg), `#1E1F20` (sidebar/cards), `#282A2C` (hover/active)
-- Accent: `#A4E600` (green for CTAs)
+- Accent: TBD - let design emerge from implementation
 - Radii: `rounded-3xl` (cards), `rounded-full` (buttons/pills)
 - Shadows: `shadow-lg`, custom popover shadows
 
@@ -405,18 +405,23 @@ interface Inquiry {
   - [ ] `/api/courses/[id]` - single course detail
   - [ ] Connect AI tools to real data
 
-### Phase 3: More Components (Week 3-4)
+### Phase 3: ItineraryBuilder Wizard ✅ COMPLETED
+**Goal:** Multi-step trip planning wizard
+
+- [x] ItineraryBuilder wizard
+  - [x] Step components (Region, Vibe, Logistics, Dates)
+  - [x] State management for wizard flow (ItineraryContext)
+  - [x] Price calculation logic with group discounts
+
+- [x] ItinerarySummary
+  - [x] Timeline visualization
+  - [x] Animated price counter
+  - [x] Day breakdown cards
+
+- [x] start_itinerary_builder tool registered
+
+### Phase 3b: Additional Components (Pending)
 **Goal:** Full generative UI suite
-
-- [ ] ItineraryBuilder wizard
-  - [ ] Step components (Region, Vibe, Logistics)
-  - [ ] State management for wizard flow
-  - [ ] Price calculation logic
-
-- [ ] ItinerarySummary
-  - [ ] Timeline visualization
-  - [ ] Animated price counter
-  - [ ] Day breakdown cards
 
 - [ ] FleetConfigurator
   - [ ] Vehicle cards
@@ -603,9 +608,25 @@ overhauled-golfokay/
 
 ---
 
+## Dev Modes (Cost Optimization)
+
+```env
+# Development mode - controls API usage
+DEV_MODE=mock    # Zero API calls, reads from /dev/mock-responses.json
+DEV_MODE=cached  # Cache-first, falls back to API, stores responses
+DEV_MODE=live    # Direct API calls (production)
+```
+
+Mock mode for UI development, cached mode for integration testing.
+
+---
+
 ## Environment Variables
 
 ```env
+# Development
+DEV_MODE=mock
+
 # Anthropic
 ANTHROPIC_API_KEY=sk-ant-...
 
@@ -691,6 +712,10 @@ npm install stripe @stripe/stripe-js
 
 ## Next Steps
 
-1. Review this plan, adjust priorities
-2. Set up environment (Supabase account, Anthropic API key)
-3. Begin Phase 1: Chat engine + first component
+1. ~~Review this plan, adjust priorities~~ ✅
+2. ~~Set up environment (Supabase account, Anthropic API key)~~ ✅
+3. ~~Begin Phase 1: Chat engine + first component~~ ✅
+4. ~~Phase 3: ItineraryBuilder wizard~~ ✅
+5. Merge Phase 2 data layer branch (Supabase, tool execution loop)
+6. Implement dev modes (mock/cached/live) to reduce API costs during development
+7. Phase 3b: Additional generative components (FleetConfigurator, TrustCard, etc.)

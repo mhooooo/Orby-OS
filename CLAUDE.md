@@ -35,8 +35,16 @@
 **Styling:**
 - Tailwind v4 syntax (no `tailwind.config.js` - uses CSS-based config)
 - Dark mode first: `#131314` (bg), `#1E1F20` (cards), `#282A2C` (hover)
-- Accent: `#A4E600` (green CTAs per brand)
+- Accent: 
 - Radii: `rounded-3xl` (cards), `rounded-full` (buttons/pills)
+- Accent color: TBD - let design emerge from implementation
+
+**Dev Modes (Cost Optimization):**
+- `DEV_MODE=mock` - Zero API calls, reads from `/dev/mock-responses.json`
+- `DEV_MODE=cached` - Cache-first, falls back to API, stores responses
+- `DEV_MODE=live` - Direct API calls (production)
+
+Mock mode for UI development, cached mode for integration testing.
 
 **AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
@@ -118,6 +126,7 @@
 - [2024-11]: Framer Motion 3D flip requires explicit `backface-visibility: hidden` CSS and `perspective` on parent
 - [2024-11]: Framer Motion `useSpring` + `useTransform` returns MotionValue - use `.on('change')` subscription to update React state
 - [2024-11]: Tool inputs in stream: base64 encode JSON to avoid parsing issues with special characters
+- [2024-11]: Implement mock/cache modes early - repeated testing burns tokens fast
 
 ---
 
@@ -140,7 +149,7 @@ const colors = {
   bg: '#131314',
   sidebar: '#1E1F20',
   hover: '#282A2C',
-  accent: '#A4E600',
+  accent: '',
 };
 ```
 
