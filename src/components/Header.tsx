@@ -32,8 +32,8 @@ export function Header({ theme }: HeaderProps) {
   const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(event: any) {
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
       }
     }
@@ -92,7 +92,8 @@ export function Header({ theme }: HeaderProps) {
                 <div className="text-sm text-gray-400 mb-6">{UI_CONFIG.user.email}</div>
 
                 <div className="w-24 h-24 mx-auto rounded-full p-1 relative mb-4">
-                  <img src={UI_CONFIG.user.avatar} className="w-full h-full rounded-full" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={UI_CONFIG.user.avatar} alt="" className="w-full h-full rounded-full" />
                   <div className="absolute bottom-1 right-1 bg-[#1E1F20] p-1.5 rounded-full border border-gray-600">
                     <Activity size={14} className="text-blue-400" />
                   </div>

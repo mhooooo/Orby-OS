@@ -25,8 +25,8 @@ export function Sidebar({ isOpen, onToggle, theme, onThemeChange }: SidebarProps
   const settingsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(event: any) {
-      if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
         setIsSettingsOpen(false);
       }
     }
@@ -139,7 +139,7 @@ export function Sidebar({ isOpen, onToggle, theme, onThemeChange }: SidebarProps
   );
 }
 
-const MenuItem = ({ icon, label, colors }: { icon: any, label: string, colors: any }) => (
+const MenuItem = ({ icon, label, colors }: { icon: React.ReactNode, label: string, colors: { hoverBg: string; text: string } }) => (
   <button className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm ${colors.hoverBg} ${colors.text}`}>
     {icon}<span>{label}</span>
   </button>

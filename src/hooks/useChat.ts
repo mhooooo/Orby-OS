@@ -3,18 +3,25 @@
 import { useState, useCallback } from 'react';
 import { Message, ChatState, ToolCall } from '@/types/chat';
 
-// Parse tool markers from streamed content
-function parseToolCalls(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
-  const toolRegex = /\[TOOL:(\w+):([\w-]+)\]/g;
+// Parse tool result markers from response content
+function parseToolResults(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
+  const toolRegex = /<!--TOOL_RESULT:([A-Za-z0-9+/=]+)-->/g;
   const toolCalls: ToolCall[] = [];
   let match;
 
   while ((match = toolRegex.exec(content)) !== null) {
-    toolCalls.push({
-      id: match[2],
-      name: match[1],
-      input: {},
-    });
+    try {
+      const decoded = atob(match[1]);
+      const toolData = JSON.parse(decoded);
+      toolCalls.push({
+        id: toolData.id,
+        name: toolData.name,
+        input: toolData.input,
+        result: toolData.result,
+      });
+    } catch (e) {
+      console.error('Failed to parse tool result:', e);
+    }
   }
 
   // Remove tool markers from content
@@ -38,7 +45,7 @@ export function useChat(initialMessages: Message[] = []) {
   }, []);
 
   const updateLastMessage = useCallback((content: string) => {
-    const { cleanContent, toolCalls } = parseToolCalls(content);
+    const { cleanContent, toolCalls } = parseToolResults(content);
 
     setState(prev => ({
       ...prev,
