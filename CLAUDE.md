@@ -41,13 +41,13 @@
 **AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
 - Streaming responses via `@anthropic-ai/sdk`
-- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`
+- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`
 - Model: `claude-sonnet-4-20250514`
 
-**Data Flow (Planned):**
-- Google Sheets → sync script → Supabase (courses, pricing)
-- Cloudinary for image hosting
-- Guest session → auth gate at booking intent
+**Data Flow:**
+- Tool inputs captured and base64 encoded in stream markers
+- Client-side parsing extracts tool name, id, and input
+- Components render based on tool calls with full input data
 
 ---
 
@@ -59,10 +59,18 @@
 - [x] First generative component: CourseCarousel renders from AI tool call
 - [x] Input replaces static placeholder with real functionality
 
-### Active: Phase 2 - Data Layer
-- [ ] Supabase database setup
-- [ ] Google Sheets sync for course data
-- [ ] Connect AI tools to real course data
+### ✅ Completed: Phase 3 - ItineraryBuilder Wizard
+- [x] Itinerary data model (ItineraryDraft, ItineraryDay, Activity types)
+- [x] ItineraryContext for wizard state management
+- [x] 4-step wizard: Region → Vibe → Logistics → Dates
+- [x] Pricing calculation with group discounts
+- [x] ItinerarySummary with timeline and price breakdown
+- [x] start_itinerary_builder tool registered and functional
+
+### Pending: Phase 2 - Data Layer (to be merged)
+- [ ] Supabase database with course schema
+- [ ] Tool execution loop - AI tools return real data
+- [ ] Course API endpoints with filtering
 
 ### Foundation (To Be Achieved)
 - Guest → Signed Up conversion: 15% target
@@ -73,23 +81,19 @@
 
 ## Current Phase
 
-**Focus:** Phase 2 - Data Layer (Real course data flows through the system)
+**Focus:** Phase 3 Complete - ItineraryBuilder Wizard
 
-**Current State (After Phase 1):**
-- Chat engine functional with streaming responses
-- CourseCarousel renders on `show_courses` tool call
-- Components extracted: Sidebar, Header, MainContent, GreetingState
-- Branch: `feat/phase1-chat-foundation` pushed to GitHub
-
-**Priorities:**
-1. Set up Supabase database with course schema
-2. Implement Google Sheets → Supabase sync
-3. Create `/api/courses` endpoints
-4. Connect AI tools to real course data
+**Current State (After Phase 3):**
+- Wizard starts on "Help me plan a trip" or similar phrases
+- 4-step flow: Region selection → Vibe (Championship/Scenic/Value) → Logistics → Dates/Group
+- Rolling price counter updates as selections change
+- Summary shows timeline with price breakdown
+- Branch: `feat/phase3-itinerary-builder`
 
 **Decisions Made:**
-- State management: React Context (not Zustand) - simpler for current scope
-- Auth gate: Deferred to Phase 4
+- State management: React Context (ItineraryContext) for wizard
+- Pricing: THB base, with group discounts at 8+ and 12+ golfers
+- Tool input: Base64 encoded in stream markers for reliable parsing
 
 ---
 
@@ -110,8 +114,10 @@
 - [2024-11]: Design system emerges from implementation - don't build a separate design phase. The prototype IS the reference.
 
 **Implementation Gotchas**
-- [2024-11]: ESLint `react-hooks/set-state-in-effect` error - use `useLayoutEffect` + `requestAnimationFrame` for mount animations instead of `useEffect` with direct `setState`
+- [2024-11]: ESLint `react-hooks/set-state-in-effect` error - use `useMemo` for derived state instead of `useEffect` + `setState`
 - [2024-11]: Framer Motion 3D flip requires explicit `backface-visibility: hidden` CSS and `perspective` on parent
+- [2024-11]: Framer Motion `useSpring` + `useTransform` returns MotionValue - use `.on('change')` subscription to update React state
+- [2024-11]: Tool inputs in stream: base64 encode JSON to avoid parsing issues with special characters
 
 ---
 
@@ -119,14 +125,16 @@
 
 **Key Files:**
 - `src/app/page.tsx` - Main page with ChatProvider wrapper
-- `src/app/api/chat/route.ts` - Anthropic streaming endpoint
-- `src/components/chat/` - Chat UI components
-- `src/components/generative-ui/` - CourseCarousel, CourseCard
-- `src/hooks/useChat.ts` - Chat state management
+- `src/app/api/chat/route.ts` - Anthropic streaming endpoint with tool input capture
+- `src/components/chat/Message.tsx` - Tool → Component routing
+- `src/components/generative-ui/` - CourseCarousel, ItineraryBuilder, ItinerarySummary
+- `src/context/ItineraryContext.tsx` - Wizard state management
+- `src/hooks/useChat.ts` - Chat state + tool marker parsing
 - `src/lib/tools.ts` - AI tool definitions and system prompt
-- `plan.md` - Full project plan with phases, data models
+- `src/lib/pricing.ts` - Itinerary price calculation
+- `src/types/itinerary.ts` - Itinerary data types
 
-**Design Tokens (from prototype):**
+**Design Tokens:**
 ```typescript
 const colors = {
   bg: '#131314',
