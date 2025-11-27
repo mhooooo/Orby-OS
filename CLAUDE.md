@@ -38,10 +38,11 @@
 - Accent: `#A4E600` (green CTAs per brand)
 - Radii: `rounded-3xl` (cards), `rounded-full` (buttons/pills)
 
-**AI Integration (Planned):**
+**AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
 - Streaming responses via `@anthropic-ai/sdk`
-- Tools trigger component renders (show_courses, itinerary_builder, etc.)
+- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`
+- Model: `claude-sonnet-4-20250514`
 
 **Data Flow (Planned):**
 - Google Sheets → sync script → Supabase (courses, pricing)
@@ -52,11 +53,16 @@
 
 ## Success Metrics
 
-### Active: Phase 1 - Foundation
-- [ ] Chat engine functional (message history, streaming display)
-- [ ] Anthropic API integrated with tool definitions
-- [ ] First generative component: CourseCarousel renders from AI tool call
-- [ ] Input replaces static placeholder with real functionality
+### ✅ Completed: Phase 1 - Foundation
+- [x] Chat engine functional (message history, streaming display)
+- [x] Anthropic API integrated with tool definitions
+- [x] First generative component: CourseCarousel renders from AI tool call
+- [x] Input replaces static placeholder with real functionality
+
+### Active: Phase 2 - Data Layer
+- [ ] Supabase database setup
+- [ ] Google Sheets sync for course data
+- [ ] Connect AI tools to real course data
 
 ### Foundation (To Be Achieved)
 - Guest → Signed Up conversion: 15% target
@@ -67,22 +73,23 @@
 
 ## Current Phase
 
-**Focus:** Phase 1 - Foundation (Chat works, AI responds, basic components render)
+**Focus:** Phase 2 - Data Layer (Real course data flows through the system)
 
-**Starting Point:**
-- Gemini-style dark UI shell exists in `src/app/page.tsx`
-- Collapsible sidebar, profile dropdown, mode pills, input container
-- NO actual chat functionality, NO AI integration, NO generative UI
+**Current State (After Phase 1):**
+- Chat engine functional with streaming responses
+- CourseCarousel renders on `show_courses` tool call
+- Components extracted: Sidebar, Header, MainContent, GreetingState
+- Branch: `feat/phase1-chat-foundation` pushed to GitHub
 
 **Priorities:**
-1. Set up project structure (`/components/chat/`, `/components/generative-ui/`, `/lib/`, `/api/`)
-2. Implement chat engine (message state, history display, streaming)
-3. Anthropic integration (`/api/chat` with streaming + tool use)
-4. Build CourseCarousel as first generative component
+1. Set up Supabase database with course schema
+2. Implement Google Sheets → Supabase sync
+3. Create `/api/courses` endpoints
+4. Connect AI tools to real course data
 
-**Pending Decisions:**
-- State management: React Context vs Zustand for chat/itinerary state
-- When to implement auth gate (after generative UI or concurrent)
+**Decisions Made:**
+- State management: React Context (not Zustand) - simpler for current scope
+- Auth gate: Deferred to Phase 4
 
 ---
 
@@ -103,15 +110,21 @@
 - [2024-11]: Design system emerges from implementation - don't build a separate design phase. The prototype IS the reference.
 
 **Implementation Gotchas**
-- (None yet - project just starting)
+- [2024-11]: ESLint `react-hooks/set-state-in-effect` error - use `useLayoutEffect` + `requestAnimationFrame` for mount animations instead of `useEffect` with direct `setState`
+- [2024-11]: Framer Motion 3D flip requires explicit `backface-visibility: hidden` CSS and `perspective` on parent
 
 ---
 
 ## Quick Reference
 
 **Key Files:**
-- `src/app/page.tsx` - Current prototype (UI shell, no functionality)
-- `plan.md` - Full project plan with phases, data models, file structure
+- `src/app/page.tsx` - Main page with ChatProvider wrapper
+- `src/app/api/chat/route.ts` - Anthropic streaming endpoint
+- `src/components/chat/` - Chat UI components
+- `src/components/generative-ui/` - CourseCarousel, CourseCard
+- `src/hooks/useChat.ts` - Chat state management
+- `src/lib/tools.ts` - AI tool definitions and system prompt
+- `plan.md` - Full project plan with phases, data models
 
 **Design Tokens (from prototype):**
 ```typescript
