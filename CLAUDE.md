@@ -36,13 +36,21 @@
 **Styling:**
 - Tailwind v4 syntax (no `tailwind.config.js` - uses CSS-based config)
 - Dark mode first: `#131314` (bg), `#1E1F20` (cards), `#282A2C` (hover)
-- Accent: `#A4E600` (green CTAs per brand)
+- Accent: 
 - Radii: `rounded-3xl` (cards), `rounded-full` (buttons/pills)
+- Accent color: TBD - let design emerge from implementation
+
+**Dev Modes (Cost Optimization):**
+- `DEV_MODE=mock` - Zero API calls, reads from `/dev/mock-responses.json`
+- `DEV_MODE=cached` - Cache-first, falls back to API, stores responses
+- `DEV_MODE=live` - Direct API calls (production)
+
+Mock mode for UI development, cached mode for integration testing.
 
 **AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
 - Tool execution loop: Claude → tool_use → execute handler → tool_result → final response
-- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`
+- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`
 - Model: `claude-sonnet-4-20250514`
 
 **Data Flow (Implemented):**
@@ -66,9 +74,13 @@
 - [x] Course API endpoints with filtering
 - [x] CourseDetailCard, FleetCard, AboutCard components
 
-### Active: Phase 3 - More Components
-- [ ] ItineraryBuilder wizard
-- [ ] ItinerarySummary component
+### ✅ Completed: Phase 3 - ItineraryBuilder Wizard
+- [x] Itinerary data model (ItineraryDraft, ItineraryDay, Activity types)
+- [x] ItineraryContext for wizard state management
+- [x] 4-step wizard: Region → Vibe → Logistics → Dates
+- [x] Pricing calculation with group discounts
+- [x] ItinerarySummary with timeline and price breakdown
+- [x] start_itinerary_builder tool registered and functional
 
 ### Foundation (To Be Achieved)
 - Guest → Signed Up conversion: 15% target
@@ -79,13 +91,14 @@
 
 ## Current Phase
 
-**Focus:** Phase 3 - More Components (ItineraryBuilder wizard)
+**Focus:** Phase 3 Complete - ItineraryBuilder Wizard & Data Layer Integration
 
-**Current State (After Phase 2):**
-- All 4 tools execute and return real data
+**Current State:**
+- All 5 tools execute and return real data (or handle client-side logic)
 - CourseCarousel shows Supabase courses
+- ItineraryBuilder wizard fully functional
 - CourseDetailCard, FleetCard, AboutCard all functional
-- Branch: `feat/phase2-data-layer` PR open
+- Branch: `feat/phase3-itinerary-builder` (merged with Phase 2)
 
 **Setup Required:**
 1. Create Supabase project at https://supabase.com/dashboard
@@ -97,9 +110,10 @@
    ```
 
 **Decisions Made:**
-- State management: React Context (not Zustand) - simpler for current scope
+- State management: React Context (ItineraryContext) for wizard
+- Pricing: THB base, with group discounts at 8+ and 12+ golfers
+- Tool result encoding: Base64 markers in response (not streaming during tool use)
 - Auth gate: Deferred to Phase 4
-- Tool result encoding: Base64 markers in response (not streaming)
 
 ---
 
@@ -121,8 +135,11 @@
 - [2024-11]: Design system emerges from implementation - don't build a separate design phase. The prototype IS the reference.
 
 **Implementation Gotchas**
-- [2024-11]: ESLint `react-hooks/set-state-in-effect` error - use `useLayoutEffect` + `requestAnimationFrame` for mount animations instead of `useEffect` with direct `setState`
+- [2024-11]: ESLint `react-hooks/set-state-in-effect` error - use `useMemo` for derived state instead of `useEffect` + `setState`
 - [2024-11]: Framer Motion 3D flip requires explicit `backface-visibility: hidden` CSS and `perspective` on parent
+- [2024-11]: Framer Motion `useSpring` + `useTransform` returns MotionValue - use `.on('change')` subscription to update React state
+- [2024-11]: Tool inputs in stream: base64 encode JSON to avoid parsing issues with special characters
+- [2024-11]: Implement mock/cache modes early - repeated testing burns tokens fast
 - [2024-11]: Anthropic tool_use requires sending tool_result back before getting final response - can't stream during tool execution
 - [2024-11]: TypeScript `Record<string, unknown>` to specific type requires double cast: `input as unknown as SpecificType`
 - [2024-11]: Next.js 16 route params are Promises: `const { id } = await params;`
@@ -134,20 +151,22 @@
 **Key Files:**
 - `src/app/page.tsx` - Main page with ChatProvider wrapper
 - `src/app/api/chat/route.ts` - Tool execution loop + Anthropic
-- `src/app/api/courses/` - Course REST endpoints
+- `src/components/chat/Message.tsx` - Tool → Component routing
+- `src/components/generative-ui/` - All generative UI components
+- `src/context/ItineraryContext.tsx` - Wizard state management
+- `src/hooks/useChat.ts` - Chat state + tool result parsing
+- `src/lib/tools.ts` - AI tool definitions and system prompt
 - `src/lib/tool-handlers.ts` - Tool execution handlers
 - `src/lib/supabase.ts` - Database client
-- `src/components/generative-ui/` - All generative UI components
-- `src/hooks/useChat.ts` - Chat state + tool result parsing
 - `supabase/schema.sql` - Database schema + seed data
 
-**Design Tokens (from prototype):**
+**Design Tokens:**
 ```typescript
 const colors = {
   bg: '#131314',
   sidebar: '#1E1F20',
   hover: '#282A2C',
-  accent: '#A4E600',
+  accent: '',
 };
 ```
 

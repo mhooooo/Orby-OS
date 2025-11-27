@@ -5,6 +5,7 @@ import { Message as MessageType, ToolCall } from '@/types/chat';
 import { cn } from '@/lib/utils';
 import { User, Sparkles } from 'lucide-react';
 import { CourseCarousel } from '@/components/generative-ui/CourseCarousel';
+import { ItineraryBuilder } from '@/components/generative-ui/ItineraryBuilder';
 import { CourseDetailCard } from '@/components/generative-ui/CourseDetailCard';
 import { FleetCard } from '@/components/generative-ui/FleetCard';
 import { AboutCard } from '@/components/generative-ui/AboutCard';
@@ -88,6 +89,12 @@ function renderToolComponent(tool: ToolCall) {
         return <AboutCard key={tool.id} data={result} />;
       }
       return null;
+    }
+
+    case 'start_itinerary_builder': {
+      const result = tool.result as { region?: string } | undefined;
+      const region = result?.region as 'bangkok' | 'phuket' | 'hua_hin' | 'chiang_mai' | 'pattaya' | undefined;
+      return <ItineraryBuilder key={tool.id} initialRegion={region} />;
     }
 
     default:

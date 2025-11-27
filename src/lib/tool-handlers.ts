@@ -137,6 +137,8 @@ export async function executeToolCall(
       return handleShowFleet();
     case 'show_about_us':
       return handleShowAboutUs();
+    case 'start_itinerary_builder':
+      return { region: toolInput.region };
     default:
       return { error: `Unknown tool: ${toolName}` };
   }
