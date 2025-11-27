@@ -5,6 +5,7 @@ import { Message as MessageType } from '@/types/chat';
 import { cn } from '@/lib/utils';
 import { User, Sparkles } from 'lucide-react';
 import { CourseCarousel } from '@/components/generative-ui/CourseCarousel';
+import { ItineraryBuilder } from '@/components/generative-ui/ItineraryBuilder';
 
 interface MessageProps {
   message: MessageType;
@@ -54,6 +55,12 @@ export function Message({ message }: MessageProps) {
           {message.toolCalls!.map((tool) => {
             if (tool.name === 'show_courses') {
               return <CourseCarousel key={tool.id} />;
+            }
+
+            if (tool.name === 'start_itinerary_builder') {
+              // Extract region from tool input if available
+              const region = tool.input?.region as 'bangkok' | 'phuket' | 'hua_hin' | 'chiang_mai' | 'pattaya' | undefined;
+              return <ItineraryBuilder key={tool.id} initialRegion={region} />;
             }
 
             // Fallback for unrecognized tools

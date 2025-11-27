@@ -30,6 +30,11 @@ export async function POST(request: NextRequest) {
     // Create a ReadableStream that handles both text and tool use
     const encoder = new TextEncoder();
 
+    // Track tool inputs as they're being built
+    const toolInputs: Record<string, string> = {};
+    const toolNames: Record<string, string> = {};
+    let currentToolId: string | null = null;
+
     const readableStream = new ReadableStream({
       async start(controller) {
         try {
@@ -39,21 +44,34 @@ export async function POST(request: NextRequest) {
               if ('text' in delta) {
                 controller.enqueue(encoder.encode(delta.text));
               }
+              // Accumulate tool input JSON
+              if ('partial_json' in delta && currentToolId) {
+                toolInputs[currentToolId] = (toolInputs[currentToolId] || '') + delta.partial_json;
+              }
             }
 
             // Handle tool use - send as special marker
             if (event.type === 'content_block_start') {
               const block = event.content_block;
               if (block.type === 'tool_use') {
-                // We'll handle tool results in a follow-up
-                controller.enqueue(
-                  encoder.encode(`\n[TOOL:${block.name}:${block.id}]`)
-                );
+                currentToolId = block.id;
+                toolNames[block.id] = block.name;
+                toolInputs[block.id] = '';
               }
             }
 
             if (event.type === 'content_block_stop') {
-              // Check if we just finished a tool use block
+              // When tool block ends, send the marker with name and input
+              if (currentToolId && toolInputs[currentToolId] !== undefined) {
+                const toolName = toolNames[currentToolId];
+                const inputJson = toolInputs[currentToolId] || '{}';
+                // Encode input as base64 to avoid parsing issues
+                const inputBase64 = Buffer.from(inputJson).toString('base64');
+                controller.enqueue(
+                  encoder.encode(`\n[TOOL:${toolName}:${currentToolId}:${inputBase64}]`)
+                );
+                currentToolId = null;
+              }
             }
           }
           controller.close();

@@ -4,16 +4,33 @@ import { useState, useCallback } from 'react';
 import { Message, ChatState, ToolCall } from '@/types/chat';
 
 // Parse tool markers from streamed content
+// Format: [TOOL:name:id:base64input]
 function parseToolCalls(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
-  const toolRegex = /\[TOOL:(\w+):([\w-]+)\]/g;
+  const toolRegex = /\[TOOL:(\w+):([\w-]+):([A-Za-z0-9+/=]*)\]/g;
   const toolCalls: ToolCall[] = [];
   let match;
 
   while ((match = toolRegex.exec(content)) !== null) {
+    const name = match[1];
+    const id = match[2];
+    const base64Input = match[3];
+
+    // Decode base64 input
+    let input: Record<string, unknown> = {};
+    if (base64Input) {
+      try {
+        const jsonStr = atob(base64Input);
+        input = JSON.parse(jsonStr || '{}');
+      } catch {
+        // If decoding fails, use empty object
+        input = {};
+      }
+    }
+
     toolCalls.push({
-      id: match[2],
-      name: match[1],
-      input: {},
+      id,
+      name,
+      input,
     });
   }
 
