@@ -11,6 +11,7 @@ import { DateGroupStep } from './DateGroupStep';
 import { ProgressIndicator } from './ProgressIndicator';
 import { WizardNavigation } from './WizardNavigation';
 import { PriceCounter } from './PriceCounter';
+import { ItinerarySummary } from '../ItinerarySummary';
 
 interface ItineraryBuilderProps {
   initialRegion?: Region;
@@ -45,9 +46,18 @@ function WizardContent() {
     }
   };
 
-  // Don't render wizard if we're at summary
+  // Render summary if we're at summary step
   if (currentStep === 'summary') {
-    return null;
+    return (
+      <ItinerarySummary
+        draft={draft}
+        courses={state.availableCourses}
+        onProceedToBooking={() => {
+          // TODO: Implement booking flow
+          console.log('Proceeding to booking with draft:', draft);
+        }}
+      />
+    );
   }
 
   return (
@@ -82,8 +92,16 @@ function WizardContent() {
   );
 }
 
-// Main exported component with provider
-export function ItineraryBuilder({ initialRegion }: ItineraryBuilderProps) {
+// Wrapper to handle conditional rendering of header
+function ItineraryBuilderInner() {
+  const { state } = useItinerary();
+  const isSummary = state.currentStep === 'summary';
+
+  if (isSummary) {
+    // Summary has its own styling, render it directly
+    return <WizardContent />;
+  }
+
   return (
     <div className="rounded-3xl bg-[#1E1F20] p-6 border border-gray-800">
       <div className="mb-6">
@@ -92,9 +110,16 @@ export function ItineraryBuilder({ initialRegion }: ItineraryBuilderProps) {
           Let&apos;s build your perfect Thailand golf experience
         </p>
       </div>
-      <ItineraryProvider initialRegion={initialRegion}>
-        <WizardContent />
-      </ItineraryProvider>
+      <WizardContent />
     </div>
+  );
+}
+
+// Main exported component with provider
+export function ItineraryBuilder({ initialRegion }: ItineraryBuilderProps) {
+  return (
+    <ItineraryProvider initialRegion={initialRegion}>
+      <ItineraryBuilderInner />
+    </ItineraryProvider>
   );
 }

@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 
 export function DateGroupStep() {
   const { state, setDates, setGroupSize } = useItinerary();
-  const { startDate, endDate, numberOfDays, groupSize } = state.draft;
+  const { startDate, numberOfDays, groupSize } = state.draft;
 
   const [localStartDate, setLocalStartDate] = useState(startDate || '');
   const [localDays, setLocalDays] = useState(numberOfDays);

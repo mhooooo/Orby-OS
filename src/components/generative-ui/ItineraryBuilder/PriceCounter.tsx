@@ -1,39 +1,46 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { motion, useSpring, useTransform } from 'framer-motion';
+import React, { useEffect, useState, useMemo } from 'react';
+import { motion, useSpring } from 'framer-motion';
 import { useItinerary } from '@/context/ItineraryContext';
 import { calculateItineraryPrice } from '@/lib/pricing';
 
 export function PriceCounter() {
   const { state, dispatch } = useItinerary();
   const { draft, availableCourses } = state;
-  const [displayPrice, setDisplayPrice] = useState(0);
+  const [displayValue, setDisplayValue] = useState('0');
 
-  // Calculate total price whenever draft changes
+  // Calculate total price whenever draft changes (memoized)
+  const calculatedPrice = useMemo(() => {
+    return calculateItineraryPrice(draft, availableCourses);
+  }, [draft, availableCourses]);
+
+  // Update context with the calculated price
   useEffect(() => {
-    const total = calculateItineraryPrice(draft, availableCourses);
-    dispatch({ type: 'UPDATE_TOTAL', payload: total });
-    setDisplayPrice(total);
-  }, [draft, availableCourses, dispatch]);
+    dispatch({ type: 'UPDATE_TOTAL', payload: calculatedPrice });
+  }, [calculatedPrice, dispatch]);
 
   // Animated spring for smooth number transitions
-  const springValue = useSpring(displayPrice, {
+  const springValue = useSpring(calculatedPrice, {
     stiffness: 100,
     damping: 30,
     mass: 1,
   });
 
-  const displayValue = useTransform(springValue, (value) =>
-    Math.round(value).toLocaleString()
-  );
-
-  // Update spring when display price changes
+  // Update spring when calculated price changes
   useEffect(() => {
-    springValue.set(displayPrice);
-  }, [displayPrice, springValue]);
+    springValue.set(calculatedPrice);
+  }, [calculatedPrice, springValue]);
 
-  if (displayPrice === 0) {
+  // Subscribe to spring value changes
+  useEffect(() => {
+    const unsubscribe = springValue.on('change', (value) => {
+      setDisplayValue(Math.round(value).toLocaleString());
+    });
+    return unsubscribe;
+  }, [springValue]);
+
+  if (calculatedPrice === 0) {
     return null;
   }
 
