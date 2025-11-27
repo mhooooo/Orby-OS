@@ -1,10 +1,18 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest } from 'next/server';
 import { golfOkayTools, GOLF_OKAY_SYSTEM_PROMPT } from '@/lib/tools';
+import { executeToolCall } from '@/lib/tool-handlers';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+interface ToolCallResult {
+  id: string;
+  name: string;
+  input: Record<string, unknown>;
+  result: unknown;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,8 +26,8 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Create streaming response
-    const stream = await anthropic.messages.stream({
+    // First API call - may return tool use
+    let response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
       system: GOLF_OKAY_SYSTEM_PROMPT,
@@ -27,64 +35,96 @@ export async function POST(request: NextRequest) {
       messages: anthropicMessages,
     });
 
-    // Create a ReadableStream that handles both text and tool use
-    const encoder = new TextEncoder();
+    // Collect tool calls and their results
+    const toolResults: ToolCallResult[] = [];
 
-    // Track tool inputs as they're being built
-    const toolInputs: Record<string, string> = {};
-    const toolNames: Record<string, string> = {};
-    let currentToolId: string | null = null;
+    // Tool execution loop - keep going until no more tool calls
+    while (response.stop_reason === 'tool_use') {
+      // Find all tool use blocks in the response
+      const toolUseBlocks = response.content.filter(
+        (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use'
+      );
 
-    const readableStream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const event of stream) {
-            if (event.type === 'content_block_delta') {
-              const delta = event.delta;
-              if ('text' in delta) {
-                controller.enqueue(encoder.encode(delta.text));
-              }
-              // Accumulate tool input JSON
-              if ('partial_json' in delta && currentToolId) {
-                toolInputs[currentToolId] = (toolInputs[currentToolId] || '') + delta.partial_json;
-              }
-            }
+      // Execute each tool and collect results
+      const toolResultsForClaude: Anthropic.ToolResultBlockParam[] = [];
 
-            // Handle tool use - send as special marker
-            if (event.type === 'content_block_start') {
-              const block = event.content_block;
-              if (block.type === 'tool_use') {
-                currentToolId = block.id;
-                toolNames[block.id] = block.name;
-                toolInputs[block.id] = '';
-              }
-            }
+      for (const toolUse of toolUseBlocks) {
+        const result = await executeToolCall(
+          toolUse.name,
+          toolUse.input as Record<string, unknown>
+        );
 
-            if (event.type === 'content_block_stop') {
-              // When tool block ends, send the marker with name and input
-              if (currentToolId && toolInputs[currentToolId] !== undefined) {
-                const toolName = toolNames[currentToolId];
-                const inputJson = toolInputs[currentToolId] || '{}';
-                // Encode input as base64 to avoid parsing issues
-                const inputBase64 = Buffer.from(inputJson).toString('base64');
-                controller.enqueue(
-                  encoder.encode(`\n[TOOL:${toolName}:${currentToolId}:${inputBase64}]`)
-                );
-                currentToolId = null;
-              }
-            }
-          }
-          controller.close();
-        } catch (error) {
-          controller.error(error);
+        // Store for frontend
+        toolResults.push({
+          id: toolUse.id,
+          name: toolUse.name,
+          input: toolUse.input as Record<string, unknown>,
+          result,
+        });
+
+        // Format for Claude
+        toolResultsForClaude.push({
+          type: 'tool_result',
+          tool_use_id: toolUse.id,
+          content: JSON.stringify(result),
+        });
+      }
+
+      // Build the assistant message with the tool use blocks
+      const assistantContent: Anthropic.ContentBlockParam[] = response.content.map((block) => {
+        if (block.type === 'text') {
+          return { type: 'text' as const, text: block.text };
         }
-      },
-    });
+        if (block.type === 'tool_use') {
+          return {
+            type: 'tool_use' as const,
+            id: block.id,
+            name: block.name,
+            input: block.input,
+          };
+        }
+        return block as Anthropic.ContentBlockParam;
+      });
 
-    return new Response(readableStream, {
+      // Continue conversation with tool results
+      response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system: GOLF_OKAY_SYSTEM_PROMPT,
+        tools: golfOkayTools,
+        messages: [
+          ...anthropicMessages,
+          { role: 'assistant', content: assistantContent },
+          { role: 'user', content: toolResultsForClaude },
+        ],
+      });
+    }
+
+    // Extract final text from response
+    const textContent = response.content
+      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+      .map((block) => block.text)
+      .join('');
+
+    // Build response with embedded tool results
+    // Format: text content + tool result markers that frontend can parse
+    let finalResponse = textContent;
+
+    // Append tool results as parseable JSON markers
+    for (const tool of toolResults) {
+      const toolData = JSON.stringify({
+        id: tool.id,
+        name: tool.name,
+        input: tool.input,
+        result: tool.result,
+      });
+      // Use a unique delimiter that won't appear in normal text
+      finalResponse += `\n<!--TOOL_RESULT:${Buffer.from(toolData).toString('base64')}-->`;
+    }
+
+    return new Response(finalResponse, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
-        'Transfer-Encoding': 'chunked',
       },
     });
   } catch (error) {

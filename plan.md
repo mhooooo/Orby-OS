@@ -382,28 +382,33 @@ interface Inquiry {
   - [x] Basic flip animation (Framer Motion 3D)
   - [x] Heart/save interaction (local state)
 
-### Phase 2: Data Layer (Week 2-3)
+### Phase 2: Data Layer ✅ COMPLETED
 **Goal:** Real course data flows through the system
 
-- [ ] Database setup
-  - [ ] Choose provider (Supabase recommended for speed)
-  - [ ] Schema design and migrations
-  - [ ] Connection setup
+- [x] Database setup
+  - [x] Supabase integration with @supabase/supabase-js
+  - [x] Schema design (courses table with RLS)
+  - [x] 15 courses seeded across 5 regions
 
-- [ ] Google Sheets sync
+- [ ] Google Sheets sync (deferred)
   - [ ] Read course data from Sheets
   - [ ] Transform to database schema
   - [ ] Sync script (manual trigger for V1, cron later)
 
-- [ ] Course images
+- [ ] Course images (using Unsplash placeholders for now)
   - [ ] Organize local images
   - [ ] Upload to CDN (Vercel Blob, Cloudinary, or S3)
   - [ ] Map image URLs to course records
 
-- [ ] API routes
-  - [ ] `/api/courses` - list, filter, get by ID
-  - [ ] `/api/courses/[id]` - single course detail
-  - [ ] Connect AI tools to real data
+- [x] API routes
+  - [x] `/api/courses` - list with region/tags/limit filters
+  - [x] `/api/courses/[id]` - single course detail
+  - [x] Tool execution loop - AI tools return real data
+
+- [x] Generative UI components
+  - [x] CourseDetailCard - full course info with pricing table
+  - [x] FleetCard - vehicle comparison
+  - [x] AboutCard - company info with glassmorphism
 
 ### Phase 3: ItineraryBuilder Wizard ✅ COMPLETED
 **Goal:** Multi-step trip planning wizard

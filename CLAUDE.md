@@ -31,6 +31,7 @@
 - React 19 with Next.js 16 App Router
 - Use `"use client"` directive for interactive components
 - Route handlers in `app/api/` for backend
+- Next.js 16: Route params are Promises - use `await params` in route handlers
 
 **Styling:**
 - Tailwind v4 syntax (no `tailwind.config.js` - uses CSS-based config)
@@ -48,14 +49,14 @@ Mock mode for UI development, cached mode for integration testing.
 
 **AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
-- Streaming responses via `@anthropic-ai/sdk`
+- Tool execution loop: Claude → tool_use → execute handler → tool_result → final response
 - Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`
 - Model: `claude-sonnet-4-20250514`
 
-**Data Flow:**
-- Tool inputs captured and base64 encoded in stream markers
-- Client-side parsing extracts tool name, id, and input
-- Components render based on tool calls with full input data
+**Data Flow (Implemented):**
+- Supabase database with 15 seeded courses
+- Tool results embedded as base64 markers in response stream
+- Frontend parses markers and renders components with real data
 
 ---
 
@@ -67,6 +68,12 @@ Mock mode for UI development, cached mode for integration testing.
 - [x] First generative component: CourseCarousel renders from AI tool call
 - [x] Input replaces static placeholder with real functionality
 
+### ✅ Completed: Phase 2 - Data Layer
+- [x] Supabase database with course schema
+- [x] Tool execution loop - AI tools return real data
+- [x] Course API endpoints with filtering
+- [x] CourseDetailCard, FleetCard, AboutCard components
+
 ### ✅ Completed: Phase 3 - ItineraryBuilder Wizard
 - [x] Itinerary data model (ItineraryDraft, ItineraryDay, Activity types)
 - [x] ItineraryContext for wizard state management
@@ -74,11 +81,6 @@ Mock mode for UI development, cached mode for integration testing.
 - [x] Pricing calculation with group discounts
 - [x] ItinerarySummary with timeline and price breakdown
 - [x] start_itinerary_builder tool registered and functional
-
-### Pending: Phase 2 - Data Layer (to be merged)
-- [ ] Supabase database with course schema
-- [ ] Tool execution loop - AI tools return real data
-- [ ] Course API endpoints with filtering
 
 ### Foundation (To Be Achieved)
 - Guest → Signed Up conversion: 15% target
@@ -89,19 +91,29 @@ Mock mode for UI development, cached mode for integration testing.
 
 ## Current Phase
 
-**Focus:** Phase 3 Complete - ItineraryBuilder Wizard
+**Focus:** Phase 3 Complete - ItineraryBuilder Wizard & Data Layer Integration
 
-**Current State (After Phase 3):**
-- Wizard starts on "Help me plan a trip" or similar phrases
-- 4-step flow: Region selection → Vibe (Championship/Scenic/Value) → Logistics → Dates/Group
-- Rolling price counter updates as selections change
-- Summary shows timeline with price breakdown
-- Branch: `feat/phase3-itinerary-builder`
+**Current State:**
+- All 5 tools execute and return real data (or handle client-side logic)
+- CourseCarousel shows Supabase courses
+- ItineraryBuilder wizard fully functional
+- CourseDetailCard, FleetCard, AboutCard all functional
+- Branch: `feat/phase3-itinerary-builder` (merged with Phase 2)
+
+**Setup Required:**
+1. Create Supabase project at https://supabase.com/dashboard
+2. Run `supabase/schema.sql` in SQL Editor
+3. Add to `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   ```
 
 **Decisions Made:**
 - State management: React Context (ItineraryContext) for wizard
 - Pricing: THB base, with group discounts at 8+ and 12+ golfers
-- Tool input: Base64 encoded in stream markers for reliable parsing
+- Tool result encoding: Base64 markers in response (not streaming during tool use)
+- Auth gate: Deferred to Phase 4
 
 ---
 
@@ -113,6 +125,7 @@ Mock mode for UI development, cached mode for integration testing.
 | **Guest Freedom vs Data Capture** | Allow 3+ turns before soft auth gate at save/book intent |
 | **Real-time Availability vs Complexity** | V1 uses "request" mode; real-time for V2 |
 | **B2B vs B2C** | Separate subdomain (partners.golfokay.co), shared Supabase backend |
+| **Streaming vs Tool Results** | Tool execution requires non-streaming; results appended to final response |
 
 ---
 
@@ -127,6 +140,9 @@ Mock mode for UI development, cached mode for integration testing.
 - [2024-11]: Framer Motion `useSpring` + `useTransform` returns MotionValue - use `.on('change')` subscription to update React state
 - [2024-11]: Tool inputs in stream: base64 encode JSON to avoid parsing issues with special characters
 - [2024-11]: Implement mock/cache modes early - repeated testing burns tokens fast
+- [2024-11]: Anthropic tool_use requires sending tool_result back before getting final response - can't stream during tool execution
+- [2024-11]: TypeScript `Record<string, unknown>` to specific type requires double cast: `input as unknown as SpecificType`
+- [2024-11]: Next.js 16 route params are Promises: `const { id } = await params;`
 
 ---
 
@@ -134,14 +150,15 @@ Mock mode for UI development, cached mode for integration testing.
 
 **Key Files:**
 - `src/app/page.tsx` - Main page with ChatProvider wrapper
-- `src/app/api/chat/route.ts` - Anthropic streaming endpoint with tool input capture
+- `src/app/api/chat/route.ts` - Tool execution loop + Anthropic
 - `src/components/chat/Message.tsx` - Tool → Component routing
-- `src/components/generative-ui/` - CourseCarousel, ItineraryBuilder, ItinerarySummary
+- `src/components/generative-ui/` - All generative UI components
 - `src/context/ItineraryContext.tsx` - Wizard state management
-- `src/hooks/useChat.ts` - Chat state + tool marker parsing
+- `src/hooks/useChat.ts` - Chat state + tool result parsing
 - `src/lib/tools.ts` - AI tool definitions and system prompt
-- `src/lib/pricing.ts` - Itinerary price calculation
-- `src/types/itinerary.ts` - Itinerary data types
+- `src/lib/tool-handlers.ts` - Tool execution handlers
+- `src/lib/supabase.ts` - Database client
+- `supabase/schema.sql` - Database schema + seed data
 
 **Design Tokens:**
 ```typescript

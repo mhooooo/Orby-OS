@@ -3,35 +3,25 @@
 import { useState, useCallback } from 'react';
 import { Message, ChatState, ToolCall } from '@/types/chat';
 
-// Parse tool markers from streamed content
-// Format: [TOOL:name:id:base64input]
-function parseToolCalls(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
-  const toolRegex = /\[TOOL:(\w+):([\w-]+):([A-Za-z0-9+/=]*)\]/g;
+// Parse tool result markers from response content
+function parseToolResults(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
+  const toolRegex = /<!--TOOL_RESULT:([A-Za-z0-9+/=]+)-->/g;
   const toolCalls: ToolCall[] = [];
   let match;
 
   while ((match = toolRegex.exec(content)) !== null) {
-    const name = match[1];
-    const id = match[2];
-    const base64Input = match[3];
-
-    // Decode base64 input
-    let input: Record<string, unknown> = {};
-    if (base64Input) {
-      try {
-        const jsonStr = atob(base64Input);
-        input = JSON.parse(jsonStr || '{}');
-      } catch {
-        // If decoding fails, use empty object
-        input = {};
-      }
+    try {
+      const decoded = atob(match[1]);
+      const toolData = JSON.parse(decoded);
+      toolCalls.push({
+        id: toolData.id,
+        name: toolData.name,
+        input: toolData.input,
+        result: toolData.result,
+      });
+    } catch (e) {
+      console.error('Failed to parse tool result:', e);
     }
-
-    toolCalls.push({
-      id,
-      name,
-      input,
-    });
   }
 
   // Remove tool markers from content
@@ -55,7 +45,7 @@ export function useChat(initialMessages: Message[] = []) {
   }, []);
 
   const updateLastMessage = useCallback((content: string) => {
-    const { cleanContent, toolCalls } = parseToolCalls(content);
+    const { cleanContent, toolCalls } = parseToolResults(content);
 
     setState(prev => ({
       ...prev,
