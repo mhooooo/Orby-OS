@@ -1,7 +1,27 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Message, ChatState } from '@/types/chat';
+import { Message, ChatState, ToolCall } from '@/types/chat';
+
+// Parse tool markers from streamed content
+function parseToolCalls(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
+  const toolRegex = /\[TOOL:(\w+):([\w-]+)\]/g;
+  const toolCalls: ToolCall[] = [];
+  let match;
+
+  while ((match = toolRegex.exec(content)) !== null) {
+    toolCalls.push({
+      id: match[2],
+      name: match[1],
+      input: {},
+    });
+  }
+
+  // Remove tool markers from content
+  const cleanContent = content.replace(toolRegex, '').trim();
+
+  return { cleanContent, toolCalls };
+}
 
 export function useChat(initialMessages: Message[] = []) {
   const [state, setState] = useState<ChatState>({
@@ -18,10 +38,14 @@ export function useChat(initialMessages: Message[] = []) {
   }, []);
 
   const updateLastMessage = useCallback((content: string) => {
+    const { cleanContent, toolCalls } = parseToolCalls(content);
+
     setState(prev => ({
       ...prev,
       messages: prev.messages.map((msg, idx) =>
-        idx === prev.messages.length - 1 ? { ...msg, content } : msg
+        idx === prev.messages.length - 1
+          ? { ...msg, content: cleanContent, toolCalls: toolCalls.length > 0 ? toolCalls : msg.toolCalls }
+          : msg
       ),
     }));
   }, []);
