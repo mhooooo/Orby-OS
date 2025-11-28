@@ -2,151 +2,157 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MapPin, Flag } from 'lucide-react';
+import { Heart, MapPin, Flag, Expand } from 'lucide-react';
 import { Course } from '@/types/course';
 import { cn } from '@/lib/utils';
+import { useChatContext } from '@/context/ChatContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useSavedCourses } from '@/hooks/useSavedCourses';
 
 interface CourseCardProps {
   course: Course;
-  onSave?: (courseId: string) => void;
+  onAuthRequired?: () => void;
+  compact?: boolean;
 }
 
-export function CourseCard({ course, onSave }: CourseCardProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+export function CourseCard({ course, onAuthRequired, compact = false }: CourseCardProps) {
+  const { sendMessage } = useChatContext();
+  const { user } = useAuth();
+  const { saveCourse, unsaveCourse, isSaved } = useSavedCourses();
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSave = (e: React.MouseEvent) => {
+  const courseIsSaved = isSaved(course.id);
+
+  const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsSaved(!isSaved);
-    onSave?.(course.id);
+    console.log('[CourseCard] handleSave called, user:', user?.email, 'courseId:', course.id);
+
+    // If not authenticated, trigger auth modal
+    if (!user) {
+      console.log('[CourseCard] No user, triggering auth modal');
+      onAuthRequired?.();
+      return;
+    }
+
+    // Prevent double-clicks while processing
+    if (isProcessing) {
+      console.log('[CourseCard] Already processing, skipping');
+      return;
+    }
+
+    setIsProcessing(true);
+    console.log('[CourseCard] Starting save/unsave, isSaved:', courseIsSaved);
+
+    try {
+      if (courseIsSaved) {
+        const result = await unsaveCourse(course.id);
+        console.log('[CourseCard] unsaveCourse result:', result);
+      } else {
+        const result = await saveCourse(course.id);
+        console.log('[CourseCard] saveCourse result:', result);
+      }
+    } catch (err) {
+      console.error('[CourseCard] Error:', err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    sendMessage(`Tell me more about ${course.name}`);
   };
 
   return (
-    <div
-      className="relative w-[280px] h-[380px] cursor-pointer perspective-1000"
-      onClick={() => setIsFlipped(!isFlipped)}
-    >
-      <motion.div
-        className="w-full h-full relative"
-        style={{ transformStyle: 'preserve-3d' }}
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, ease: 'easeInOut' }}
-      >
-        {/* Front of card */}
-        <div
-          className="absolute w-full h-full rounded-3xl overflow-hidden backface-hidden"
-          style={{ backfaceVisibility: 'hidden' }}
+    <div className={cn(
+      'relative rounded-3xl overflow-hidden group',
+      compact ? 'w-[240px] h-[300px]' : 'w-[280px] h-[340px]'
+    )}>
+      {/* Hero Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+        style={{ backgroundImage: `url(${course.heroImage})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+
+      {/* Top Actions */}
+      <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-10">
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1.5">
+          {course.tags.slice(0, 2).map((tag) => (
+            <span
+              key={tag}
+              className="px-2.5 py-1 text-xs font-medium rounded-full bg-white/90 text-gray-800"
+            >
+              {tag.replace('_', ' ')}
+            </span>
+          ))}
+        </div>
+
+        {/* Heart button */}
+        <motion.button
+          onClick={handleSave}
+          disabled={isProcessing}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className={cn(
+            'p-2 rounded-full bg-black/40 backdrop-blur-sm transition-colors',
+            isProcessing ? 'cursor-not-allowed opacity-50' : 'hover:bg-black/60'
+          )}
         >
-          {/* Hero Image */}
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${course.heroImage})` }}
+          <Heart
+            size={18}
+            className={cn(
+              'transition-all duration-200',
+              courseIsSaved ? 'fill-[#FF3B3B] text-[#FF3B3B]' : 'text-white'
+            )}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+        </motion.button>
+      </div>
 
-          {/* Heart button */}
-          <button
-            onClick={handleSave}
-            className="absolute top-4 right-4 p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors z-10"
-          >
-            <Heart
-              size={20}
-              className={cn(
-                'transition-colors',
-                isSaved ? 'fill-red-500 text-red-500' : 'text-white'
-              )}
-            />
-          </button>
+      {/* Content */}
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <h3 className={cn(
+          'font-semibold text-white mb-1.5',
+          compact ? 'text-base' : 'text-lg'
+        )}>
+          {course.name}
+        </h3>
 
-          {/* Tags */}
-          <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-            {course.tags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 text-xs font-medium rounded-full bg-[#A4E600] text-black"
-              >
-                {tag.replace('_', ' ')}
-              </span>
-            ))}
+        <div className="flex items-center gap-1.5 text-gray-300 text-sm mb-3">
+          <MapPin size={12} />
+          <span>{course.location}</span>
+        </div>
+
+        {/* Footer Row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 text-gray-400 text-xs">
+            <span className="flex items-center gap-1">
+              <Flag size={12} />
+              {course.holes} holes
+            </span>
+            <span>Par {course.par}</span>
           </div>
 
-          {/* Content */}
-          <div className="absolute bottom-0 left-0 right-0 p-5">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              {course.name}
-            </h3>
-            <div className="flex items-center gap-2 text-gray-300 text-sm mb-3">
-              <MapPin size={14} />
-              <span>{course.location}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4 text-gray-400 text-sm">
-                <span className="flex items-center gap-1">
-                  <Flag size={14} />
-                  {course.holes} holes
-                </span>
-                <span>Par {course.par}</span>
-              </div>
-              <div className="text-right">
-                <span className="text-xs text-gray-400">From</span>
-                <p className="text-lg font-semibold text-[#A4E600]">
-                  ${course.greenFee.weekday.guest}
-                </p>
-              </div>
-            </div>
+          <div className="text-right">
+            <span className="text-[10px] text-gray-400 block">From</span>
+            <span className="text-base font-semibold text-[#FF6B35]">
+              ${course.greenFee.weekday.guest}
+            </span>
           </div>
         </div>
 
-        {/* Back of card */}
-        <div
-          className="absolute w-full h-full rounded-3xl overflow-hidden bg-[#1E1F20] p-5 backface-hidden"
-          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+        {/* Expand button - appears on hover */}
+        <motion.button
+          onClick={handleExpand}
+          initial={{ opacity: 0, y: 10 }}
+          whileHover={{ scale: 1.02 }}
+          className="w-full mt-3 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-white/20 transition-colors opacity-0 group-hover:opacity-100"
         >
-          <h3 className="text-xl font-semibold text-white mb-4">
-            {course.name}
-          </h3>
-
-          <p className="text-gray-400 text-sm mb-4 line-clamp-3">
-            {course.description}
-          </p>
-
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Yardage</span>
-              <span className="text-white font-medium">{course.yardage.toLocaleString()} yards</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Par</span>
-              <span className="text-white font-medium">{course.par}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Holes</span>
-              <span className="text-white font-medium">{course.holes}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Region</span>
-              <span className="text-white font-medium capitalize">{course.region.replace('_', ' ')}</span>
-            </div>
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-gray-700">
-            <div className="flex justify-between items-center">
-              <div>
-                <span className="text-xs text-gray-400 block">Weekday</span>
-                <span className="text-[#A4E600] font-semibold">${course.greenFee.weekday.guest}</span>
-              </div>
-              <div className="text-right">
-                <span className="text-xs text-gray-400 block">Weekend</span>
-                <span className="text-[#A4E600] font-semibold">${course.greenFee.weekend.guest}</span>
-              </div>
-            </div>
-          </div>
-
-          <button className="w-full mt-4 py-3 rounded-full bg-[#A4E600] text-black font-medium hover:bg-[#8BC500] transition-colors">
-            Add to Trip
-          </button>
-        </div>
-      </motion.div>
+          <Expand size={14} />
+          View Details
+        </motion.button>
+      </div>
     </div>
   );
 }

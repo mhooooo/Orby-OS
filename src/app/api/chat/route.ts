@@ -19,12 +19,13 @@ export async function POST(request: NextRequest) {
     const { messages } = await request.json();
 
     // Transform messages to Anthropic format
-    const anthropicMessages: Anthropic.MessageParam[] = messages.map(
-      (msg: { role: string; content: string }) => ({
+    // Filter out messages with empty content (can happen with tool-only responses)
+    const anthropicMessages: Anthropic.MessageParam[] = messages
+      .filter((msg: { role: string; content: string }) => msg.content && msg.content.trim() !== '')
+      .map((msg: { role: string; content: string }) => ({
         role: msg.role as 'user' | 'assistant',
         content: msg.content,
-      })
-    );
+      }));
 
     // First API call - may return tool use
     let response = await anthropic.messages.create({

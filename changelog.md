@@ -79,3 +79,86 @@
 - New dependencies: @supabase/supabase-js, @supabase/ssr
 - Database: 15 courses across Bangkok, Phuket, Pattaya, Hua Hin, Chiang Mai
 - Tool flow: Claude → tool_use → execute handler → tool_result → final response
+
+---
+
+## [2024-11-28] Tour System & Canvas Expansion
+
+### Added
+- **GolfOkay Logo** - Brand text logo in header
+  - Copied white SVG from brand assets to `/public/golfokay-logo.svg`
+  - Replaced text "golfokay" with Image component
+  - Why: Professional branding, consistent visual identity
+  - Impact: Header shows official logo with proper styling
+
+- **TourShowcase Component** - Full website tour
+  - Auto-playing 9-step carousel showcasing all services
+  - Steps: Intro, Courses, Transport, Clubs, Airport, Insurance, Dining, Hotels, Team
+  - Progress bar, play/pause, navigation dots, prev/next controls
+  - CTAs on each step that trigger relevant chat actions
+  - Why: Users wanted a quick way to see everything Golf Okay offers
+  - Impact: "Why Golf Okay?" triggers immersive service showcase
+
+- **ServiceBento Component** - Interactive service grid
+  - Bento grid layout with variable-sized cards (large/medium/small)
+  - Each service clickable → sends prompt to chat
+  - Gradient backgrounds, hover animations
+  - Why: Visual way to discover services without reading text
+  - Impact: "Our services" shows beautiful interactive grid
+
+- **New Tools**
+  - `start_tour` - Triggers TourShowcase component
+  - `show_services` - Triggers ServiceBento component
+  - Why: Enable AI to show these components on demand
+  - Impact: Natural language triggers for tour and services
+
+### Changed
+- **Suggestion Pills** - Two pills now direct action
+  - "Why Golf Okay?" - No dropdown, triggers tour directly, orange highlight
+  - "Our services" - No dropdown, triggers service bento
+  - Why: Streamlined UX for common actions
+  - Impact: One-click access to tour and services
+
+- **Canvas Layout** - Expanded for more space
+  - Generative UI max-width: 4xl → 5xl
+  - MessageList padding: px-4 → responsive (px-4/px-8/px-12)
+  - Message spacing: space-y-4 → space-y-6
+  - Why: Cards needed more room to breathe
+  - Impact: More immersive generative UI experience
+
+### Technical Details
+- New files: `TourShowcase.tsx`, `ServiceBento.tsx`
+- Updated: `Header.tsx`, `GreetingState.tsx`, `Message.tsx`, `MessageList.tsx`, `tools.ts`, `tool-handlers.ts`
+- Logo: `/public/golfokay-logo.svg` (white, no background)
+
+---
+
+## [2024-11-28] Auth & Sidebar Fixes
+
+### Fixed
+- **OAuth Callback Session Persistence**
+  - Changed from `createClient` to `createServerClient` from `@supabase/ssr`
+  - Added cookie handlers (getAll/setAll) to persist session on redirect
+  - Why: Sessions were exchanged but not persisted to cookies, leaving users logged out
+  - Impact: Google OAuth flow now correctly maintains session after redirect
+
+### Added
+- **Sidebar "My Golf" Section** - Real-time user data
+  - Saved Courses: Shows count badge, expandable list with course names
+  - Click course name → sends chat message to learn more
+  - X button to unsave (hover to reveal)
+  - My Itineraries: Shows count, expandable with trip preview (region, days, group size)
+  - Trash button to delete drafts
+  - Sign-in prompt when not authenticated
+  - Why: Static sidebar needed real user data integration
+  - Impact: Users can manage saved items directly from sidebar
+
+### Changed
+- **Fetch Calls with Credentials**
+  - Added `credentials: 'include'` to all fetch calls in `useSavedCourses` and `useItineraryDrafts`
+  - Why: Ensure cookies are sent with API requests for auth
+  - Impact: More reliable authenticated API calls
+
+### Technical Details
+- Updated: `src/app/auth/callback/route.ts`, `src/components/Sidebar.tsx`, `src/hooks/useSavedCourses.ts`, `src/hooks/useItineraryDrafts.ts`
+- New imports in Sidebar: `useAuth`, `useSavedCourses`, `useItineraryDrafts`

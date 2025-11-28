@@ -78,11 +78,13 @@ export const MOCK_COURSES: Course[] = [
 interface CourseCarouselProps {
   courses?: Course[];
   className?: string;
+  onAuthRequired?: () => void;
 }
 
 export function CourseCarousel({
   courses = MOCK_COURSES,
-  className
+  className,
+  onAuthRequired,
 }: CourseCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -129,7 +131,7 @@ export function CourseCarousel({
             transition={{ delay: index * 0.1, duration: 0.3 }}
             className="flex-shrink-0"
           >
-            <CourseCard course={course} />
+            <CourseCard course={course} onAuthRequired={onAuthRequired} />
           </motion.div>
         ))}
       </motion.div>

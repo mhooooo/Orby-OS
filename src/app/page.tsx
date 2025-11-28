@@ -9,6 +9,7 @@ import { MainContent } from '@/components/MainContent';
 export default function Page() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [introComplete, setIntroComplete] = useState(false);
 
   const colors = {
     bg: theme === 'dark' ? 'bg-[#131314]' : 'bg-white',
@@ -47,8 +48,8 @@ export default function Page() {
 
         {/* MAIN CONTENT */}
         <main className="flex-1 flex flex-col h-full relative overflow-hidden">
-          <Header theme={theme} />
-          <MainContent />
+          <Header theme={theme} showLogo={introComplete} />
+          <MainContent onIntroComplete={() => setIntroComplete(true)} />
         </main>
       </div>
     </ChatProvider>

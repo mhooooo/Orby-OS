@@ -35,7 +35,7 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
           {course.tags.map((tag) => (
             <span
               key={tag}
-              className="px-3 py-1 text-xs font-medium rounded-full bg-[#A4E600] text-black"
+              className="px-3 py-1 text-xs font-medium rounded-full bg-[#FF6B35] text-black"
             >
               {tag.replace('_', ' ')}
             </span>
@@ -57,17 +57,17 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
       {/* Stats Bar */}
       <div className="grid grid-cols-3 border-b border-gray-800">
         <div className="flex flex-col items-center py-4 border-r border-gray-800">
-          <Flag size={20} className="text-[#A4E600] mb-1" />
+          <Flag size={20} className="text-[#FF6B35] mb-1" />
           <span className="text-lg font-semibold text-white">{course.holes}</span>
           <span className="text-xs text-gray-500">Holes</span>
         </div>
         <div className="flex flex-col items-center py-4 border-r border-gray-800">
-          <span className="text-[#A4E600] font-bold text-lg mb-1">Par</span>
+          <span className="text-[#FF6B35] font-bold text-lg mb-1">Par</span>
           <span className="text-lg font-semibold text-white">{course.par}</span>
           <span className="text-xs text-gray-500">Championship</span>
         </div>
         <div className="flex flex-col items-center py-4">
-          <Ruler size={20} className="text-[#A4E600] mb-1" />
+          <Ruler size={20} className="text-[#FF6B35] mb-1" />
           <span className="text-lg font-semibold text-white">{course.yardage.toLocaleString()}</span>
           <span className="text-xs text-gray-500">Yards</span>
         </div>
@@ -107,7 +107,7 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
                 <Sun size={14} />
                 Weekday
               </div>
-              <div className="py-3 text-sm font-semibold text-[#A4E600]">
+              <div className="py-3 text-sm font-semibold text-[#FF6B35]">
                 ${course.greenFee.weekday.guest}
               </div>
               <div className="py-3 text-sm font-semibold text-white">
@@ -119,7 +119,7 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
                 <Calendar size={14} />
                 Weekend
               </div>
-              <div className="py-3 text-sm font-semibold text-[#A4E600]">
+              <div className="py-3 text-sm font-semibold text-[#FF6B35]">
                 ${course.greenFee.weekend.guest}
               </div>
               <div className="py-3 text-sm font-semibold text-white">
@@ -135,7 +135,7 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
         {/* Night Golf indicator */}
         {course.tags.includes('night_golf') && (
           <div className="flex items-center gap-2 p-3 bg-[#131314] rounded-xl mb-6">
-            <Moon size={18} className="text-[#A4E600]" />
+            <Moon size={18} className="text-[#FF6B35]" />
             <span className="text-sm text-gray-300">
               Night golf available - Play under the lights!
             </span>
@@ -143,7 +143,7 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
         )}
 
         {/* CTA Button */}
-        <button className="w-full py-4 rounded-full bg-[#A4E600] text-black font-semibold hover:bg-[#8BC500] transition-colors">
+        <button className="w-full py-4 rounded-full bg-[#FF6B35] text-black font-semibold hover:bg-[#E85A2A] transition-colors">
           Add to Trip
         </button>
       </div>

@@ -36,9 +36,14 @@
 **Styling:**
 - Tailwind v4 syntax (no `tailwind.config.js` - uses CSS-based config)
 - Dark mode first: `#131314` (bg), `#1E1F20` (cards), `#282A2C` (hover)
-- Accent: 
 - Radii: `rounded-3xl` (cards), `rounded-full` (buttons/pills)
-- Accent color: TBD - let design emerge from implementation
+
+**Accent Colors:**
+- `#FF6B35` - Bright Orange (highlights, warnings)
+- `#00D4FF` - Bluesky/Cyan (info, links)
+- `#FF3B3B` - Red (errors, critical)
+- `#A855F7` - Purple (premium features)
+- `#FBBF24` - Yellow (caution, attention)
 
 **Dev Modes (Cost Optimization):**
 - `DEV_MODE=mock` - Zero API calls, reads from `/dev/mock-responses.json`
@@ -50,7 +55,7 @@ Mock mode for UI development, cached mode for integration testing.
 **AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
 - Tool execution loop: Claude → tool_use → execute handler → tool_result → final response
-- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`
+- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`, `pick_region`, `pick_group_size`, `pick_days`, `pick_vibe`, `pick_transport`, `start_tour`, `show_services`, `trigger_auth_gate`
 - Model: `claude-sonnet-4-20250514`
 
 **Data Flow (Implemented):**
@@ -62,27 +67,25 @@ Mock mode for UI development, cached mode for integration testing.
 
 ## Success Metrics
 
-### ✅ Completed: Phase 1 - Foundation
-- [x] Chat engine functional (message history, streaming display)
-- [x] Anthropic API integrated with tool definitions
-- [x] First generative component: CourseCarousel renders from AI tool call
-- [x] Input replaces static placeholder with real functionality
+### Active: Phase 5 - Booking Flow
+- [ ] Inquiry submission API + form
+- [ ] Email notifications to Golf Okay team
+- [ ] Availability request handling
+- [ ] Member pricing display
 
-### ✅ Completed: Phase 2 - Data Layer
-- [x] Supabase database with course schema
-- [x] Tool execution loop - AI tools return real data
-- [x] Course API endpoints with filtering
-- [x] CourseDetailCard, FleetCard, AboutCard components
+### Proven Foundation (Phases 1-4 Complete)
+- Chat engine with streaming display
+- 13 AI tools registered and functional
+- CourseCarousel, CourseDetailCard, FleetCard, AboutCard
+- ItineraryBuilder 4-step wizard with pricing
+- TourShowcase auto-playing carousel
+- ServiceBento interactive grid
+- Supabase database with 15 courses
+- Authentication with Google OAuth
+- User features: save courses, save itineraries
+- AuthGateModal with intent-based triggers
 
-### ✅ Completed: Phase 3 - ItineraryBuilder Wizard
-- [x] Itinerary data model (ItineraryDraft, ItineraryDay, Activity types)
-- [x] ItineraryContext for wizard state management
-- [x] 4-step wizard: Region → Vibe → Logistics → Dates
-- [x] Pricing calculation with group discounts
-- [x] ItinerarySummary with timeline and price breakdown
-- [x] start_itinerary_builder tool registered and functional
-
-### Foundation (To Be Achieved)
+### Business Targets (Post-Launch)
 - Guest → Signed Up conversion: 15% target
 - Average turns per session: 5+ target
 - Time from landing to inquiry: <10 min target
@@ -91,29 +94,30 @@ Mock mode for UI development, cached mode for integration testing.
 
 ## Current Phase
 
-**Focus:** Phase 3 Complete - ItineraryBuilder Wizard & Data Layer Integration
+**Focus:** Phase 5 - Booking Flow
 
-**Current State:**
-- All 5 tools execute and return real data (or handle client-side logic)
-- CourseCarousel shows Supabase courses
-- ItineraryBuilder wizard fully functional
-- CourseDetailCard, FleetCard, AboutCard all functional
-- Branch: `feat/phase3-itinerary-builder` (merged with Phase 2)
+**Priorities:**
+1. Inquiry submission API + form component
+2. Email notifications (Resend or Supabase Edge Functions)
+3. Inquiry tracking in database
+4. Member pricing logic
+
+**Pending Decisions:**
+- Email provider: Resend vs Supabase Edge Functions vs SendGrid?
+- Inquiry form: Modal vs full-page vs in-chat component?
+- Notification triggers: Real-time vs batch?
 
 **Setup Required:**
-1. Create Supabase project at https://supabase.com/dashboard
-2. Run `supabase/schema.sql` in SQL Editor
-3. Add to `.env.local`:
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   ```
+1. Choose email provider and add API keys to `.env.local`
+2. Create inquiries table in Supabase
+3. Set up email templates
 
-**Decisions Made:**
+**Decisions Made (Previous Phases):**
 - State management: React Context (ItineraryContext) for wizard
 - Pricing: THB base, with group discounts at 8+ and 12+ golfers
 - Tool result encoding: Base64 markers in response (not streaming during tool use)
-- Auth gate: Deferred to Phase 4
+- Auth trigger: Intent-based (save/book actions) via trigger_auth_gate tool
+- Session persistence: Guest drafts migrated on sign-up (future enhancement)
 
 ---
 
@@ -143,6 +147,15 @@ Mock mode for UI development, cached mode for integration testing.
 - [2024-11]: Anthropic tool_use requires sending tool_result back before getting final response - can't stream during tool execution
 - [2024-11]: TypeScript `Record<string, unknown>` to specific type requires double cast: `input as unknown as SpecificType`
 - [2024-11]: Next.js 16 route params are Promises: `const { id } = await params;`
+- [2024-11]: Suggestion pills can use `directPrompt` for single-action vs `subPrompts` for dropdowns - reduces friction for common actions
+- [2024-11]: Auto-playing carousel needs useCallback for nextStep to avoid stale closure in interval
+- [2024-11]: Bento grid layout with CSS Grid `auto-rows-[100px]` + variable col/row spans creates organic layouts
+- [2024-11]: @supabase/ssr client type inference issues in Next.js 16 API routes - use `as any` with eslint-disable comment for insert operations
+- [2024-11]: Optimistic UI pattern for save actions: update state immediately, rollback on error
+- [2024-11]: Auth modal state in chat messages: use wrapper component with local isDismissed state to prevent re-renders
+- [2024-11]: React setState in useEffect triggers cascading renders - derive initial state from props/context instead of syncing with effects
+- [2024-11]: Supabase OAuth callback needs `createServerClient` from `@supabase/ssr` with cookie handlers - basic `createClient` won't persist session to cookies
+- [2024-11]: Always add `credentials: 'include'` to fetch calls for authenticated API routes to ensure cookies are sent
 
 ---
 
@@ -153,12 +166,25 @@ Mock mode for UI development, cached mode for integration testing.
 - `src/app/api/chat/route.ts` - Tool execution loop + Anthropic
 - `src/components/chat/Message.tsx` - Tool → Component routing
 - `src/components/generative-ui/` - All generative UI components
+- `src/components/generative-ui/TourShowcase.tsx` - Full service tour
+- `src/components/generative-ui/ServiceBento.tsx` - Bento grid for services
+- `src/components/generative-ui/AuthGateModal.tsx` - Auth conversion modal
+- `src/components/generative-ui/pickers/` - Chipotle-style trip pickers
 - `src/context/ItineraryContext.tsx` - Wizard state management
+- `src/context/AuthContext.tsx` - Auth state management
 - `src/hooks/useChat.ts` - Chat state + tool result parsing
+- `src/hooks/useAuth.ts` - Auth session hooks
+- `src/hooks/useSavedCourses.ts` - Saved courses CRUD
+- `src/hooks/useItineraryDrafts.ts` - Itinerary drafts CRUD
 - `src/lib/tools.ts` - AI tool definitions and system prompt
 - `src/lib/tool-handlers.ts` - Tool execution handlers
 - `src/lib/supabase.ts` - Database client
+- `src/lib/auth.ts` - Auth helper functions
+- `public/golfokay-logo.svg` - Brand logo (white, no background)
 - `supabase/schema.sql` - Database schema + seed data
+- `supabase/migrations/002_user_data.sql` - User data tables
+- `playwright.config.ts` - E2E test configuration
+- `tests/audit/sprint-phase4-auth.spec.ts` - Auth flow tests
 
 **Design Tokens:**
 ```typescript

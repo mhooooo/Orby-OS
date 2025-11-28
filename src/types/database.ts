@@ -20,6 +20,22 @@ export interface CourseRow {
   created_at: string;
 }
 
+export interface SavedCourse {
+  id: string;
+  user_id: string;
+  course_id: string;
+  created_at: string;
+}
+
+export interface ItineraryDraft {
+  id: string;
+  user_id: string;
+  name: string | null;
+  draft_json: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -27,6 +43,20 @@ export interface Database {
         Row: CourseRow;
         Insert: Omit<CourseRow, 'id' | 'created_at'> & { id?: string; created_at?: string };
         Update: Partial<Omit<CourseRow, 'id' | 'created_at'>>;
+      };
+      saved_courses: {
+        Row: SavedCourse;
+        Insert: Omit<SavedCourse, 'id' | 'created_at'> & { id?: string; created_at?: string };
+        Update: Partial<Omit<SavedCourse, 'id' | 'created_at'>>;
+      };
+      itinerary_drafts: {
+        Row: ItineraryDraft;
+        Insert: Omit<ItineraryDraft, 'id' | 'created_at' | 'updated_at'> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<ItineraryDraft, 'id' | 'created_at' | 'updated_at'>>;
       };
     };
   };

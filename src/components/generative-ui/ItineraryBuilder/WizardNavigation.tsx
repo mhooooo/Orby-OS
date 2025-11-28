@@ -78,7 +78,7 @@ export function WizardNavigation() {
         className={cn(
           'flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all',
           canProceed()
-            ? 'bg-[#A4E600] text-black hover:bg-[#8BC500]'
+            ? 'bg-[#FF6B35] text-black hover:bg-[#E85A2A]'
             : 'bg-gray-700 text-gray-500 cursor-not-allowed'
         )}
       >

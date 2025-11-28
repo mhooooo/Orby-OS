@@ -22,9 +22,13 @@ export function MessageList({ className }: MessageListProps) {
   }
 
   return (
-    <div className={cn('px-4 py-6 space-y-4', className)}>
-      {messages.map((message) => (
-        <Message key={message.id} message={message} />
+    <div className={cn('px-4 md:px-8 lg:px-12 py-6 space-y-6', className)}>
+      {messages.map((message, idx) => (
+        <Message
+          key={message.id}
+          message={message}
+          isLatest={idx === messages.length - 1}
+        />
       ))}
       <div ref={bottomRef} />
     </div>

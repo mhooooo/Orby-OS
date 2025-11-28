@@ -47,11 +47,11 @@ export function AboutCard({ data, className }: AboutCardProps) {
     >
       {/* Header with gradient accent */}
       <div className="relative p-6 border-b border-gray-800/50">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#A4E600] via-[#8BC500] to-[#A4E600]" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF6B35] via-[#E85A2A] to-[#FF6B35]" />
         <h2 className="text-2xl font-bold text-white mb-1">
           {data.company}
         </h2>
-        <p className="text-[#A4E600] font-medium">
+        <p className="text-[#FF6B35] font-medium">
           {data.tagline}
         </p>
       </div>
@@ -59,17 +59,17 @@ export function AboutCard({ data, className }: AboutCardProps) {
       {/* Stats Row */}
       <div className="grid grid-cols-3 border-b border-gray-800/50">
         <div className="flex flex-col items-center py-5 border-r border-gray-800/50">
-          <Calendar size={20} className="text-[#A4E600] mb-2" />
+          <Calendar size={20} className="text-[#FF6B35] mb-2" />
           <span className="text-2xl font-bold text-white">{data.yearsExperience}</span>
           <span className="text-xs text-gray-500">Years Experience</span>
         </div>
         <div className="flex flex-col items-center py-5 border-r border-gray-800/50">
-          <MapPin size={20} className="text-[#A4E600] mb-2" />
+          <MapPin size={20} className="text-[#FF6B35] mb-2" />
           <span className="text-2xl font-bold text-white">{data.stats.coursesPartner}+</span>
           <span className="text-xs text-gray-500">Partner Courses</span>
         </div>
         <div className="flex flex-col items-center py-5">
-          <Star size={20} className="text-[#A4E600] mb-2" />
+          <Star size={20} className="text-[#FF6B35] mb-2" />
           <span className="text-2xl font-bold text-white">{data.stats.averageRating}</span>
           <span className="text-xs text-gray-500">Rating</span>
         </div>
@@ -93,12 +93,12 @@ export function AboutCard({ data, className }: AboutCardProps) {
                 key={founder.name}
                 className="p-4 rounded-xl bg-[#131314]/50 border border-gray-800/50"
               >
-                <div className="w-10 h-10 rounded-full bg-[#A4E600]/20 flex items-center justify-center mb-3">
-                  <Users size={20} className="text-[#A4E600]" />
+                <div className="w-10 h-10 rounded-full bg-[#FF6B35]/20 flex items-center justify-center mb-3">
+                  <Users size={20} className="text-[#FF6B35]" />
                 </div>
                 <h4 className="text-white font-semibold">{founder.name}</h4>
                 <p className="text-xs text-gray-500">{founder.role}</p>
-                <p className="text-xs text-[#A4E600] mt-1">{founder.expertise}</p>
+                <p className="text-xs text-[#FF6B35] mt-1">{founder.expertise}</p>
               </div>
             ))}
           </div>
@@ -115,26 +115,21 @@ export function AboutCard({ data, className }: AboutCardProps) {
                 key={cert}
                 className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#131314]/50 border border-gray-800/50"
               >
-                <Shield size={14} className="text-[#A4E600]" />
+                <Shield size={14} className="text-[#FF6B35]" />
                 <span className="text-sm text-gray-300">{cert}</span>
               </div>
             ))}
             <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#131314]/50 border border-gray-800/50">
-              <Award size={14} className="text-[#A4E600]" />
+              <Award size={14} className="text-[#FF6B35]" />
               <span className="text-sm text-gray-300">{data.stats.happyGolfers.toLocaleString()}+ Happy Golfers</span>
             </div>
           </div>
         </div>
 
         {/* CTA */}
-        <div className="flex gap-3">
-          <button className="flex-1 py-3 rounded-full bg-[#A4E600] text-black font-semibold hover:bg-[#8BC500] transition-colors">
-            Start Planning
-          </button>
-          <button className="px-6 py-3 rounded-full bg-[#282A2C] text-white font-medium hover:bg-[#333536] transition-colors">
-            Contact Us
-          </button>
-        </div>
+        <button className="w-full py-3 rounded-full bg-[#282A2C] text-white font-medium hover:bg-[#333536] transition-colors">
+          Contact Us
+        </button>
       </div>
     </motion.div>
   );

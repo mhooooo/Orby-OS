@@ -38,8 +38,8 @@ export function LogisticsStep() {
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#A4E600]/20 flex items-center justify-center">
-              <Car size={20} className="text-[#A4E600]" />
+            <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center">
+              <Car size={20} className="text-[#FF6B35]" />
             </div>
             <div>
               <h4 className="font-medium text-white">Course Transfers</h4>
@@ -66,26 +66,26 @@ export function LogisticsStep() {
                 className={cn(
                   'p-3 rounded-xl border text-left transition-all',
                   transfers.vehicleType === 'sedan'
-                    ? 'border-[#A4E600] bg-[#A4E600]/10'
+                    ? 'border-[#FF6B35] bg-[#FF6B35]/10'
                     : 'border-gray-600 hover:border-gray-500'
                 )}
               >
                 <div className="font-medium text-white text-sm">Sedan</div>
                 <div className="text-xs text-gray-400">Up to 3 golfers</div>
-                <div className="text-xs text-[#A4E600] mt-1">฿2,500/day</div>
+                <div className="text-xs text-[#FF6B35] mt-1">฿2,500/day</div>
               </button>
               <button
                 onClick={() => handleVehicleChange('vip-van')}
                 className={cn(
                   'p-3 rounded-xl border text-left transition-all',
                   transfers.vehicleType === 'vip-van'
-                    ? 'border-[#A4E600] bg-[#A4E600]/10'
+                    ? 'border-[#FF6B35] bg-[#FF6B35]/10'
                     : 'border-gray-600 hover:border-gray-500'
                 )}
               >
                 <div className="font-medium text-white text-sm">VIP Van</div>
                 <div className="text-xs text-gray-400">Up to 8 golfers</div>
-                <div className="text-xs text-[#A4E600] mt-1">฿4,500/day</div>
+                <div className="text-xs text-[#FF6B35] mt-1">฿4,500/day</div>
               </button>
             </div>
 
@@ -114,8 +114,8 @@ export function LogisticsStep() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#A4E600]/20 flex items-center justify-center">
-              <Wallet size={20} className="text-[#A4E600]" />
+            <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center">
+              <Wallet size={20} className="text-[#FF6B35]" />
             </div>
             <div>
               <h4 className="font-medium text-white">Pre-paid Caddie Tips</h4>
@@ -150,7 +150,7 @@ function ToggleSwitch({
       className={cn(
         'relative rounded-full transition-colors',
         small ? 'w-10 h-5' : 'w-12 h-6',
-        enabled ? 'bg-[#A4E600]' : 'bg-gray-600'
+        enabled ? 'bg-[#FF6B35]' : 'bg-gray-600'
       )}
     >
       <motion.div

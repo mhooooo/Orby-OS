@@ -30,7 +30,7 @@ export function ProgressIndicator({ steps, currentStep }: ProgressIndicatorProps
 
         {/* Active progress line */}
         <motion.div
-          className="absolute top-4 left-0 h-0.5 bg-[#A4E600]"
+          className="absolute top-4 left-0 h-0.5 bg-[#FF6B35]"
           initial={{ width: 0 }}
           animate={{
             width: `${(currentIndex / (steps.length - 1)) * 100}%`,
@@ -53,9 +53,9 @@ export function ProgressIndicator({ steps, currentStep }: ProgressIndicatorProps
                 className={cn(
                   'w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-colors',
                   isCompleted
-                    ? 'bg-[#A4E600] text-black'
+                    ? 'bg-[#FF6B35] text-black'
                     : isActive
-                    ? 'bg-[#A4E600] text-black ring-4 ring-[#A4E600]/30'
+                    ? 'bg-[#FF6B35] text-black ring-4 ring-[#FF6B35]/30'
                     : 'bg-gray-700 text-gray-400'
                 )}
                 initial={false}

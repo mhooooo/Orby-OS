@@ -137,8 +137,32 @@ export async function executeToolCall(
       return handleShowFleet();
     case 'show_about_us':
       return handleShowAboutUs();
-    case 'start_itinerary_builder':
-      return { region: toolInput.region };
+
+    // Chipotle-style pickers - return empty object, frontend renders the picker
+    case 'pick_region':
+    case 'pick_group_size':
+    case 'pick_days':
+    case 'pick_vibe':
+    case 'pick_transport':
+      return {};
+
+    // Guided tour - showcases all services
+    case 'start_tour':
+      return { started: true };
+
+    // Services bento grid
+    case 'show_services':
+      return { displayed: true };
+
+    // Auth gate trigger
+    case 'trigger_auth_gate': {
+      const { reason } = toolInput as { reason: string };
+      return {
+        type: 'auth_gate',
+        reason,
+      };
+    }
+
     default:
       return { error: `Unknown tool: ${toolName}` };
   }
