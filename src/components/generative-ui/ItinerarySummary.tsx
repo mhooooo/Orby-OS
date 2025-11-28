@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { motion, useSpring } from 'framer-motion';
+import { motion, useSpring, AnimatePresence } from 'framer-motion';
 import {
   Plane,
   Car,
@@ -11,6 +11,7 @@ import {
   Percent,
   Save,
   Check,
+  X,
 } from 'lucide-react';
 import { ItineraryDraft, REGION_NAMES, VIBE_INFO } from '@/types/itinerary';
 import { calculatePriceBreakdown } from '@/lib/pricing';
@@ -18,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { Course } from '@/types/course';
 import { useAuth } from '@/hooks/useAuth';
 import { useItineraryDrafts } from '@/hooks/useItineraryDrafts';
+import InquiryForm from './InquiryForm';
 
 interface ItinerarySummaryProps {
   draft: ItineraryDraft;
@@ -35,12 +37,33 @@ export function ItinerarySummary({
   const { user } = useAuth();
   const { saveDraft } = useItineraryDrafts();
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
 
   // Use memoized calculation instead of effect + state
   const breakdown = useMemo(
     () => calculatePriceBreakdown(draft, courses),
     [draft, courses]
   );
+
+  // Create itinerary snapshot for inquiry
+  const itinerarySnapshot = useMemo(() => ({
+    region: draft.region,
+    numberOfDays: draft.numberOfDays,
+    groupSize: draft.groupSize,
+    startDate: draft.startDate,
+    endDate: draft.endDate,
+    vibe: draft.vibe,
+    transfers: draft.transfers,
+    includeCaddieTips: draft.includeCaddieTips,
+    selectedCourses: courses.map(c => c.id),
+    totalEstimate: breakdown.total,
+    breakdown: {
+      greenFees: breakdown.greenFees.subtotal,
+      transfers: breakdown.transfers.subtotal,
+      caddieTips: breakdown.caddieTips.subtotal,
+      discount: breakdown.discount.amount,
+    },
+  }), [draft, courses, breakdown]);
 
   // Handle save trip
   const handleSaveTrip = async () => {
@@ -65,6 +88,19 @@ export function ItinerarySummary({
       console.error('Error saving trip:', error);
       setSaveState('idle');
     }
+  };
+
+  // Handle book now
+  const handleBookNow = () => {
+    setShowInquiryModal(true);
+  };
+
+  // Handle inquiry success
+  const handleInquirySuccess = () => {
+    // Close modal after a delay to show success message
+    setTimeout(() => {
+      setShowInquiryModal(false);
+    }, 2000);
   };
 
   return (
@@ -184,19 +220,75 @@ export function ItinerarySummary({
           )}
         </button>
 
-        {/* Proceed to Booking Button */}
+        {/* Book Now Button */}
         <button
-          onClick={onProceedToBooking}
-          className="w-full py-4 rounded-2xl bg-[#FF6B35] text-black font-semibold flex items-center justify-center gap-2 hover:bg-[#E85A2A] transition-colors"
+          onClick={handleBookNow}
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF6B35] to-[#FF8C5A] text-white font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-[#FF6B35]/25 transition-all duration-300"
         >
-          Proceed to Booking
+          Request Booking
           <ChevronRight size={20} />
         </button>
         <p className="text-xs text-gray-500 text-center mt-3">
           No payment required • We&apos;ll confirm availability first
         </p>
       </div>
+
+      {/* Inquiry Modal */}
+      <AnimatePresence>
+        {showInquiryModal && (
+          <InquiryModal
+            itinerarySnapshot={itinerarySnapshot}
+            onClose={() => setShowInquiryModal(false)}
+            onSuccess={handleInquirySuccess}
+          />
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+// Inquiry Modal Component
+function InquiryModal({
+  itinerarySnapshot,
+  onClose,
+  onSuccess,
+}: {
+  itinerarySnapshot: Record<string, unknown>;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ type: 'spring', duration: 0.5, bounce: 0.25 }}
+        className="w-full max-w-lg relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute -top-4 -right-4 z-10 w-10 h-10 rounded-full bg-[#282A2C] border border-gray-700 flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#323437] transition-colors"
+        >
+          <X size={20} />
+        </button>
+
+        {/* Inquiry Form */}
+        <InquiryForm
+          itinerarySnapshot={itinerarySnapshot}
+          onSuccess={onSuccess}
+          onClose={onClose}
+        />
+      </motion.div>
+    </motion.div>
   );
 }
 
