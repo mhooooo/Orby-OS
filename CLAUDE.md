@@ -55,7 +55,7 @@ Mock mode for UI development, cached mode for integration testing.
 **AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
 - Tool execution loop: Claude → tool_use → execute handler → tool_result → final response
-- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`, `pick_region`, `pick_group_size`, `pick_days`, `pick_vibe`, `pick_transport`, `start_tour`, `show_services`, `trigger_auth_gate`
+- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`, `pick_region`, `pick_group_size`, `pick_days`, `pick_vibe`, `pick_transport`, `start_tour`, `show_services`, `trigger_auth_gate`, `start_inquiry`
 - Model: `claude-sonnet-4-20250514`
 
 **Data Flow (Implemented):**
@@ -67,15 +67,15 @@ Mock mode for UI development, cached mode for integration testing.
 
 ## Success Metrics
 
-### Active: Phase 5 - Booking Flow
-- [ ] Inquiry submission API + form
-- [ ] Email notifications to Golf Okay team
-- [ ] Availability request handling
-- [ ] Member pricing display
+### Active: Phase 6 - Polish & Launch
+- [ ] Mobile responsive design
+- [ ] Image optimization (Cloudinary)
+- [ ] Error handling + offline states
+- [ ] Analytics + conversion tracking
 
-### Proven Foundation (Phases 1-4 Complete)
+### Proven Foundation (Phases 1-5 Complete)
 - Chat engine with streaming display
-- 13 AI tools registered and functional
+- 14 AI tools registered and functional
 - CourseCarousel, CourseDetailCard, FleetCard, AboutCard
 - ItineraryBuilder 4-step wizard with pricing
 - TourShowcase auto-playing carousel
@@ -84,6 +84,7 @@ Mock mode for UI development, cached mode for integration testing.
 - Authentication with Google OAuth
 - User features: save courses, save itineraries
 - AuthGateModal with intent-based triggers
+- Booking flow: inquiry submission + email notifications
 
 ### Business Targets (Post-Launch)
 - Guest → Signed Up conversion: 15% target
@@ -94,23 +95,18 @@ Mock mode for UI development, cached mode for integration testing.
 
 ## Current Phase
 
-**Focus:** Phase 5 - Booking Flow
+**Focus:** Phase 6 - Polish & Launch
 
 **Priorities:**
-1. Inquiry submission API + form component
-2. Email notifications (Resend or Supabase Edge Functions)
-3. Inquiry tracking in database
-4. Member pricing logic
-
-**Pending Decisions:**
-- Email provider: Resend vs Supabase Edge Functions vs SendGrid?
-- Inquiry form: Modal vs full-page vs in-chat component?
-- Notification triggers: Real-time vs batch?
+1. Mobile responsive design
+2. Image optimization and performance
+3. Error handling + offline states
+4. Analytics + conversion tracking
 
 **Setup Required:**
-1. Choose email provider and add API keys to `.env.local`
-2. Create inquiries table in Supabase
-3. Set up email templates
+1. Add Cloudinary API keys for image optimization
+2. Set up analytics (PostHog or Plausible)
+3. Configure Vercel deployment
 
 **Decisions Made (Previous Phases):**
 - State management: React Context (ItineraryContext) for wizard
@@ -118,6 +114,8 @@ Mock mode for UI development, cached mode for integration testing.
 - Tool result encoding: Base64 markers in response (not streaming during tool use)
 - Auth trigger: Intent-based (save/book actions) via trigger_auth_gate tool
 - Session persistence: Guest drafts migrated on sign-up (future enhancement)
+- Email provider: Resend (simple, reliable API)
+- Inquiry form: In-chat component rendered by AI tool
 
 ---
 
@@ -156,6 +154,8 @@ Mock mode for UI development, cached mode for integration testing.
 - [2024-11]: React setState in useEffect triggers cascading renders - derive initial state from props/context instead of syncing with effects
 - [2024-11]: Supabase OAuth callback needs `createServerClient` from `@supabase/ssr` with cookie handlers - basic `createClient` won't persist session to cookies
 - [2024-11]: Always add `credentials: 'include'` to fetch calls for authenticated API routes to ensure cookies are sent
+- [2024-11]: Resend API requires RESEND_API_KEY env var at build time - ensure it's in .env.local with correct case
+- [2024-11]: ESLint react/no-unescaped-entities requires &apos; for apostrophes in JSX text
 
 ---
 
@@ -169,7 +169,10 @@ Mock mode for UI development, cached mode for integration testing.
 - `src/components/generative-ui/TourShowcase.tsx` - Full service tour
 - `src/components/generative-ui/ServiceBento.tsx` - Bento grid for services
 - `src/components/generative-ui/AuthGateModal.tsx` - Auth conversion modal
+- `src/components/generative-ui/InquiryForm.tsx` - Booking inquiry form
 - `src/components/generative-ui/pickers/` - Chipotle-style trip pickers
+- `src/app/api/inquiries/route.ts` - Inquiry submission API
+- `src/lib/email.ts` - Email notification service (Resend)
 - `src/context/ItineraryContext.tsx` - Wizard state management
 - `src/context/AuthContext.tsx` - Auth state management
 - `src/hooks/useChat.ts` - Chat state + tool result parsing
@@ -183,8 +186,10 @@ Mock mode for UI development, cached mode for integration testing.
 - `public/golfokay-logo.svg` - Brand logo (white, no background)
 - `supabase/schema.sql` - Database schema + seed data
 - `supabase/migrations/002_user_data.sql` - User data tables
+- `supabase/migrations/003_inquiries.sql` - Inquiries table
 - `playwright.config.ts` - E2E test configuration
 - `tests/audit/sprint-phase4-auth.spec.ts` - Auth flow tests
+- `tests/audit/sprint-phase5-booking.spec.ts` - Booking flow tests
 
 **Design Tokens:**
 ```typescript
@@ -194,6 +199,22 @@ const colors = {
   hover: '#282A2C',
   accent: '',
 };
+```
+
+**Environment Variables:**
+```env
+# AI
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Database
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+
+# Email
+RESEND_API_KEY=re_...
+
+# Future
+CLOUDINARY_API_KEY=...
 ```
 
 **Run Commands:**

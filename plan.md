@@ -1,21 +1,30 @@
 # Golf Okay: Implementation Plan
 
-## 📍 Current Phase: Phase 5 - Booking Flow
-**Goal:** Users can submit trip inquiries and Golf Okay team receives detailed requests
+## 📍 Current Phase: Phase 6 - Polish & Launch
+**Goal:** Production-ready deployment with mobile optimization, analytics, and error handling
 
 ### Active Priorities
-1. Inquiry submission form + API
-2. Email notifications to Golf Okay team
-3. Availability request handling
-4. Member pricing display
+1. Mobile responsive design
+2. Image optimization (Cloudinary)
+3. Error handling + offline states
+4. Analytics + conversion tracking
 
 ### Immediate Task List
-- [ ] Create inquiry submission API endpoint
-- [ ] Build inquiry form component
-- [ ] Implement email notifications (Resend or Supabase Edge Functions)
-- [ ] Add inquiry tracking in database
-- [ ] Update ItinerarySummary with Book Now button
-- [ ] Member pricing logic (discount tiers)
+- [ ] Mobile responsive breakpoints for all components
+- [ ] Cloudinary integration for course images
+- [ ] Error boundary components
+- [ ] Loading states for all async operations
+- [ ] Analytics setup (PostHog or Plausible)
+- [ ] Vercel deployment configuration
+
+### Phase 5 Tasks (Completed)
+- [x] Create inquiry submission API endpoint
+- [x] Build inquiry form component
+- [x] Implement email notifications with Resend
+- [x] Add inquiry tracking in database
+- [x] Update ItinerarySummary with Book Now button
+- [x] Register start_inquiry AI tool
+- [x] Build verification and Playwright tests
 
 ### Phase 4 Tasks (Completed)
 - [x] Set up Supabase Auth in project
@@ -52,26 +61,26 @@ src/
 └── lib/tool-handlers.ts       # Tool execution handlers
 ```
 
-### Current Tools (13 registered)
-`show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`, `pick_region`, `pick_group_size`, `pick_days`, `pick_vibe`, `pick_transport`, `start_tour`, `show_services`, `trigger_auth_gate`
+### Current Tools (14 registered)
+`show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`, `pick_region`, `pick_group_size`, `pick_days`, `pick_vibe`, `pick_transport`, `start_tour`, `show_services`, `trigger_auth_gate`, `start_inquiry`
 
 ### Database Schema
 - **courses** - 15 seeded across Bangkok, Phuket, Pattaya, Hua Hin, Chiang Mai
 - **saved_courses** - User saved courses (Phase 4: ✅)
 - **itinerary_drafts** - User trip drafts (Phase 4: ✅)
-- **inquiries** - (Phase 5: to be added)
+- **inquiries** - Booking inquiries with email notifications (Phase 5: ✅)
 
 ---
 
 ## 📅 Roadmap
 
-### Phase 5: Booking Flow
-- [ ] Inquiry submission form + API
-- [ ] Email notifications to Golf Okay team
-- [ ] Availability request handling
-- [ ] Member pricing display
+### Phase 5: Booking Flow (Completed)
+- [x] Inquiry submission form + API
+- [x] Email notifications to Golf Okay team
+- [x] Inquiry tracking in database
+- [x] AI tool: start_inquiry
 
-### Phase 6: Polish & Launch
+### Phase 6: Polish & Launch (Current)
 - [ ] Mobile responsive design
 - [ ] Image optimization (Cloudinary)
 - [ ] Error handling + offline states
@@ -94,6 +103,9 @@ TourShowcase auto-playing carousel, ServiceBento grid, GolfOkay logo, expanded c
 
 **Phase 4 - Authentication & User Features:**
 Supabase Auth with Google OAuth, AuthGateModal with save/book triggers, saved courses + itinerary drafts persistence, auth context, user hooks (useSavedCourses, useItineraryDrafts)
+
+**Phase 5 - Booking Flow:**
+InquiryForm component, inquiry API routes, Resend email integration, email notifications, database persistence, start_inquiry AI tool
 
 ---
 
@@ -130,11 +142,11 @@ const colors = {
 
 ---
 
-## 📊 Success Metrics (Phase 4)
-- Auth gate triggers successfully on save/book intent
-- Google OAuth completes without errors
-- Saved courses persist across sessions
-- Itinerary drafts persist across sessions
+## 📊 Success Metrics (Phase 5)
+- Inquiry form submits successfully
+- Email notifications sent to Golf Okay team
+- Inquiries persisted to database
+- Form validation prevents invalid submissions
 
 ### Business Targets (Post-Launch)
 - Guest → Signed Up: 15% conversion
@@ -156,6 +168,7 @@ const colors = {
 | TourShowcase | `start_tour` | ✅ |
 | ServiceBento | `show_services` | ✅ |
 | AuthGateModal | `trigger_auth_gate` | ✅ |
+| InquiryForm | `start_inquiry` | ✅ |
 | GearRentalCard | `show_gear_rental` | 📋 Backlog |
 
 ---
@@ -200,8 +213,9 @@ ANTHROPIC_API_KEY=sk-ant-...
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 
-# Phase 4
+# Phase 4-5
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
+RESEND_API_KEY=re_...
 
 # Future
 STRIPE_SECRET_KEY=sk_...

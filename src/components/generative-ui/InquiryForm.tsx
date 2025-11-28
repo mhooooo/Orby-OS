@@ -85,7 +85,7 @@ export default function InquiryForm({
 
         <h3 className="text-white text-2xl font-bold mb-2">Inquiry Submitted!</h3>
         <p className="text-gray-400 mb-6">
-          We'll be in touch within 24 hours to help plan your perfect golf trip.
+          We&apos;ll be in touch within 24 hours to help plan your perfect golf trip.
         </p>
 
         {onClose && (

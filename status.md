@@ -1,9 +1,10 @@
 # Golf Okay - Project Status
 
 ## Active Tasks
-- [ ] Phase 5: Booking Flow (inquiry submission, email notifications)
+- [ ] Phase 6: Polish & Launch (mobile responsive, analytics, deployment)
 
 ## Recently Completed
+- [x] Phase 5: Booking Flow - Inquiry submission + email notifications
 - [x] Auth Callback Fix - OAuth session persistence to cookies
 - [x] Sidebar My Golf Section - Real-time saved courses & itineraries
 - [x] Phase 4: Authentication & User Features
@@ -86,5 +87,16 @@
     - Sign-in prompt for unauthenticated users
   - Added credentials: 'include' to all fetch calls (useSavedCourses, useItineraryDrafts)
 
+- [2025-11-29 04:45] ✅ Completed: Phase 5 Booking Flow
+  - Inquiries table migration (supabase/migrations/003_inquiries.sql)
+  - Inquiry API routes (POST /api/inquiries, GET /api/inquiries/[id])
+  - InquiryForm component with success/error states
+  - Resend email integration (src/lib/email.ts)
+  - Email notifications to Golf Okay team
+  - Updated ItinerarySummary with Book Now button
+  - AI tool: start_inquiry (14 tools total)
+  - Build verification: TypeScript clean, ESLint warnings only
+  - Playwright test suite: sprint-phase5-booking.spec.ts
+
 ## Next Phase
-- Phase 5: Booking Flow (inquiry submission, email notifications, availability requests)
+- Phase 6: Polish & Launch (mobile responsive, image optimization, analytics, deployment)
