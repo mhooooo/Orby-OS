@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import type { Database } from '@/types/database';
+import { sendInquiryNotification } from '@/lib/email';
 
 // Helper to create Supabase client for API routes
 async function createClient() {
@@ -111,6 +112,21 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to submit inquiry' },
         { status: 500 }
       );
+    }
+
+    // Send email notification (non-blocking - log errors but don't fail the request)
+    if (data?.id) {
+      sendInquiryNotification({
+        id: data.id,
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone?.trim() || null,
+        message: message?.trim() || null,
+        itinerary_snapshot: itinerary_snapshot || null,
+      }).catch((emailError) => {
+        console.error('Failed to send inquiry notification email:', emailError);
+        // Email failure should not block the inquiry submission
+      });
     }
 
     return NextResponse.json({ success: true, inquiry_id: data?.id });
