@@ -36,6 +36,22 @@ export interface ItineraryDraft {
   updated_at: string;
 }
 
+export type InquiryStatus = 'pending' | 'contacted' | 'confirmed' | 'closed';
+
+export interface Inquiry {
+  id: string;
+  user_id: string | null;
+  email: string;
+  name: string;
+  phone: string | null;
+  itinerary_draft_id: string | null;
+  itinerary_snapshot: Record<string, unknown> | null;
+  message: string | null;
+  status: InquiryStatus;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -57,6 +73,15 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Omit<ItineraryDraft, 'id' | 'created_at' | 'updated_at'>>;
+      };
+      inquiries: {
+        Row: Inquiry;
+        Insert: Omit<Inquiry, 'id' | 'created_at' | 'updated_at'> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<Inquiry, 'id' | 'created_at' | 'updated_at'>>;
       };
     };
   };

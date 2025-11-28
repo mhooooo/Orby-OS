@@ -219,3 +219,53 @@ CREATE POLICY "Users can delete own itinerary drafts"
   ON itinerary_drafts
   FOR DELETE
   USING (auth.uid() = user_id);
+
+-- =====================================================
+-- Inquiries Table (Phase 5: Booking Flow)
+-- =====================================================
+
+-- Table: inquiries
+-- Purpose: Store booking inquiries from users (both authenticated and guests)
+CREATE TABLE inquiries (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  email TEXT NOT NULL,
+  name TEXT NOT NULL,
+  phone TEXT,
+  itinerary_draft_id UUID REFERENCES itinerary_drafts(id) ON DELETE SET NULL,
+  itinerary_snapshot JSONB,
+  message TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'contacted', 'confirmed', 'closed')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for faster lookups
+CREATE INDEX idx_inquiries_user_id ON inquiries(user_id);
+CREATE INDEX idx_inquiries_email ON inquiries(email);
+CREATE INDEX idx_inquiries_status ON inquiries(status);
+CREATE INDEX idx_inquiries_created_at ON inquiries(created_at DESC);
+
+-- Trigger to auto-update updated_at on inquiries
+CREATE TRIGGER update_inquiries_updated_at
+  BEFORE UPDATE ON inquiries
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- Enable RLS
+ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
+
+-- Inquiries Policies
+CREATE POLICY "Users can view own inquiries"
+  ON inquiries
+  FOR SELECT
+  USING (
+    auth.uid() = user_id
+    OR
+    email = (SELECT email FROM auth.users WHERE id = auth.uid())
+  );
+
+CREATE POLICY "Authenticated users can create inquiries"
+  ON inquiries
+  FOR INSERT
+  WITH CHECK (auth.uid() IS NOT NULL);
