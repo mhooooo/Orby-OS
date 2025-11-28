@@ -18,6 +18,7 @@ import { TourShowcase } from '@/components/generative-ui/TourShowcase';
 import { ServiceBento } from '@/components/generative-ui/ServiceBento';
 import { Course } from '@/types/course';
 import AuthGateModal from '@/components/generative-ui/AuthGateModal';
+import InquiryForm from '@/components/generative-ui/InquiryForm';
 
 // Typing effect component for AI messages
 function TypewriterText({ text, onComplete }: { text: string; onComplete?: () => void }) {
@@ -106,6 +107,11 @@ interface AuthGateResult {
   reason: 'save_course' | 'save_itinerary' | 'book_intent';
 }
 
+interface InquiryFormResult {
+  type: 'inquiry_form';
+  context: string | null;
+}
+
 // Wrapper component to manage auth gate modal state
 function AuthGateFromTool({ result }: { result: AuthGateResult }) {
   const [isDismissed, setIsDismissed] = useState(false);
@@ -117,6 +123,20 @@ function AuthGateFromTool({ result }: { result: AuthGateResult }) {
       isOpen={true}
       onClose={() => setIsDismissed(true)}
       triggerReason={result.reason}
+    />
+  );
+}
+
+// Wrapper component to manage inquiry form state
+function InquiryFormFromTool() {
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  if (isCompleted) return null;
+
+  return (
+    <InquiryForm
+      onSuccess={() => setIsCompleted(true)}
+      onClose={() => setIsCompleted(true)}
     />
   );
 }
@@ -185,6 +205,14 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
       const result = tool.result as AuthGateResult | undefined;
       if (result) {
         return <AuthGateFromTool key={tool.id} result={result} />;
+      }
+      return null;
+    }
+
+    case 'start_inquiry': {
+      const result = tool.result as InquiryFormResult | undefined;
+      if (result) {
+        return <InquiryFormFromTool key={tool.id} />;
       }
       return null;
     }

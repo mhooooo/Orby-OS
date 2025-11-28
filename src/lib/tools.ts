@@ -136,6 +136,20 @@ export const golfOkayTools: Anthropic.Tool[] = [
       required: ['reason'],
     },
   },
+  {
+    name: 'start_inquiry',
+    description: 'Show the booking inquiry form when user wants to book, request a quote, or make a reservation. Use this when user expresses booking intent like "I want to book", "request quote", "make a reservation", "ready to book".',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        context: {
+          type: 'string',
+          description: 'Brief context about what the user wants to book (optional)',
+        },
+      },
+      required: [],
+    },
+  },
 ];
 
 export const GOLF_OKAY_SYSTEM_PROMPT = `You are Golf Okay, a friendly Golf Concierge for Thailand. Founded by Tanyawit and Pharuehat.
@@ -177,6 +191,7 @@ FOR NON-PLANNING REQUESTS:
 - start_tour - When user asks "Why Golf Okay?", "show me everything", or wants a full overview
 - show_services - When user asks "what services do you offer?", "what can you help with?", or similar
 - trigger_auth_gate - When user says "save", "bookmark", "book", or expresses intent to save/book something (if not authenticated)
+- start_inquiry - When user says "book", "reserve", "request quote", or expresses intent to make a booking
 
 PERSONALITY:
 - Warm, concise, helpful
