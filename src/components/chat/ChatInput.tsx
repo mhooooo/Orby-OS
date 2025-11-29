@@ -7,9 +7,10 @@ import { Send, Plus, Mic } from 'lucide-react';
 
 interface ChatInputProps {
   className?: string;
+  variant?: 'default' | 'centered';
 }
 
-export function ChatInput({ className }: ChatInputProps) {
+export function ChatInput({ className, variant = 'default' }: ChatInputProps) {
   const [input, setInput] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const { sendMessage, isLoading } = useChatContext();
@@ -32,50 +33,48 @@ export function ChatInput({ className }: ChatInputProps) {
   return (
     <div className={cn('p-4', className)}>
       <div className={cn(
-        'w-full max-w-3xl mx-auto rounded-3xl p-3 h-[72px] transition-all duration-200 border border-transparent relative',
+        'w-full mx-auto rounded-full px-4 transition-all duration-200 border border-transparent relative flex items-center gap-3',
+        variant === 'centered' ? 'bg-[#1E1F20] h-[56px] max-w-2xl' : 'bg-[#1E1F20] h-[64px] max-w-3xl',
         isFocused
           ? 'shadow-lg ring-1 ring-gray-400/20 bg-[#282A2C]'
           : 'bg-[#1E1F20]'
       )}>
-        <div className="flex items-center gap-3 h-full">
+        <button
+          className="p-2 rounded-full bg-[#282A2C] hover:bg-[#3a3c3e] text-gray-400 transition-colors flex-shrink-0"
+        >
+          <Plus size={20} />
+        </button>
+
+        <input
+          type="text"
+          placeholder="Ask me anything about golf in Thailand..."
+          className="flex-1 bg-transparent text-base outline-none text-gray-200 placeholder-gray-500"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          onKeyDown={handleKeyDown}
+          disabled={isLoading}
+        />
+
+        <button className="p-2 rounded-full hover:bg-[#282A2C] text-gray-400 transition-colors flex-shrink-0">
+          <Mic size={20} />
+        </button>
+
+        {input && (
           <button
-            className="p-2 rounded-full bg-[#282A2C] hover:bg-[#3a3c3e] text-gray-400 transition-colors flex-shrink-0"
-          >
-            <Plus size={20} />
-          </button>
-
-          <input
-            type="text"
-            placeholder="Enter a prompt for golfokay"
-            className="flex-1 bg-transparent text-lg outline-none text-gray-200 placeholder-gray-500"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onKeyDown={handleKeyDown}
+            onClick={handleSubmit}
             disabled={isLoading}
-          />
-
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button className="p-2 rounded-full hover:bg-[#282A2C] text-gray-400 transition-colors">
-              <Mic size={20} />
-            </button>
-            {input && (
-              <button
-                onClick={handleSubmit}
-                disabled={isLoading}
-                className={cn(
-                  'p-2 rounded-full text-white transition-colors',
-                  isLoading
-                    ? 'bg-gray-600 cursor-not-allowed'
-                    : 'bg-blue-500 hover:bg-blue-600'
-                )}
-              >
-                <Send size={18} />
-              </button>
+            className={cn(
+              'p-2 rounded-full text-white transition-colors flex-shrink-0',
+              isLoading
+                ? 'bg-gray-600 cursor-not-allowed'
+                : 'bg-blue-500 hover:bg-blue-600'
             )}
-          </div>
-        </div>
+          >
+            <Send size={18} />
+          </button>
+        )}
       </div>
     </div>
   );

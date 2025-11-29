@@ -69,9 +69,9 @@ export function RegionStep() {
             onClick={() => handleSelect(region)}
             className={cn(
               'relative overflow-hidden rounded-2xl p-4 text-left transition-all duration-200',
-              'border hover:border-[#A4E600]/50',
+              'border hover:border-[#FF6B35]/50',
               selectedRegion === region
-                ? 'border-[#A4E600] bg-[#A4E600]/10'
+                ? 'border-[#FF6B35] bg-[#FF6B35]/10'
                 : 'border-gray-700 bg-[#282A2C] hover:bg-[#282A2C]/80'
             )}
           >
@@ -87,7 +87,7 @@ export function RegionStep() {
               <div className="flex items-start justify-between">
                 <div>
                   <h4 className="font-semibold text-white flex items-center gap-2">
-                    <MapPin size={16} className="text-[#A4E600]" />
+                    <MapPin size={16} className="text-[#FF6B35]" />
                     {REGION_NAMES[region]}
                   </h4>
                   <p className="text-xs text-gray-400 mt-1">{description}</p>
@@ -103,7 +103,7 @@ export function RegionStep() {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#A4E600] flex items-center justify-center"
+                className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#FF6B35] flex items-center justify-center"
               >
                 <svg
                   className="w-3 h-3 text-black"

@@ -9,28 +9,63 @@ import {
   Wallet,
   ChevronRight,
   Percent,
+  Save,
+  Check,
 } from 'lucide-react';
 import { ItineraryDraft, REGION_NAMES, VIBE_INFO } from '@/types/itinerary';
 import { calculatePriceBreakdown } from '@/lib/pricing';
 import { cn } from '@/lib/utils';
 import { Course } from '@/types/course';
+import { useAuth } from '@/hooks/useAuth';
+import { useItineraryDrafts } from '@/hooks/useItineraryDrafts';
 
 interface ItinerarySummaryProps {
   draft: ItineraryDraft;
   courses?: Course[];
   onProceedToBooking?: () => void;
+  onShowAuthModal?: () => void;
 }
 
 export function ItinerarySummary({
   draft,
   courses = [],
   onProceedToBooking,
+  onShowAuthModal,
 }: ItinerarySummaryProps) {
+  const { user } = useAuth();
+  const { saveDraft } = useItineraryDrafts();
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
+
   // Use memoized calculation instead of effect + state
   const breakdown = useMemo(
     () => calculatePriceBreakdown(draft, courses),
     [draft, courses]
   );
+
+  // Handle save trip
+  const handleSaveTrip = async () => {
+    // If not authenticated, show auth modal
+    if (!user) {
+      onShowAuthModal?.();
+      return;
+    }
+
+    // Save to database
+    setSaveState('saving');
+    try {
+      const draftId = await saveDraft(draft);
+      if (draftId) {
+        setSaveState('saved');
+        // Reset to idle after 2 seconds
+        setTimeout(() => setSaveState('idle'), 2000);
+      } else {
+        setSaveState('idle');
+      }
+    } catch (error) {
+      console.error('Error saving trip:', error);
+      setSaveState('idle');
+    }
+  };
 
   return (
     <div className="rounded-3xl bg-[#1E1F20] border border-gray-800 overflow-hidden">
@@ -45,7 +80,7 @@ export function ItinerarySummary({
             </p>
           </div>
           {draft.vibe && (
-            <span className="px-3 py-1 rounded-full bg-[#A4E600]/20 text-[#A4E600] text-xs font-medium">
+            <span className="px-3 py-1 rounded-full bg-[#FF6B35]/20 text-[#FF6B35] text-xs font-medium">
               {VIBE_INFO[draft.vibe].label}
             </span>
           )}
@@ -112,10 +147,47 @@ export function ItinerarySummary({
       </div>
 
       {/* CTA */}
-      <div className="p-6 border-t border-gray-800">
+      <div className="p-6 border-t border-gray-800 space-y-3">
+        {/* Save Trip Button */}
+        <button
+          onClick={handleSaveTrip}
+          disabled={saveState === 'saving' || saveState === 'saved'}
+          className={cn(
+            "w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all",
+            saveState === 'saved'
+              ? "bg-green-500/20 text-green-400 cursor-default"
+              : "bg-gradient-to-r from-[#00D4FF] to-[#0095FF] text-white hover:shadow-lg hover:shadow-[#00D4FF]/20"
+          )}
+        >
+          {saveState === 'saving' && (
+            <>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              >
+                <Save size={20} />
+              </motion.div>
+              Saving...
+            </>
+          )}
+          {saveState === 'saved' && (
+            <>
+              <Check size={20} />
+              Saved
+            </>
+          )}
+          {saveState === 'idle' && (
+            <>
+              <Save size={20} />
+              Save Trip
+            </>
+          )}
+        </button>
+
+        {/* Proceed to Booking Button */}
         <button
           onClick={onProceedToBooking}
-          className="w-full py-4 rounded-2xl bg-[#A4E600] text-black font-semibold flex items-center justify-center gap-2 hover:bg-[#8BC500] transition-colors"
+          className="w-full py-4 rounded-2xl bg-[#FF6B35] text-black font-semibold flex items-center justify-center gap-2 hover:bg-[#E85A2A] transition-colors"
         >
           Proceed to Booking
           <ChevronRight size={20} />
@@ -160,8 +232,8 @@ function Timeline({ draft }: { draft: ItineraryDraft }) {
       subtitle: date
         ? date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
         : `${region ? REGION_NAMES[region] : ''} Course`,
-      iconBg: 'bg-[#A4E600]/20',
-      iconColor: 'text-[#A4E600]',
+      iconBg: 'bg-[#FF6B35]/20',
+      iconColor: 'text-[#FF6B35]',
     });
   }
 
@@ -279,7 +351,7 @@ function AnimatedTotal({ total }: { total: number }) {
 
   return (
     <div className="text-right">
-      <motion.span className="text-2xl font-bold text-[#A4E600]">
+      <motion.span className="text-2xl font-bold text-[#FF6B35]">
         ฿{displayValue}
       </motion.span>
       <span className="text-xs text-gray-500 ml-1">THB</span>

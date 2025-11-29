@@ -1,9 +1,20 @@
 # Golf Okay - Project Status
 
 ## Active Tasks
-- [ ] Phase 3: More Components - ItineraryBuilder wizard
+- [ ] Phase 5: Booking Flow (inquiry submission, email notifications)
+
+## Recently Completed
+- [x] Auth Callback Fix - OAuth session persistence to cookies
+- [x] Sidebar My Golf Section - Real-time saved courses & itineraries
+- [x] Phase 4: Authentication & User Features
+- [x] GolfOkay Logo Integration - White SVG logo in header
+- [x] Why Golf Okay Tour - Auto-playing showcase of all services
+- [x] Service Bento Grid - Interactive bento layout for services
+- [x] Expanded Canvas - Larger chat area for generative UI
 
 ## Completed Tasks
+- [x] Sidebar Redesign - Travel concierge navigation & chat integration
+- [x] Intro Animation - Logo splash with typing effect
 - [x] Phase 1: Foundation - Chat Engine & First Generative Component
 - [x] Phase 2: Data Layer - Supabase & Tool Execution
 - [x] Set up project structure (directories, dependencies)
@@ -34,5 +45,46 @@
     - Course API with filtering
   - Files: 17 changed, +1220 lines
 
+## Log
+- [2024-11-28 XX:XX] ✅ Completed: Sidebar Redesign & Intro Animation
+  - Sidebar: Travel concierge navigation (Courses by destination, Services, My Golf wallet)
+  - Sidebar → Chat integration (clicks send prompts to AI)
+  - Settings popover with theme, help, location detection
+  - Greeting pills updated for first-timers (Plan a trip, Explore courses, Our services, Why Golf Okay)
+  - Intro animation: Large "golfokay" → typing tagline → shrink to header → reveal content
+  - GolfOkay icon with brand accent colors (favicon + UI)
+  - Updated metadata (title, description)
+
+## Log
+- [2024-11-28 07:30] ✅ Completed: Tour System & Canvas Expansion
+  - GolfOkay text logo integrated (white SVG from brand assets)
+  - "Why Golf Okay?" pill now triggers auto-playing tour showcase
+  - TourShowcase: 9-step tour with progress bar, play/pause, navigation
+  - ServiceBento: Interactive bento grid for service discovery
+  - Canvas expanded: max-w-4xl → max-w-5xl, responsive padding
+  - "Our services" pill → ServiceBento component
+  - New tools: start_tour, show_services
+
+- [2025-11-28 XX:XX] ✅ Completed: Phase 4 Authentication & User Features
+  - Supabase Auth integration with Google OAuth
+  - AuthGateModal component with soft conversion triggers
+  - AI tool: trigger_auth_gate (triggers on save/book intents)
+  - Saved courses API + hook (useSavedCourses)
+  - Itinerary drafts API + hook (useItineraryDrafts)
+  - CourseCard heart button with optimistic UI
+  - ItinerarySummary Save Trip button
+  - Database migrations: user_data schema (saved_courses, itinerary_drafts)
+  - Auth context with session management
+  - Playwright tests for auth flow
+  - Build verification: TypeScript strict mode, ESLint clean
+
+- [2025-11-28 12:30] ✅ Completed: Auth & Sidebar Fixes
+  - Fixed OAuth callback: createServerClient with cookie handlers for session persistence
+  - Sidebar "My Golf" now functional:
+    - Saved Courses: Real-time count, expandable list, click to learn more, X to unsave
+    - My Itineraries: Real-time count, expandable list, delete button
+    - Sign-in prompt for unauthenticated users
+  - Added credentials: 'include' to all fetch calls (useSavedCourses, useItineraryDrafts)
+
 ## Next Phase
-- Phase 3: More Components (ItineraryBuilder wizard, ItinerarySummary)
+- Phase 5: Booking Flow (inquiry submission, email notifications, availability requests)

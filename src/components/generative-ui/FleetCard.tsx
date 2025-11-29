@@ -52,7 +52,7 @@ export function FleetCard({ data, className }: FleetCardProps) {
         {data.vehicles.map((vehicle, index) => (
           <motion.div
             key={vehicle.id}
-            className="rounded-2xl bg-[#131314] overflow-hidden border border-gray-800 hover:border-[#A4E600]/30 transition-colors"
+            className="rounded-2xl bg-[#131314] overflow-hidden border border-gray-800 hover:border-[#FF6B35]/30 transition-colors"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1, duration: 0.3 }}
@@ -67,7 +67,7 @@ export function FleetCard({ data, className }: FleetCardProps) {
 
               {/* Type badge */}
               <div className="absolute top-3 left-3">
-                <span className="px-3 py-1 text-xs font-medium rounded-full bg-[#A4E600] text-black">
+                <span className="px-3 py-1 text-xs font-medium rounded-full bg-[#FF6B35] text-black">
                   {vehicle.type}
                 </span>
               </div>
@@ -95,7 +95,7 @@ export function FleetCard({ data, className }: FleetCardProps) {
               <div className="space-y-2 mb-4">
                 {vehicle.amenities.slice(0, 4).map((amenity) => (
                   <div key={amenity} className="flex items-center gap-2 text-sm text-gray-300">
-                    <Check size={14} className="text-[#A4E600]" />
+                    <Check size={14} className="text-[#FF6B35]" />
                     <span>{amenity}</span>
                   </div>
                 ))}
@@ -105,12 +105,12 @@ export function FleetCard({ data, className }: FleetCardProps) {
               <div className="flex items-center justify-between pt-4 border-t border-gray-800">
                 <div>
                   <span className="text-xs text-gray-500">From</span>
-                  <p className="text-xl font-bold text-[#A4E600]">
+                  <p className="text-xl font-bold text-[#FF6B35]">
                     ฿{vehicle.pricePerDay.toLocaleString()}
                   </p>
                   <span className="text-xs text-gray-500">per day</span>
                 </div>
-                <button className="px-4 py-2 rounded-full bg-[#282A2C] text-white text-sm font-medium hover:bg-[#A4E600] hover:text-black transition-colors">
+                <button className="px-4 py-2 rounded-full bg-[#282A2C] text-white text-sm font-medium hover:bg-[#FF6B35] hover:text-black transition-colors">
                   Select
                 </button>
               </div>

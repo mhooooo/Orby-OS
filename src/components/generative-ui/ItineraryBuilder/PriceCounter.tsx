@@ -52,7 +52,7 @@ export function PriceCounter() {
     >
       <div className="inline-flex items-baseline gap-1 px-4 py-2 rounded-full bg-[#282A2C] border border-gray-700">
         <span className="text-xs text-gray-400">Estimated total:</span>
-        <span className="text-lg font-semibold text-[#A4E600]">฿</span>
+        <span className="text-lg font-semibold text-[#FF6B35]">฿</span>
         <motion.span className="text-lg font-semibold text-white">
           {displayValue}
         </motion.span>

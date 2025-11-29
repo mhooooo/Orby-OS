@@ -72,8 +72,8 @@ export function DateGroupStep() {
         className="rounded-2xl bg-[#282A2C] p-4 border border-gray-700"
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-[#A4E600]/20 flex items-center justify-center">
-            <Calendar size={20} className="text-[#A4E600]" />
+          <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center">
+            <Calendar size={20} className="text-[#FF6B35]" />
           </div>
           <div>
             <h4 className="font-medium text-white">Travel Dates</h4>
@@ -91,7 +91,7 @@ export function DateGroupStep() {
               min={getMinDate()}
               className={cn(
                 'w-full p-3 rounded-xl bg-[#1E1F20] border border-gray-600',
-                'text-white text-sm focus:outline-none focus:border-[#A4E600]',
+                'text-white text-sm focus:outline-none focus:border-[#FF6B35]',
                 'appearance-none cursor-pointer',
                 '[color-scheme:dark]'
               )}
@@ -158,8 +158,8 @@ export function DateGroupStep() {
         className="rounded-2xl bg-[#282A2C] p-4 border border-gray-700"
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-[#A4E600]/20 flex items-center justify-center">
-            <Users size={20} className="text-[#A4E600]" />
+          <div className="w-10 h-10 rounded-xl bg-[#FF6B35]/20 flex items-center justify-center">
+            <Users size={20} className="text-[#FF6B35]" />
           </div>
           <div>
             <h4 className="font-medium text-white">Group Size</h4>
@@ -211,7 +211,7 @@ export function DateGroupStep() {
               className={cn(
                 'px-3 py-1 rounded-full text-xs transition-colors',
                 localGroupSize === size
-                  ? 'bg-[#A4E600] text-black font-medium'
+                  ? 'bg-[#FF6B35] text-black font-medium'
                   : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
               )}
             >

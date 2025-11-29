@@ -49,9 +49,9 @@ export function VibeStep() {
             onClick={() => handleSelect(vibe)}
             className={cn(
               'relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-200',
-              'border hover:border-[#A4E600]/50',
+              'border hover:border-[#FF6B35]/50',
               selectedVibe === vibe
-                ? 'border-[#A4E600] bg-[#A4E600]/10'
+                ? 'border-[#FF6B35] bg-[#FF6B35]/10'
                 : 'border-gray-700 bg-[#282A2C]'
             )}
           >
@@ -69,7 +69,7 @@ export function VibeStep() {
                 className={cn(
                   'flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center',
                   selectedVibe === vibe
-                    ? 'bg-[#A4E600] text-black'
+                    ? 'bg-[#FF6B35] text-black'
                     : 'bg-gray-700 text-gray-300'
                 )}
               >
@@ -86,7 +86,7 @@ export function VibeStep() {
                 className={cn(
                   'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
                   selectedVibe === vibe
-                    ? 'border-[#A4E600] bg-[#A4E600]'
+                    ? 'border-[#FF6B35] bg-[#FF6B35]'
                     : 'border-gray-600'
                 )}
               >

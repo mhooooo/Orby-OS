@@ -6,7 +6,11 @@ import { MessageList } from '@/components/chat';
 import { ChatInput } from '@/components/chat';
 import { GreetingStateContent } from './GreetingState';
 
-export function MainContent() {
+interface MainContentProps {
+  onIntroComplete?: () => void;
+}
+
+export function MainContent({ onIntroComplete }: MainContentProps) {
   const { messages } = useChatContext();
   const hasMessages = messages.length > 0;
 
@@ -21,8 +25,7 @@ export function MainContent() {
         </>
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
-          <GreetingStateContent />
-          <ChatInput />
+          <GreetingStateContent onIntroComplete={onIntroComplete} />
         </div>
       )}
     </div>

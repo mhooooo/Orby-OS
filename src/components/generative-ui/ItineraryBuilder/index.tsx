@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ItineraryProvider, useItinerary } from '@/context/ItineraryContext';
 import { Region, WIZARD_STEPS, WizardStep } from '@/types/itinerary';
@@ -12,6 +12,7 @@ import { ProgressIndicator } from './ProgressIndicator';
 import { WizardNavigation } from './WizardNavigation';
 import { PriceCounter } from './PriceCounter';
 import { ItinerarySummary } from '../ItinerarySummary';
+import AuthGateModal from '../AuthGateModal';
 
 interface ItineraryBuilderProps {
   initialRegion?: Region;
@@ -21,6 +22,7 @@ interface ItineraryBuilderProps {
 function WizardContent() {
   const { state, dispatch } = useItinerary();
   const { currentStep, draft } = state;
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Skip region step if already selected
   useEffect(() => {
@@ -49,14 +51,22 @@ function WizardContent() {
   // Render summary if we're at summary step
   if (currentStep === 'summary') {
     return (
-      <ItinerarySummary
-        draft={draft}
-        courses={state.availableCourses}
-        onProceedToBooking={() => {
-          // TODO: Implement booking flow
-          console.log('Proceeding to booking with draft:', draft);
-        }}
-      />
+      <>
+        <ItinerarySummary
+          draft={draft}
+          courses={state.availableCourses}
+          onProceedToBooking={() => {
+            // TODO: Implement booking flow
+            console.log('Proceeding to booking with draft:', draft);
+          }}
+          onShowAuthModal={() => setShowAuthModal(true)}
+        />
+        <AuthGateModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          triggerReason="save_itinerary"
+        />
+      </>
     );
   }
 
