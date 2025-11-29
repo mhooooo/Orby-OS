@@ -90,7 +90,7 @@ export function CourseCarousel({
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = 300;
+      const scrollAmount = 400;
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth',
@@ -103,13 +103,13 @@ export function CourseCarousel({
       {/* Navigation arrows */}
       <button
         onClick={() => scroll('left')}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 p-2 rounded-full bg-[#1E1F20] border border-gray-700 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#282A2C]"
+        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110 shadow-lg"
       >
         <ChevronLeft size={24} />
       </button>
       <button
         onClick={() => scroll('right')}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 p-2 rounded-full bg-[#1E1F20] border border-gray-700 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#282A2C]"
+        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110 shadow-lg"
       >
         <ChevronRight size={24} />
       </button>
@@ -117,7 +117,7 @@ export function CourseCarousel({
       {/* Carousel container */}
       <motion.div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+        className="flex gap-6 overflow-x-auto pb-8 pt-4 px-4 -mx-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -129,7 +129,7 @@ export function CourseCarousel({
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1, duration: 0.3 }}
-            className="flex-shrink-0"
+            className="flex-shrink-0 snap-center"
           >
             <CourseCard course={course} onAuthRequired={onAuthRequired} />
           </motion.div>

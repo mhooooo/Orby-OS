@@ -163,6 +163,15 @@ export async function executeToolCall(
       };
     }
 
+    // Inquiry form
+    case 'start_inquiry': {
+      const { context } = toolInput as { context?: string };
+      return {
+        type: 'inquiry_form',
+        context: context || null,
+      };
+    }
+
     default:
       return { error: `Unknown tool: ${toolName}` };
   }

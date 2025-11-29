@@ -2,8 +2,9 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface AuthGateModalProps {
   isOpen: boolean;
@@ -53,67 +54,101 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-          onClick={onClose}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
         >
+          {/* Blurred Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            onClick={onClose}
+          />
+
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', duration: 0.5, bounce: 0.3 }}
-            className="w-full max-w-md bg-[#1E1F20]/80 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl"
+            className={cn(
+              "relative w-full max-w-md overflow-hidden rounded-[2rem]",
+              "bg-[#1a1a1a]/80 backdrop-blur-2xl border border-white/10",
+              "shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)]"
+            )}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Heading */}
-            <h2 className="text-white text-2xl font-bold mb-6 text-center">
-              {getHeading()}
-            </h2>
-
-            {/* Benefits List */}
-            <div className="space-y-3 mb-8">
-              {benefits.map((benefit, index) => (
-                <motion.div
-                  key={benefit}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-center gap-3 text-gray-300"
-                >
-                  <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#00D4FF]/20 flex items-center justify-center">
-                    <Check size={14} className="text-[#00D4FF]" />
-                  </div>
-                  <span className="text-sm">{benefit}</span>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Primary CTA - Continue with Google */}
-            <button
-              onClick={handleSignIn}
-              disabled={isSigningIn || loading}
-              className="w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-[#00D4FF] to-[#0095FF] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#00D4FF]/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mb-3"
-            >
-              {isSigningIn ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Signing in...</span>
-                </div>
-              ) : (
-                <>
-                  <GoogleIcon />
-                  <span>Continue with Google</span>
-                </>
-              )}
-            </button>
-
-            {/* Ghost button - Maybe later */}
+            {/* Close Button */}
             <button
               onClick={onClose}
-              disabled={isSigningIn}
-              className="w-full py-3 text-gray-400 text-sm font-medium hover:text-white transition-colors disabled:opacity-50"
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
             >
-              Maybe later
+              <X size={20} />
             </button>
+
+            {/* Decorative Gradient */}
+            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-emerald-500/20 to-transparent pointer-events-none" />
+
+            <div className="relative p-8 pt-12">
+              {/* Icon */}
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+
+              {/* Heading */}
+              <h2 className="text-white text-2xl font-bold mb-2 text-center">
+                {getHeading()}
+              </h2>
+              <p className="text-gray-400 text-center mb-8 text-sm">
+                Sign in to unlock the full Golf Okay experience.
+              </p>
+
+              {/* Benefits List */}
+              <div className="space-y-3 mb-8 bg-white/5 rounded-2xl p-4 border border-white/5">
+                {benefits.map((benefit, index) => (
+                  <motion.div
+                    key={benefit}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center gap-3 text-gray-300"
+                  >
+                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <Check size={12} className="text-emerald-400" />
+                    </div>
+                    <span className="text-sm font-medium">{benefit}</span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Primary CTA - Continue with Google */}
+              <button
+                onClick={handleSignIn}
+                disabled={isSigningIn || loading}
+                className="w-full py-4 px-6 rounded-xl bg-white text-black font-bold text-sm hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mb-3 shadow-lg shadow-white/5"
+              >
+                {isSigningIn ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    <span>Signing in...</span>
+                  </div>
+                ) : (
+                  <>
+                    <GoogleIcon />
+                    <span>Continue with Google</span>
+                  </>
+                )}
+              </button>
+
+              {/* Ghost button - Maybe later */}
+              <button
+                onClick={onClose}
+                disabled={isSigningIn}
+                className="w-full py-3 text-gray-500 text-xs font-medium hover:text-white transition-colors disabled:opacity-50"
+              >
+                Maybe later
+              </button>
+            </div>
           </motion.div>
         </motion.div>
       )}

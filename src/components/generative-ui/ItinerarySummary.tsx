@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { motion, useSpring } from 'framer-motion';
+import { motion, useSpring, AnimatePresence } from 'framer-motion';
 import {
   Plane,
   Car,
@@ -11,6 +11,10 @@ import {
   Percent,
   Save,
   Check,
+  X,
+  Calendar,
+  Users,
+  MapPin
 } from 'lucide-react';
 import { ItineraryDraft, REGION_NAMES, VIBE_INFO } from '@/types/itinerary';
 import { calculatePriceBreakdown } from '@/lib/pricing';
@@ -18,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { Course } from '@/types/course';
 import { useAuth } from '@/hooks/useAuth';
 import { useItineraryDrafts } from '@/hooks/useItineraryDrafts';
+import InquiryForm from './InquiryForm';
 
 interface ItinerarySummaryProps {
   draft: ItineraryDraft;
@@ -35,12 +40,33 @@ export function ItinerarySummary({
   const { user } = useAuth();
   const { saveDraft } = useItineraryDrafts();
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
 
   // Use memoized calculation instead of effect + state
   const breakdown = useMemo(
     () => calculatePriceBreakdown(draft, courses),
     [draft, courses]
   );
+
+  // Create itinerary snapshot for inquiry
+  const itinerarySnapshot = useMemo(() => ({
+    region: draft.region,
+    numberOfDays: draft.numberOfDays,
+    groupSize: draft.groupSize,
+    startDate: draft.startDate,
+    endDate: draft.endDate,
+    vibe: draft.vibe,
+    transfers: draft.transfers,
+    includeCaddieTips: draft.includeCaddieTips,
+    selectedCourses: courses.map(c => c.id),
+    totalEstimate: breakdown.total,
+    breakdown: {
+      greenFees: breakdown.greenFees.subtotal,
+      transfers: breakdown.transfers.subtotal,
+      caddieTips: breakdown.caddieTips.subtotal,
+      discount: breakdown.discount.amount,
+    },
+  }), [draft, courses, breakdown]);
 
   // Handle save trip
   const handleSaveTrip = async () => {
@@ -67,20 +93,47 @@ export function ItinerarySummary({
     }
   };
 
+  // Handle book now
+  const handleBookNow = () => {
+    setShowInquiryModal(true);
+  };
+
+  // Handle inquiry success
+  const handleInquirySuccess = () => {
+    // Close modal after a delay to show success message
+    setTimeout(() => {
+      setShowInquiryModal(false);
+    }, 2000);
+  };
+
   return (
-    <div className="rounded-3xl bg-[#1E1F20] border border-gray-800 overflow-hidden">
+    <div className={cn(
+      "relative overflow-hidden rounded-[2.5rem]",
+      "bg-white/5 backdrop-blur-2xl border border-white/10",
+      "shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
+    )}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-800">
-        <div className="flex items-start justify-between">
+      <div className="p-8 border-b border-white/5 bg-white/5">
+        <div className="flex items-start justify-between mb-6">
           <div>
-            <h2 className="text-xl font-semibold text-white">Your Golf Trip</h2>
-            <p className="text-sm text-gray-400 mt-1">
-              {draft.region && REGION_NAMES[draft.region]} • {draft.numberOfDays} days •{' '}
-              {draft.groupSize} golfers
-            </p>
+            <h2 className="text-2xl font-bold text-white mb-2">Your Golf Trip</h2>
+            <div className="flex items-center gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-1.5">
+                <MapPin size={14} className="text-emerald-400" />
+                {draft.region && REGION_NAMES[draft.region]}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Calendar size={14} className="text-blue-400" />
+                {draft.numberOfDays} days
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Users size={14} className="text-purple-400" />
+                {draft.groupSize} golfers
+              </div>
+            </div>
           </div>
           {draft.vibe && (
-            <span className="px-3 py-1 rounded-full bg-[#FF6B35]/20 text-[#FF6B35] text-xs font-medium">
+            <span className="px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-xs font-bold uppercase tracking-wider">
               {VIBE_INFO[draft.vibe].label}
             </span>
           )}
@@ -88,15 +141,15 @@ export function ItinerarySummary({
       </div>
 
       {/* Timeline Section */}
-      <div className="p-6">
+      <div className="p-8 bg-black/20">
         <Timeline draft={draft} />
       </div>
 
       {/* Price Breakdown */}
-      <div className="p-6 bg-[#282A2C] border-t border-gray-800">
-        <h3 className="text-sm font-medium text-gray-400 mb-4">Price Breakdown</h3>
+      <div className="p-8 bg-white/5 border-t border-white/5">
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Price Breakdown</h3>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {/* Green Fees */}
           <BreakdownRow
             icon={<Flag size={16} />}
@@ -136,7 +189,7 @@ export function ItinerarySummary({
           )}
 
           {/* Divider */}
-          <div className="border-t border-gray-700 my-4" />
+          <div className="border-t border-white/10 my-6" />
 
           {/* Total */}
           <div className="flex items-center justify-between">
@@ -147,16 +200,16 @@ export function ItinerarySummary({
       </div>
 
       {/* CTA */}
-      <div className="p-6 border-t border-gray-800 space-y-3">
+      <div className="p-6 border-t border-white/5 bg-black/20 space-y-3">
         {/* Save Trip Button */}
         <button
           onClick={handleSaveTrip}
           disabled={saveState === 'saving' || saveState === 'saved'}
           className={cn(
-            "w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all",
+            "w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-300",
             saveState === 'saved'
-              ? "bg-green-500/20 text-green-400 cursor-default"
-              : "bg-gradient-to-r from-[#00D4FF] to-[#0095FF] text-white hover:shadow-lg hover:shadow-[#00D4FF]/20"
+              ? "bg-emerald-500/20 text-emerald-400 cursor-default border border-emerald-500/20"
+              : "bg-white/5 text-white hover:bg-white/10 border border-white/10 hover:border-white/20"
           )}
         >
           {saveState === 'saving' && (
@@ -165,38 +218,94 @@ export function ItinerarySummary({
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
               >
-                <Save size={20} />
+                <Save size={18} />
               </motion.div>
               Saving...
             </>
           )}
           {saveState === 'saved' && (
             <>
-              <Check size={20} />
-              Saved
+              <Check size={18} />
+              Saved to Profile
             </>
           )}
           {saveState === 'idle' && (
             <>
-              <Save size={20} />
-              Save Trip
+              <Save size={18} />
+              Save Trip for Later
             </>
           )}
         </button>
 
-        {/* Proceed to Booking Button */}
+        {/* Book Now Button */}
         <button
-          onClick={onProceedToBooking}
-          className="w-full py-4 rounded-2xl bg-[#FF6B35] text-black font-semibold flex items-center justify-center gap-2 hover:bg-[#E85A2A] transition-colors"
+          onClick={handleBookNow}
+          className="w-full py-4 rounded-xl bg-white text-black font-bold text-sm flex items-center justify-center gap-2 hover:bg-gray-100 transition-all duration-300 shadow-lg shadow-white/10"
         >
-          Proceed to Booking
-          <ChevronRight size={20} />
+          Request Booking
+          <ChevronRight size={18} />
         </button>
-        <p className="text-xs text-gray-500 text-center mt-3">
+        <p className="text-[10px] text-gray-500 text-center mt-3 uppercase tracking-wider">
           No payment required • We&apos;ll confirm availability first
         </p>
       </div>
+
+      {/* Inquiry Modal */}
+      <AnimatePresence>
+        {showInquiryModal && (
+          <InquiryModal
+            itinerarySnapshot={itinerarySnapshot}
+            onClose={() => setShowInquiryModal(false)}
+            onSuccess={handleInquirySuccess}
+          />
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+// Inquiry Modal Component
+function InquiryModal({
+  itinerarySnapshot,
+  onClose,
+  onSuccess,
+}: {
+  itinerarySnapshot: Record<string, unknown>;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ type: 'spring', duration: 0.5, bounce: 0.25 }}
+        className="w-full max-w-lg relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute -top-4 -right-4 z-10 w-10 h-10 rounded-full bg-black/50 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-black/70 transition-colors backdrop-blur-md"
+        >
+          <X size={20} />
+        </button>
+
+        {/* Inquiry Form */}
+        <InquiryForm
+          itinerarySnapshot={itinerarySnapshot}
+          onSuccess={onSuccess}
+          onClose={onClose}
+        />
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -232,8 +341,8 @@ function Timeline({ draft }: { draft: ItineraryDraft }) {
       subtitle: date
         ? date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
         : `${region ? REGION_NAMES[region] : ''} Course`,
-      iconBg: 'bg-[#FF6B35]/20',
-      iconColor: 'text-[#FF6B35]',
+      iconBg: 'bg-emerald-500/20',
+      iconColor: 'text-emerald-400',
     });
   }
 
@@ -250,34 +359,32 @@ function Timeline({ draft }: { draft: ItineraryDraft }) {
   }
 
   return (
-    <div className="relative">
+    <div className="relative pl-2">
+      {/* Vertical Line */}
+      <div className="absolute left-[19px] top-4 bottom-4 w-px bg-white/10" />
+
       {items.map((item, index) => (
         <motion.div
           key={index}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="flex gap-4"
+          className="relative flex gap-6 mb-8 last:mb-0"
         >
-          {/* Timeline line and dot */}
-          <div className="flex flex-col items-center">
-            <div
-              className={cn(
-                'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
-                item.iconBg
-              )}
-            >
-              <span className={item.iconColor}>{item.icon}</span>
-            </div>
-            {index < items.length - 1 && (
-              <div className="w-0.5 h-12 bg-gray-700 my-1" />
+          {/* Icon */}
+          <div
+            className={cn(
+              'relative z-10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-white/5 backdrop-blur-md shadow-lg',
+              item.iconBg
             )}
+          >
+            <span className={item.iconColor}>{item.icon}</span>
           </div>
 
           {/* Content */}
-          <div className="pb-6">
-            <h4 className="font-medium text-white">{item.title}</h4>
-            <p className="text-sm text-gray-400">{item.subtitle}</p>
+          <div className="pt-1">
+            <h4 className="font-bold text-white text-sm mb-1">{item.title}</h4>
+            <p className="text-xs text-gray-400">{item.subtitle}</p>
           </div>
         </motion.div>
       ))}
@@ -309,18 +416,20 @@ function BreakdownRow({
   isDiscount?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <span className="text-gray-500">{icon}</span>
+    <div className="flex items-center justify-between group">
+      <div className="flex items-center gap-3">
+        <div className="p-2 rounded-lg bg-white/5 text-gray-400 group-hover:text-white group-hover:bg-white/10 transition-colors">
+          {icon}
+        </div>
         <div>
-          <span className="text-sm text-gray-300">{label}</span>
-          {detail && <span className="text-xs text-gray-500 ml-2">({detail})</span>}
+          <span className="text-sm font-medium text-gray-300 block">{label}</span>
+          {detail && <span className="text-xs text-gray-500">{detail}</span>}
         </div>
       </div>
       <span
         className={cn(
-          'font-medium',
-          isDiscount ? 'text-green-400' : 'text-white'
+          'font-bold',
+          isDiscount ? 'text-emerald-400' : 'text-white'
         )}
       >
         {isDiscount ? '-' : ''}฿{Math.abs(amount).toLocaleString()}
@@ -351,10 +460,10 @@ function AnimatedTotal({ total }: { total: number }) {
 
   return (
     <div className="text-right">
-      <motion.span className="text-2xl font-bold text-[#FF6B35]">
+      <motion.span className="text-3xl font-bold text-emerald-400 drop-shadow-lg">
         ฿{displayValue}
       </motion.span>
-      <span className="text-xs text-gray-500 ml-1">THB</span>
+      <span className="text-xs text-gray-500 ml-1 font-medium">THB</span>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Award, Star, Users, MapPin, Calendar, Shield } from 'lucide-react';
+import { Award, Star, Users, MapPin, Calendar, Shield, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Founder {
@@ -35,101 +35,113 @@ export function AboutCard({ data, className }: AboutCardProps) {
   return (
     <motion.div
       className={cn(
-        'w-full rounded-3xl overflow-hidden',
-        // Glassmorphism effect
-        'bg-gradient-to-br from-[#1E1F20]/90 to-[#131314]/90',
-        'backdrop-blur-xl border border-gray-800/50',
+        'relative w-full rounded-[2.5rem] overflow-hidden',
+        'bg-white/5 backdrop-blur-2xl border border-white/10',
+        'shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]',
         className
       )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      {/* Header with gradient accent */}
-      <div className="relative p-6 border-b border-gray-800/50">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF6B35] via-[#E85A2A] to-[#FF6B35]" />
-        <h2 className="text-2xl font-bold text-white mb-1">
+      {/* Ambient Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-orange-500/20 rounded-full blur-[80px] pointer-events-none" />
+
+      {/* Header */}
+      <div className="relative p-8 pb-6 text-center">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="inline-block mb-3 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-bold uppercase tracking-widest"
+        >
+          Since {data.founded}
+        </motion.div>
+        <h2 className="text-4xl font-bold text-white mb-2 tracking-tight">
           {data.company}
         </h2>
-        <p className="text-[#FF6B35] font-medium">
+        <p className="text-lg text-gray-400 font-light">
           {data.tagline}
         </p>
       </div>
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-3 border-b border-gray-800/50">
-        <div className="flex flex-col items-center py-5 border-r border-gray-800/50">
-          <Calendar size={20} className="text-[#FF6B35] mb-2" />
-          <span className="text-2xl font-bold text-white">{data.yearsExperience}</span>
-          <span className="text-xs text-gray-500">Years Experience</span>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-3 gap-px bg-white/5 border-y border-white/5">
+        <div className="p-6 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors">
+          <Calendar size={24} className="text-orange-400 mb-3 group-hover:scale-110 transition-transform" />
+          <span className="text-3xl font-bold text-white mb-1">{data.yearsExperience}</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wider">Years</span>
         </div>
-        <div className="flex flex-col items-center py-5 border-r border-gray-800/50">
-          <MapPin size={20} className="text-[#FF6B35] mb-2" />
-          <span className="text-2xl font-bold text-white">{data.stats.coursesPartner}+</span>
-          <span className="text-xs text-gray-500">Partner Courses</span>
+        <div className="p-6 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors border-x border-white/5">
+          <MapPin size={24} className="text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
+          <span className="text-3xl font-bold text-white mb-1">{data.stats.coursesPartner}+</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wider">Courses</span>
         </div>
-        <div className="flex flex-col items-center py-5">
-          <Star size={20} className="text-[#FF6B35] mb-2" />
-          <span className="text-2xl font-bold text-white">{data.stats.averageRating}</span>
-          <span className="text-xs text-gray-500">Rating</span>
+        <div className="p-6 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors">
+          <Star size={24} className="text-yellow-400 mb-3 group-hover:scale-110 transition-transform" />
+          <span className="text-3xl font-bold text-white mb-1">{data.stats.averageRating}</span>
+          <span className="text-xs text-gray-500 uppercase tracking-wider">Rating</span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        {/* Description */}
-        <p className="text-gray-300 leading-relaxed mb-6">
+      <div className="p-8">
+        <p className="text-gray-300 leading-relaxed mb-8 text-center max-w-2xl mx-auto">
           {data.description}
         </p>
 
         {/* Founders */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-            Our Founders
+        <div className="mb-8">
+          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 text-center">
+            Leadership
           </h3>
-          <div className="grid grid-cols-2 gap-3">
-            {data.founders.map((founder) => (
-              <div
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {data.founders.map((founder, idx) => (
+              <motion.div
                 key={founder.name}
-                className="p-4 rounded-xl bg-[#131314]/50 border border-gray-800/50"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + idx * 0.1 }}
+                className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors flex items-center gap-4 group"
               >
-                <div className="w-10 h-10 rounded-full bg-[#FF6B35]/20 flex items-center justify-center mb-3">
-                  <Users size={20} className="text-[#FF6B35]" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                  <Users size={20} className="text-white" />
                 </div>
-                <h4 className="text-white font-semibold">{founder.name}</h4>
-                <p className="text-xs text-gray-500">{founder.role}</p>
-                <p className="text-xs text-[#FF6B35] mt-1">{founder.expertise}</p>
-              </div>
+                <div>
+                  <h4 className="text-white font-bold">{founder.name}</h4>
+                  <p className="text-xs text-orange-400 font-medium mb-0.5">{founder.role}</p>
+                  <p className="text-[10px] text-gray-500">{founder.expertise}</p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
 
         {/* Certifications */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-            Certifications & Trust
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {data.certifications.map((cert) => (
-              <div
-                key={cert}
-                className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#131314]/50 border border-gray-800/50"
-              >
-                <Shield size={14} className="text-[#FF6B35]" />
-                <span className="text-sm text-gray-300">{cert}</span>
-              </div>
-            ))}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#131314]/50 border border-gray-800/50">
-              <Award size={14} className="text-[#FF6B35]" />
-              <span className="text-sm text-gray-300">{data.stats.happyGolfers.toLocaleString()}+ Happy Golfers</span>
+        <div className="flex flex-wrap justify-center gap-3 mb-8">
+          {data.certifications.map((cert) => (
+            <div
+              key={cert}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300"
+            >
+              <Shield size={12} className="text-emerald-400" />
+              {cert}
             </div>
+          ))}
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-gray-300">
+            <CheckCircle2 size={12} className="text-blue-400" />
+            {data.stats.happyGolfers.toLocaleString()}+ Happy Golfers
           </div>
         </div>
 
         {/* CTA */}
-        <button className="w-full py-3 rounded-full bg-[#282A2C] text-white font-medium hover:bg-[#333536] transition-colors">
-          Contact Us
-        </button>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full py-4 rounded-2xl bg-white text-black font-bold text-sm hover:bg-gray-100 transition-colors shadow-lg shadow-white/10"
+        >
+          Get in Touch
+        </motion.button>
       </div>
     </motion.div>
   );
