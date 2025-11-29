@@ -22,20 +22,20 @@ export function ProgressIndicator({ steps, currentStep }: ProgressIndicatorProps
   const currentIndex = WIZARD_STEPS.indexOf(currentStep);
 
   return (
-    <div className="w-full">
+    <div className="w-full mb-8">
       {/* Step indicators */}
       <div className="flex items-center justify-between relative">
         {/* Progress line background */}
-        <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-700" />
+        <div className="absolute top-4 left-0 right-0 h-0.5 bg-white/10" />
 
         {/* Active progress line */}
         <motion.div
-          className="absolute top-4 left-0 h-0.5 bg-[#FF6B35]"
+          className="absolute top-4 left-0 h-0.5 bg-gradient-to-r from-emerald-400 to-teal-400"
           initial={{ width: 0 }}
           animate={{
             width: `${(currentIndex / (steps.length - 1)) * 100}%`,
           }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
         />
 
         {steps.map((step, index) => {
@@ -51,16 +51,16 @@ export function ProgressIndicator({ steps, currentStep }: ProgressIndicatorProps
               {/* Circle */}
               <motion.div
                 className={cn(
-                  'w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-colors',
+                  'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300',
                   isCompleted
-                    ? 'bg-[#FF6B35] text-black'
+                    ? 'bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)]'
                     : isActive
-                    ? 'bg-[#FF6B35] text-black ring-4 ring-[#FF6B35]/30'
-                    : 'bg-gray-700 text-gray-400'
+                      ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)] scale-110'
+                      : 'bg-[#1a1a1a] border border-white/10 text-gray-500'
                 )}
                 initial={false}
                 animate={{
-                  scale: isActive ? 1.1 : 1,
+                  scale: isActive ? 1.2 : 1,
                 }}
               >
                 {isCompleted ? (
@@ -80,8 +80,8 @@ export function ProgressIndicator({ steps, currentStep }: ProgressIndicatorProps
               {/* Label */}
               <span
                 className={cn(
-                  'mt-2 text-xs whitespace-nowrap',
-                  isActive ? 'text-white font-medium' : 'text-gray-500'
+                  'mt-3 text-[10px] uppercase tracking-wider font-bold transition-colors duration-300',
+                  isActive ? 'text-white' : 'text-gray-600'
                 )}
               >
                 {STEP_LABELS[step]}

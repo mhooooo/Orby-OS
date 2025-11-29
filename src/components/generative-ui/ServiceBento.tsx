@@ -10,9 +10,11 @@ import {
   Shield,
   Utensils,
   Hotel,
-  ArrowUpRight
+  ArrowUpRight,
+  Sparkles
 } from 'lucide-react';
 import { useChatContext } from '@/context/ChatContext';
+import { cn } from '@/lib/utils';
 
 interface ServiceItem {
   id: string;
@@ -30,7 +32,7 @@ const SERVICES: ServiceItem[] = [
     icon: Flag,
     title: '50+ Golf Courses',
     description: 'Championship layouts to hidden gems across 6 regions',
-    gradient: 'from-emerald-500/30 to-teal-600/10',
+    gradient: 'from-emerald-500/20 to-teal-600/5',
     prompt: 'Show me golf courses in Thailand',
     size: 'large',
   },
@@ -39,7 +41,7 @@ const SERVICES: ServiceItem[] = [
     icon: Car,
     title: 'Premium Fleet',
     description: 'Luxury transfers with professional drivers',
-    gradient: 'from-blue-500/30 to-indigo-600/10',
+    gradient: 'from-blue-500/20 to-indigo-600/5',
     prompt: 'Show me your transport options',
     size: 'medium',
   },
@@ -48,7 +50,7 @@ const SERVICES: ServiceItem[] = [
     icon: Trophy,
     title: 'Club Rentals',
     description: 'Top brand equipment delivered to course',
-    gradient: 'from-purple-500/30 to-pink-600/10',
+    gradient: 'from-purple-500/20 to-pink-600/5',
     prompt: 'Tell me about club rentals',
     size: 'small',
   },
@@ -57,7 +59,7 @@ const SERVICES: ServiceItem[] = [
     icon: Plane,
     title: 'Airport Fast-Track',
     description: 'VIP arrival with priority immigration',
-    gradient: 'from-cyan-500/30 to-sky-600/10',
+    gradient: 'from-cyan-500/20 to-sky-600/5',
     prompt: 'Tell me about airport fast-track service',
     size: 'small',
   },
@@ -66,7 +68,7 @@ const SERVICES: ServiceItem[] = [
     icon: Shield,
     title: 'Golf Insurance',
     description: 'Comprehensive coverage including hole-in-one',
-    gradient: 'from-rose-500/30 to-red-600/10',
+    gradient: 'from-rose-500/20 to-red-600/5',
     prompt: 'Tell me about golf insurance',
     size: 'medium',
   },
@@ -75,7 +77,7 @@ const SERVICES: ServiceItem[] = [
     icon: Utensils,
     title: 'Dining & Nightlife',
     description: 'The best 19th holes and restaurants',
-    gradient: 'from-amber-500/30 to-orange-600/10',
+    gradient: 'from-amber-500/20 to-orange-600/5',
     prompt: 'What dining options do you recommend?',
     size: 'small',
   },
@@ -84,7 +86,7 @@ const SERVICES: ServiceItem[] = [
     icon: Hotel,
     title: 'Accommodations',
     description: 'Partner hotels near every course',
-    gradient: 'from-violet-500/30 to-purple-600/10',
+    gradient: 'from-violet-500/20 to-purple-600/5',
     prompt: 'Tell me about hotel options',
     size: 'small',
   },
@@ -111,53 +113,67 @@ export function ServiceBento() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto p-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-4 md:grid-cols-6 gap-3 auto-rows-[100px]"
+        className="grid grid-cols-4 md:grid-cols-6 gap-4 auto-rows-[120px]"
       >
         {SERVICES.map((service) => {
           const Icon = service.icon;
           const gridClass = service.size === 'large'
             ? 'col-span-4 md:col-span-3 row-span-2'
             : service.size === 'medium'
-            ? 'col-span-2 md:col-span-3 row-span-2'
-            : 'col-span-2 md:col-span-2 row-span-1';
+              ? 'col-span-2 md:col-span-3 row-span-2'
+              : 'col-span-2 md:col-span-2 row-span-1';
 
           return (
             <motion.button
               key={service.id}
               variants={itemVariants}
               onClick={() => handleServiceClick(service.prompt)}
-              className={`${gridClass} group relative overflow-hidden rounded-2xl bg-gradient-to-br ${service.gradient} border border-white/10 backdrop-blur-sm p-5 text-left transition-all hover:scale-[1.02] hover:border-white/20`}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className={cn(
+                gridClass,
+                "group relative overflow-hidden rounded-3xl p-6 text-left transition-all duration-300",
+                "bg-white/5 backdrop-blur-xl border border-white/10",
+                "hover:bg-white/10 hover:border-white/20 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
+              )}
             >
-              {/* Background dot pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute inset-0" style={{
-                  backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-                  backgroundSize: '20px 20px'
-                }} />
-              </div>
+              {/* Gradient Background */}
+              <div className={cn(
+                "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+                service.gradient
+              )} />
 
-              <div className="relative h-full flex flex-col">
+              {/* Decorative Glow */}
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors" />
+
+              <div className="relative h-full flex flex-col z-10">
                 <div className="flex items-start justify-between mb-auto">
-                  <div className="p-2 rounded-xl bg-white/10 backdrop-blur-sm">
-                    <Icon size={service.size === 'small' ? 18 : 22} className="text-white" />
+                  <div className={cn(
+                    "p-3 rounded-2xl bg-white/5 backdrop-blur-md border border-white/5 group-hover:scale-110 transition-transform duration-300",
+                    "group-hover:bg-white/10 group-hover:border-white/20"
+                  )}>
+                    <Icon size={service.size === 'small' ? 20 : 24} className="text-white" />
                   </div>
                   <ArrowUpRight
-                    size={16}
-                    className="text-white/0 group-hover:text-white/60 transition-all transform translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0"
+                    size={20}
+                    className="text-white/30 group-hover:text-white transition-all transform translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0"
                   />
                 </div>
 
                 <div className="mt-auto">
-                  <h3 className={`font-semibold text-white mb-1 ${service.size === 'small' ? 'text-sm' : 'text-base'}`}>
+                  <h3 className={cn(
+                    "font-bold text-white mb-1 leading-tight",
+                    service.size === 'small' ? 'text-sm' : 'text-xl'
+                  )}>
                     {service.title}
                   </h3>
                   {service.size !== 'small' && (
-                    <p className="text-sm text-gray-400 line-clamp-2">
+                    <p className="text-sm text-gray-400 line-clamp-2 group-hover:text-gray-200 transition-colors">
                       {service.description}
                     </p>
                   )}

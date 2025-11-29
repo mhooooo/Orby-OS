@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flag,
   Car,
@@ -14,9 +15,11 @@ import {
   ChevronRight,
   Play,
   Pause,
-  Sparkles
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
 import { useChatContext } from '@/context/ChatContext';
+import { cn } from '@/lib/utils';
 
 interface TourStep {
   id: string;
@@ -169,7 +172,7 @@ export function TourShowcase() {
   const [progress, setProgress] = useState(0);
   const { sendMessage } = useChatContext();
 
-  const STEP_DURATION = 5000; // 5 seconds per step
+  const STEP_DURATION = 6000; // 6 seconds per step
 
   const nextStep = useCallback(() => {
     setCurrentStep((prev) => (prev + 1) % TOUR_STEPS.length);
@@ -181,7 +184,6 @@ export function TourShowcase() {
     setProgress(0);
   }, []);
 
-  // Auto-play logic
   useEffect(() => {
     if (!isPlaying) return;
 
@@ -206,131 +208,153 @@ export function TourShowcase() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      {/* Main Card */}
-      <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${step.gradient} border border-white/10 backdrop-blur-sm`}>
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-            backgroundSize: '32px 32px'
-          }} />
-        </div>
+    <div className="w-full max-w-5xl mx-auto p-4">
+      <motion.div
+        layout
+        className={cn(
+          "relative overflow-hidden rounded-[2.5rem]",
+          "bg-white/5 backdrop-blur-2xl border border-white/10",
+          "shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
+        )}
+      >
+        {/* Dynamic Gradient Background */}
+        <motion.div
+          key={step.id}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className={cn("absolute inset-0 bg-gradient-to-br opacity-50", step.gradient)}
+        />
 
-        {/* Content */}
-        <div className="relative p-8 md:p-10">
-          {/* Step Indicator */}
-          <div className="flex items-center gap-2 mb-6">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm">
-              <Icon size={20} className="text-white" />
+        {/* Content Container */}
+        <div className="relative p-8 md:p-12 flex flex-col md:flex-row gap-12 items-center">
+
+          {/* Left Side: Visual & Icon */}
+          <div className="w-full md:w-1/3 flex flex-col items-center justify-center text-center">
+            <motion.div
+              key={`icon-${step.id}`}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", duration: 0.6 }}
+              className="w-32 h-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 shadow-2xl shadow-black/20"
+            >
+              <Icon size={48} className="text-white drop-shadow-lg" />
+            </motion.div>
+
+            <div className="flex gap-2 justify-center">
+              {TOUR_STEPS.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setCurrentStep(idx);
+                    setProgress(0);
+                  }}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-300",
+                    idx === currentStep ? "w-8 bg-white" : "w-2 bg-white/20 hover:bg-white/40"
+                  )}
+                />
+              ))}
             </div>
-            <span className="text-sm text-gray-400">
-              {currentStep + 1} of {TOUR_STEPS.length}
-            </span>
           </div>
 
-          {/* Title & Subtitle */}
-          <h2 className="text-3xl md:text-4xl font-medium text-white mb-2 tracking-tight">
-            {step.title}
-          </h2>
-          <p className="text-lg text-gray-300 mb-4">
-            {step.subtitle}
-          </p>
-          <p className="text-gray-400 max-w-2xl mb-8">
-            {step.description}
-          </p>
-
-          {/* Stats Grid */}
-          {step.stats && (
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              {step.stats.map((stat, idx) => (
-                <div key={idx} className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 text-center">
-                  <div className="text-2xl font-semibold text-white mb-1">{stat.value}</div>
-                  <div className="text-xs text-gray-400">{stat.label}</div>
+          {/* Right Side: Text & Details */}
+          <div className="w-full md:w-2/3">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={step.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-bold uppercase tracking-wider text-white/80">
+                    Step {currentStep + 1}
+                  </span>
+                  <div className="h-px flex-1 bg-white/10" />
                 </div>
-              ))}
-            </div>
-          )}
 
-          {/* Features Grid */}
-          {step.features && (
-            <div className="grid grid-cols-2 gap-3 mb-8">
-              {step.features.map((feature, idx) => (
-                <div key={idx} className="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-xl px-4 py-3">
-                  <div className="w-2 h-2 rounded-full bg-orange-400" />
-                  <span className="text-sm text-gray-300">{feature}</span>
-                </div>
-              ))}
-            </div>
-          )}
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
+                  {step.title}
+                </h2>
+                <p className="text-xl text-white/80 mb-6 font-light">
+                  {step.subtitle}
+                </p>
+                <p className="text-gray-300 leading-relaxed mb-8 max-w-xl">
+                  {step.description}
+                </p>
 
-          {/* CTA Button */}
-          {step.cta && (
-            <button
-              onClick={() => handleCta(step.cta!.prompt)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 rounded-full font-medium hover:bg-gray-100 transition-colors"
-            >
-              {step.cta.label}
-              <ChevronRight size={16} />
-            </button>
-          )}
+                {/* Stats or Features */}
+                {step.stats && (
+                  <div className="grid grid-cols-3 gap-4 mb-8">
+                    {step.stats.map((stat, idx) => (
+                      <div key={idx} className="bg-white/5 border border-white/5 rounded-2xl p-4 text-center">
+                        <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-gray-400">{stat.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {step.features && (
+                  <div className="grid grid-cols-2 gap-3 mb-8">
+                    {step.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-white/50" />
+                        <span className="text-sm text-gray-300">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* CTA */}
+                {step.cta && (
+                  <motion.button
+                    whileHover={{ scale: 1.02, x: 5 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleCta(step.cta!.prompt)}
+                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-white text-black font-bold text-sm shadow-lg shadow-white/10 hover:bg-gray-100 transition-colors"
+                  >
+                    {step.cta.label}
+                    <ArrowRight size={18} />
+                  </motion.button>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-          <div
-            className="h-full bg-orange-400 transition-all duration-50"
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5">
+          <motion.div
+            className="h-full bg-white/50"
             style={{ width: `${progress}%` }}
           />
         </div>
-      </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between mt-4 px-2">
-        {/* Step Dots */}
-        <div className="flex items-center gap-2">
-          {TOUR_STEPS.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                setCurrentStep(idx);
-                setProgress(0);
-              }}
-              className={`w-2 h-2 rounded-full transition-all ${
-                idx === currentStep
-                  ? 'bg-orange-400 w-6'
-                  : 'bg-white/20 hover:bg-white/40'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Navigation */}
-        <div className="flex items-center gap-2">
+        {/* Controls Overlay */}
+        <div className="absolute bottom-6 right-6 flex gap-2">
           <button
             onClick={prevStep}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="p-3 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-md transition-colors border border-white/5"
           >
-            <ChevronLeft size={18} className="text-white" />
+            <ChevronLeft size={20} />
           </button>
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="p-3 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-md transition-colors border border-white/5"
           >
-            {isPlaying ? (
-              <Pause size={18} className="text-white" />
-            ) : (
-              <Play size={18} className="text-white" />
-            )}
+            {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           </button>
           <button
             onClick={nextStep}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="p-3 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-md transition-colors border border-white/5"
           >
-            <ChevronRight size={18} className="text-white" />
+            <ChevronRight size={20} />
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

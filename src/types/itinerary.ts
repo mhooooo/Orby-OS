@@ -83,7 +83,11 @@ export type ItineraryAction =
   | { type: 'COMPLETE_WIZARD' };
 
 // Helper to create a unique ID
-export const createId = () => Math.random().toString(36).substring(2, 9);
+// Helper to create a unique ID (SSR-safe)
+export const createId = () => {
+  if (typeof window === 'undefined') return 'server-generated-id';
+  return Math.random().toString(36).substring(2, 9);
+};
 
 // Initial draft state
 export const createInitialDraft = (region?: Region | null): ItineraryDraft => ({

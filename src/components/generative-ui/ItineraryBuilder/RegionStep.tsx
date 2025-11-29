@@ -51,15 +51,15 @@ export function RegionStep() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="text-center mb-6">
-        <h3 className="text-lg font-medium text-white">Where do you want to play?</h3>
-        <p className="text-sm text-gray-400 mt-1">
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-white mb-2">Where do you want to play?</h3>
+        <p className="text-gray-400">
           Select your destination region in Thailand
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {REGION_DATA.map(({ region, description, courses, image }, index) => (
           <motion.button
             key={region}
@@ -68,58 +68,62 @@ export function RegionStep() {
             transition={{ delay: index * 0.1 }}
             onClick={() => handleSelect(region)}
             className={cn(
-              'relative overflow-hidden rounded-2xl p-4 text-left transition-all duration-200',
-              'border hover:border-[#FF6B35]/50',
+              'relative overflow-hidden rounded-3xl p-1 text-left transition-all duration-300 group',
               selectedRegion === region
-                ? 'border-[#FF6B35] bg-[#FF6B35]/10'
-                : 'border-gray-700 bg-[#282A2C] hover:bg-[#282A2C]/80'
+                ? 'ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]'
+                : 'hover:scale-[1.02]'
             )}
           >
-            {/* Background image overlay */}
-            <div
-              className="absolute inset-0 opacity-20 bg-cover bg-center"
-              style={{ backgroundImage: `url(${image})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+            <div className={cn(
+              "relative h-full rounded-[1.3rem] overflow-hidden p-5",
+              "bg-[#1a1a1a]/80 backdrop-blur-xl border border-white/10",
+              selectedRegion === region ? "bg-emerald-900/20" : "group-hover:bg-white/5"
+            )}>
+              {/* Background image overlay */}
+              <div
+                className="absolute inset-0 opacity-30 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                style={{ backgroundImage: `url(${image})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
-            {/* Content */}
-            <div className="relative z-10">
-              <div className="flex items-start justify-between">
+              {/* Content */}
+              <div className="relative z-10">
+                <div className="flex items-start justify-between mb-8">
+                  <span className="text-xs font-bold text-white/80 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                    {courses} courses
+                  </span>
+
+                  {/* Selected indicator */}
+                  <div className={cn(
+                    "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300",
+                    selectedRegion === region
+                      ? "border-emerald-500 bg-emerald-500"
+                      : "border-white/30 group-hover:border-white/50"
+                  )}>
+                    {selectedRegion === region && (
+                      <motion.svg
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-3 h-3 text-black"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </motion.svg>
+                    )}
+                  </div>
+                </div>
+
                 <div>
-                  <h4 className="font-semibold text-white flex items-center gap-2">
-                    <MapPin size={16} className="text-[#FF6B35]" />
+                  <h4 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                    <MapPin size={18} className={selectedRegion === region ? "text-emerald-400" : "text-white/60"} />
                     {REGION_NAMES[region]}
                   </h4>
-                  <p className="text-xs text-gray-400 mt-1">{description}</p>
+                  <p className="text-sm text-gray-300 font-light">{description}</p>
                 </div>
-                <span className="text-xs text-gray-500 bg-black/30 px-2 py-1 rounded-full">
-                  {courses} courses
-                </span>
               </div>
             </div>
-
-            {/* Selected indicator */}
-            {selectedRegion === region && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute top-3 right-3 w-5 h-5 rounded-full bg-[#FF6B35] flex items-center justify-center"
-              >
-                <svg
-                  className="w-3 h-3 text-black"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </motion.div>
-            )}
           </motion.button>
         ))}
       </div>

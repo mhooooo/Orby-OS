@@ -2,14 +2,16 @@
 
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, Send, User, Mail, Phone, MessageSquare } from 'lucide-react';
 import { useState, useEffect, FormEvent } from 'react';
+import { cn } from '@/lib/utils';
 
 interface InquiryFormProps {
   itinerarySnapshot?: Record<string, unknown>;
   itineraryDraftId?: string;
   onSuccess?: () => void;
   onClose?: () => void;
+  demoMode?: boolean;
 }
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -19,6 +21,7 @@ export default function InquiryForm({
   itineraryDraftId,
   onSuccess,
   onClose,
+  demoMode = false,
 }: InquiryFormProps) {
   const { user } = useAuth();
   const [status, setStatus] = useState<FormStatus>('idle');
@@ -40,6 +43,14 @@ export default function InquiryForm({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setStatus('loading');
+
+    if (demoMode) {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setStatus('success');
+      onSuccess?.();
+      return;
+    }
 
     try {
       const response = await fetch('/api/inquiries', {
@@ -72,26 +83,26 @@ export default function InquiryForm({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'spring', duration: 0.5, bounce: 0.3 }}
-        className="bg-[#1E1F20] rounded-3xl p-8 border border-white/10 text-center"
+        className="bg-[#1a1a1a]/80 backdrop-blur-xl rounded-[2rem] p-8 border border-white/10 text-center shadow-2xl"
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: 'spring', duration: 0.6, bounce: 0.4 }}
-          className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#00D4FF]/20 flex items-center justify-center"
+          className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]"
         >
-          <CheckCircle size={32} className="text-[#00D4FF]" />
+          <CheckCircle size={40} className="text-emerald-400" />
         </motion.div>
 
-        <h3 className="text-white text-2xl font-bold mb-2">Inquiry Submitted!</h3>
-        <p className="text-gray-400 mb-6">
+        <h3 className="text-white text-3xl font-bold mb-3 tracking-tight">Inquiry Sent!</h3>
+        <p className="text-gray-400 mb-8 text-lg font-light">
           We&apos;ll be in touch within 24 hours to help plan your perfect golf trip.
         </p>
 
         {onClose && (
           <button
             onClick={onClose}
-            className="px-6 py-3 rounded-full bg-[#282A2C] text-white font-medium text-sm hover:bg-[#323437] transition-colors"
+            className="px-8 py-3 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10 hover:border-white/20"
           >
             Back to browsing
           </button>
@@ -107,74 +118,99 @@ export default function InquiryForm({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       onSubmit={handleSubmit}
-      className="bg-[#1E1F20] rounded-3xl p-6 border border-white/10"
+      className="bg-[#1a1a1a]/80 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 shadow-2xl"
     >
-      <h3 className="text-white text-xl font-bold mb-6">Send Inquiry</h3>
-
-      {/* Name Field */}
-      <div className="mb-4">
-        <label htmlFor="name" className="block text-sm text-gray-400 mb-1">
-          Name *
-        </label>
-        <input
-          type="text"
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          disabled={status === 'loading'}
-          className="w-full bg-[#282A2C] rounded-xl px-4 py-3 text-white placeholder:text-gray-500 border border-transparent focus:border-[#00D4FF]/50 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          placeholder="Your full name"
-        />
+      <div className="mb-8">
+        <h3 className="text-white text-2xl font-bold mb-2">Send Inquiry</h3>
+        <p className="text-gray-400 text-sm">Fill out the form below and our team will get back to you shortly.</p>
       </div>
 
-      {/* Email Field */}
-      <div className="mb-4">
-        <label htmlFor="email" className="block text-sm text-gray-400 mb-1">
-          Email *
-        </label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={status === 'loading'}
-          className="w-full bg-[#282A2C] rounded-xl px-4 py-3 text-white placeholder:text-gray-500 border border-transparent focus:border-[#00D4FF]/50 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          placeholder="you@example.com"
-        />
-      </div>
+      <div className="space-y-5">
+        {/* Name Field */}
+        <div className="group">
+          <label htmlFor="name" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
+            Name *
+          </label>
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-emerald-400 transition-colors">
+              <User size={18} />
+            </div>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              disabled={status === 'loading'}
+              className="w-full bg-black/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-600 border border-white/5 focus:border-emerald-500/50 focus:bg-black/40 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="Your full name"
+            />
+          </div>
+        </div>
 
-      {/* Phone Field */}
-      <div className="mb-4">
-        <label htmlFor="phone" className="block text-sm text-gray-400 mb-1">
-          Phone <span className="text-gray-500 text-xs">(optional)</span>
-        </label>
-        <input
-          type="tel"
-          id="phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          disabled={status === 'loading'}
-          className="w-full bg-[#282A2C] rounded-xl px-4 py-3 text-white placeholder:text-gray-500 border border-transparent focus:border-[#00D4FF]/50 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          placeholder="+66 or your country code"
-        />
-      </div>
+        {/* Email Field */}
+        <div className="group">
+          <label htmlFor="email" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
+            Email *
+          </label>
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-emerald-400 transition-colors">
+              <Mail size={18} />
+            </div>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={status === 'loading'}
+              className="w-full bg-black/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-600 border border-white/5 focus:border-emerald-500/50 focus:bg-black/40 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="you@example.com"
+            />
+          </div>
+        </div>
 
-      {/* Message Field */}
-      <div className="mb-6">
-        <label htmlFor="message" className="block text-sm text-gray-400 mb-1">
-          Message <span className="text-gray-500 text-xs">(optional)</span>
-        </label>
-        <textarea
-          id="message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          disabled={status === 'loading'}
-          rows={4}
-          className="w-full bg-[#282A2C] rounded-xl px-4 py-3 text-white placeholder:text-gray-500 border border-transparent focus:border-[#00D4FF]/50 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed resize-none"
-          placeholder="Any special requests or dietary requirements?"
-        />
+        {/* Phone Field */}
+        <div className="group">
+          <label htmlFor="phone" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
+            Phone <span className="text-gray-600 font-normal lowercase">(optional)</span>
+          </label>
+          <div className="relative">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-emerald-400 transition-colors">
+              <Phone size={18} />
+            </div>
+            <input
+              type="tel"
+              id="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              disabled={status === 'loading'}
+              className="w-full bg-black/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-600 border border-white/5 focus:border-emerald-500/50 focus:bg-black/40 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="+66 or your country code"
+            />
+          </div>
+        </div>
+
+        {/* Message Field */}
+        <div className="group">
+          <label htmlFor="message" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
+            Message <span className="text-gray-600 font-normal lowercase">(optional)</span>
+          </label>
+          <div className="relative">
+            <div className="absolute left-4 top-6 text-gray-500 group-focus-within:text-emerald-400 transition-colors">
+              <MessageSquare size={18} />
+            </div>
+            <textarea
+              id="message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              disabled={status === 'loading'}
+              rows={4}
+              className="w-full bg-black/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-600 border border-white/5 focus:border-emerald-500/50 focus:bg-black/40 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed resize-none"
+              placeholder="Any special requests or dietary requirements?"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Error Message */}
@@ -182,20 +218,20 @@ export default function InquiryForm({
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-4 p-3 rounded-xl bg-[#FF3B3B]/10 border border-[#FF3B3B]/20 text-[#FF3B3B] text-sm"
+          className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-center"
         >
           Failed to submit inquiry. Please try again.
         </motion.div>
       )}
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-4 mt-8">
         {onClose && (
           <button
             type="button"
             onClick={onClose}
             disabled={status === 'loading'}
-            className="flex-1 px-6 py-3 rounded-full bg-[#282A2C] text-white font-medium text-sm hover:bg-[#323437] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-6 py-4 rounded-xl bg-white/5 text-white font-bold text-sm hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-white/5 hover:border-white/10"
           >
             Cancel
           </button>
@@ -204,15 +240,18 @@ export default function InquiryForm({
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="flex-1 px-6 py-3 rounded-full bg-gradient-to-r from-[#00D4FF] to-[#0095FF] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#00D4FF]/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="flex-[2] px-6 py-4 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
         >
           {status === 'loading' ? (
             <>
-              <Loader2 size={16} className="animate-spin" />
+              <Loader2 size={18} className="animate-spin" />
               <span>Sending...</span>
             </>
           ) : (
-            'Submit Inquiry'
+            <>
+              <span>Submit Inquiry</span>
+              <Send size={18} />
+            </>
           )}
         </button>
       </div>

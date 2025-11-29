@@ -162,3 +162,62 @@
 ### Technical Details
 - Updated: `src/app/auth/callback/route.ts`, `src/components/Sidebar.tsx`, `src/hooks/useSavedCourses.ts`, `src/hooks/useItineraryDrafts.ts`
 - New imports in Sidebar: `useAuth`, `useSavedCourses`, `useItineraryDrafts`
+
+---
+
+## [2025-11-29] Phase 5 Booking Flow
+
+### Added
+- **Inquiries Table** - Database for booking inquiries
+  - `supabase/migrations/003_inquiries.sql` - Migration with RLS policies
+  - Fields: user_id (nullable), email, name, phone, itinerary_snapshot, message, status
+  - Status enum: pending, contacted, confirmed, closed
+  - Why: Persist booking inquiries with full itinerary context
+  - Impact: Inquiries are stored and can be managed by Golf Okay team
+
+- **Inquiry API Routes** - RESTful inquiry management
+  - `POST /api/inquiries` - Submit new inquiry (guest or authenticated)
+  - `GET /api/inquiries/[id]` - Fetch single inquiry with ownership check
+  - Validation: email format, required name field
+  - Why: Enable programmatic inquiry submission
+  - Impact: Forms can submit to API, inquiries persisted to database
+
+- **Resend Email Integration** - Email notifications
+  - `src/lib/email.ts` - Resend SDK integration
+  - HTML template with customer info, itinerary summary, pricing
+  - Notifications sent to info@golfokay.co on new inquiries
+  - Non-blocking: email failure doesn't fail inquiry submission
+  - Why: Golf Okay team needs immediate notification of new leads
+  - Impact: Team receives formatted email within seconds of inquiry
+
+- **InquiryForm Component** - Booking flow UI
+  - `src/components/generative-ui/InquiryForm.tsx`
+  - Fields: name, email, phone (optional), message (optional)
+  - States: idle, loading, success, error
+  - Pre-fills from authenticated user data
+  - Framer Motion animations
+  - Why: Streamlined inquiry submission in chat context
+  - Impact: Users can request bookings without leaving the conversation
+
+- **ItinerarySummary Update** - Book Now button
+  - Added "Request Booking" button with orange gradient
+  - Modal overlay with InquiryForm
+  - Passes itinerary snapshot (region, dates, courses, pricing)
+  - Why: Natural progression from building trip to requesting it
+  - Impact: Users can book directly from itinerary summary
+
+- **AI Tool: start_inquiry** - Booking intent trigger
+  - Added to `tools.ts` with booking-related description
+  - Handler returns inquiry_form signal
+  - Renders InquiryForm in chat via InquiryFormFromTool wrapper
+  - Triggers on: "book", "reserve", "request quote"
+  - Why: Natural language booking initiation
+  - Impact: AI proactively shows booking form when user expresses intent
+
+### Technical Details
+- New dependencies: resend
+- New files: InquiryForm.tsx, email.ts, 003_inquiries.sql, inquiries/route.ts, inquiries/[id]/route.ts
+- Updated: ItinerarySummary.tsx, tools.ts, tool-handlers.ts, Message.tsx, database.ts
+- Tool count: 13 → 14 (added start_inquiry)
+- Environment: RESEND_API_KEY required
+- Tests: sprint-phase5-booking.spec.ts (4 test cases)

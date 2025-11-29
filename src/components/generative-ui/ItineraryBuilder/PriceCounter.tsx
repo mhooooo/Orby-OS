@@ -48,15 +48,17 @@ export function PriceCounter() {
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="mt-4 flex items-center justify-center"
+      className="mt-6 flex items-center justify-center"
     >
-      <div className="inline-flex items-baseline gap-1 px-4 py-2 rounded-full bg-[#282A2C] border border-gray-700">
-        <span className="text-xs text-gray-400">Estimated total:</span>
-        <span className="text-lg font-semibold text-[#FF6B35]">฿</span>
-        <motion.span className="text-lg font-semibold text-white">
-          {displayValue}
-        </motion.span>
-        <span className="text-xs text-gray-500 ml-1">THB</span>
+      <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#1a1a1a]/80 backdrop-blur-xl border border-white/10 shadow-lg shadow-emerald-500/10">
+        <span className="text-sm font-medium text-gray-400">Estimated total:</span>
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl font-bold text-emerald-400">฿</span>
+          <motion.span className="text-2xl font-bold text-white tracking-tight">
+            {displayValue}
+          </motion.span>
+          <span className="text-xs font-medium text-gray-500 ml-1">THB</span>
+        </div>
       </div>
     </motion.div>
   );

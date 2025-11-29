@@ -44,28 +44,28 @@ export function WizardNavigation() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center justify-between mt-8 pt-4 border-t border-gray-700"
+      className="flex items-center justify-between mt-12 pt-8 border-t border-white/10"
     >
       {/* Back Button */}
       <button
         onClick={prevStep}
         disabled={isFirstStep}
         className={cn(
-          'flex items-center gap-2 px-4 py-2.5 rounded-xl transition-colors',
+          'flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-300',
           isFirstStep
             ? 'text-gray-600 cursor-not-allowed'
-            : 'text-gray-400 hover:text-white hover:bg-[#282A2C]'
+            : 'text-gray-400 hover:text-white hover:bg-white/5 hover:shadow-[0_0_20px_rgba(255,255,255,0.05)]'
         )}
       >
-        <ChevronLeft size={18} />
-        <span className="text-sm font-medium">Back</span>
+        <ChevronLeft size={20} />
+        <span className="text-sm font-bold">Back</span>
       </button>
 
       {/* Skip Button - only shown on optional steps */}
       {currentStep === 'logistics' && (
         <button
           onClick={nextStep}
-          className="text-sm text-gray-400 hover:text-white transition-colors"
+          className="text-sm text-gray-500 hover:text-white transition-colors font-medium"
         >
           Skip this step
         </button>
@@ -76,19 +76,19 @@ export function WizardNavigation() {
         onClick={handleNext}
         disabled={!canProceed()}
         className={cn(
-          'flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all',
+          'flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg',
           canProceed()
-            ? 'bg-[#FF6B35] text-black hover:bg-[#E85A2A]'
-            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+            ? 'bg-white text-black hover:bg-gray-100 hover:scale-105 hover:shadow-white/20'
+            : 'bg-white/5 text-gray-500 cursor-not-allowed'
         )}
       >
         <span className="text-sm">
           {isLastStep ? 'Build Itinerary' : 'Continue'}
         </span>
         {isLastStep ? (
-          <Check size={18} />
+          <Check size={20} />
         ) : (
-          <ChevronRight size={18} />
+          <ChevronRight size={20} />
         )}
       </button>
     </motion.div>

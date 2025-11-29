@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Users, Briefcase, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Users, Briefcase, Check, Car, ChevronRight, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Vehicle {
@@ -27,91 +27,120 @@ interface FleetCardProps {
 }
 
 export function FleetCard({ data, className }: FleetCardProps) {
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
+
   return (
     <motion.div
       className={cn(
-        'w-full rounded-3xl overflow-hidden bg-[#1E1F20] border border-gray-800',
+        'relative w-full rounded-[2.5rem] overflow-hidden',
+        'bg-white/5 backdrop-blur-2xl border border-white/10',
+        'shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]',
         className
       )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
     >
+      {/* Decorative Elements */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
+
       {/* Header */}
-      <div className="p-6 border-b border-gray-800">
-        <h2 className="text-xl font-bold text-white mb-1">
-          Transport Options
-        </h2>
-        <p className="text-sm text-gray-400">
-          Choose the perfect ride for your golf trip
+      <div className="relative p-8 border-b border-white/5">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
+            <Car size={24} />
+          </div>
+          <h2 className="text-2xl font-bold text-white">
+            Premium Transport
+          </h2>
+        </div>
+        <p className="text-gray-400 text-sm pl-12">
+          Select your preferred vehicle for the duration of your trip.
         </p>
       </div>
 
-      {/* Vehicle Cards */}
-      <div className="p-6 grid gap-4 md:grid-cols-2">
+      {/* Vehicle Grid */}
+      <div className="p-8 grid gap-6 md:grid-cols-2">
         {data.vehicles.map((vehicle, index) => (
           <motion.div
             key={vehicle.id}
-            className="rounded-2xl bg-[#131314] overflow-hidden border border-gray-800 hover:border-[#FF6B35]/30 transition-colors"
+            className={cn(
+              "group relative rounded-3xl overflow-hidden border transition-all duration-300",
+              selectedVehicle === vehicle.id
+                ? "bg-white/10 border-blue-500/50 shadow-[0_0_30px_rgba(59,130,246,0.2)]"
+                : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20"
+            )}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.1, duration: 0.3 }}
+            transition={{ delay: index * 0.1 }}
+            onClick={() => setSelectedVehicle(vehicle.id)}
           >
-            {/* Vehicle Image */}
-            <div className="relative h-40">
+            {/* Selection Indicator */}
+            <div className={cn(
+              "absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors z-10",
+              selectedVehicle === vehicle.id
+                ? "bg-blue-500 border-blue-500"
+                : "border-white/30 bg-black/20 backdrop-blur-md"
+            )}>
+              {selectedVehicle === vehicle.id && <Check size={14} className="text-white" />}
+            </div>
+
+            {/* Image Area */}
+            <div className="relative h-48 overflow-hidden">
               <div
-                className="absolute inset-0 bg-cover bg-center"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                 style={{ backgroundImage: `url(${vehicle.image})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#131314] to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-80" />
 
-              {/* Type badge */}
-              <div className="absolute top-3 left-3">
-                <span className="px-3 py-1 text-xs font-medium rounded-full bg-[#FF6B35] text-black">
+              <div className="absolute bottom-4 left-4">
+                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-white/20 backdrop-blur-md text-white border border-white/10 mb-2 inline-block">
                   {vehicle.type}
                 </span>
+                <h3 className="text-xl font-bold text-white leading-none">
+                  {vehicle.model}
+                </h3>
               </div>
             </div>
 
-            {/* Vehicle Info */}
-            <div className="p-4">
-              <h3 className="text-lg font-semibold text-white mb-1">
-                {vehicle.model}
-              </h3>
-
-              {/* Capacity Stats */}
-              <div className="flex gap-4 mb-4">
-                <div className="flex items-center gap-1 text-gray-400 text-sm">
-                  <Users size={14} />
-                  <span>{vehicle.capacity} passengers</span>
+            {/* Details */}
+            <div className="p-5">
+              <div className="flex gap-4 mb-5">
+                <div className="flex items-center gap-2 text-gray-400 text-xs font-medium bg-white/5 px-3 py-1.5 rounded-lg">
+                  <Users size={14} className="text-blue-400" />
+                  <span>{vehicle.capacity} Pax</span>
                 </div>
-                <div className="flex items-center gap-1 text-gray-400 text-sm">
-                  <Briefcase size={14} />
-                  <span>{vehicle.luggage} bags</span>
+                <div className="flex items-center gap-2 text-gray-400 text-xs font-medium bg-white/5 px-3 py-1.5 rounded-lg">
+                  <Briefcase size={14} className="text-purple-400" />
+                  <span>{vehicle.luggage} Bags</span>
                 </div>
               </div>
 
-              {/* Amenities */}
-              <div className="space-y-2 mb-4">
-                {vehicle.amenities.slice(0, 4).map((amenity) => (
-                  <div key={amenity} className="flex items-center gap-2 text-sm text-gray-300">
-                    <Check size={14} className="text-[#FF6B35]" />
+              <div className="space-y-2 mb-5">
+                {vehicle.amenities.slice(0, 3).map((amenity) => (
+                  <div key={amenity} className="flex items-center gap-2 text-xs text-gray-300">
+                    <div className="w-1 h-1 rounded-full bg-blue-500" />
                     <span>{amenity}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Price */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-800">
+              <div className="flex items-end justify-between pt-4 border-t border-white/5">
                 <div>
-                  <span className="text-xs text-gray-500">From</span>
-                  <p className="text-xl font-bold text-[#FF6B35]">
-                    ฿{vehicle.pricePerDay.toLocaleString()}
-                  </p>
-                  <span className="text-xs text-gray-500">per day</span>
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Daily Rate</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-lg font-bold text-white">฿{vehicle.pricePerDay.toLocaleString()}</span>
+                  </div>
                 </div>
-                <button className="px-4 py-2 rounded-full bg-[#282A2C] text-white text-sm font-medium hover:bg-[#FF6B35] hover:text-black transition-colors">
-                  Select
+                <button className={cn(
+                  "px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2",
+                  selectedVehicle === vehicle.id
+                    ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
+                    : "bg-white/10 text-white hover:bg-white/20"
+                )}>
+                  {selectedVehicle === vehicle.id ? 'Selected' : 'Select'}
+                  {selectedVehicle !== vehicle.id && <ChevronRight size={14} />}
                 </button>
               </div>
             </div>
@@ -119,10 +148,11 @@ export function FleetCard({ data, className }: FleetCardProps) {
         ))}
       </div>
 
-      {/* Notes */}
-      <div className="px-6 pb-6">
-        <div className="p-4 bg-[#131314] rounded-xl">
-          <p className="text-sm text-gray-400">
+      {/* Footer Info */}
+      <div className="px-8 pb-8">
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
+          <Info size={18} className="text-blue-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-blue-200/80 leading-relaxed">
             {data.notes}
           </p>
         </div>
