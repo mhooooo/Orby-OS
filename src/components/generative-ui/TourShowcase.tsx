@@ -208,7 +208,7 @@ export function TourShowcase() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4">
+    <div className="w-full max-w-5xl mx-auto p-2 sm:p-4">
       <motion.div
         layout
         className={cn(
@@ -227,7 +227,7 @@ export function TourShowcase() {
         />
 
         {/* Content Container */}
-        <div className="relative p-8 md:p-12 flex flex-col md:flex-row gap-12 items-center">
+        <div className="relative p-6 sm:p-8 md:p-12 flex flex-col md:flex-row gap-8 sm:gap-12 items-center">
 
           {/* Left Side: Visual & Icon */}
           <div className="w-full md:w-1/3 flex flex-col items-center justify-center text-center">
@@ -236,9 +236,9 @@ export function TourShowcase() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", duration: 0.6 }}
-              className="w-32 h-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 shadow-2xl shadow-black/20"
+              className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4 sm:mb-6 shadow-2xl shadow-black/20"
             >
-              <Icon size={48} className="text-white drop-shadow-lg" />
+              <Icon size={36} className="text-white drop-shadow-lg sm:w-12 sm:h-12" />
             </motion.div>
 
             <div className="flex gap-2 justify-center">
@@ -275,30 +275,30 @@ export function TourShowcase() {
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
 
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 sm:mb-3 tracking-tight">
                   {step.title}
                 </h2>
-                <p className="text-xl text-white/80 mb-6 font-light">
+                <p className="text-base sm:text-lg md:text-xl text-white/80 mb-4 sm:mb-6 font-light">
                   {step.subtitle}
                 </p>
-                <p className="text-gray-300 leading-relaxed mb-8 max-w-xl">
+                <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-6 sm:mb-8 max-w-xl">
                   {step.description}
                 </p>
 
                 {/* Stats or Features */}
                 {step.stats && (
-                  <div className="grid grid-cols-3 gap-4 mb-8">
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
                     {step.stats.map((stat, idx) => (
-                      <div key={idx} className="bg-white/5 border border-white/5 rounded-2xl p-4 text-center">
-                        <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                        <div className="text-[10px] uppercase tracking-wider text-gray-400">{stat.label}</div>
+                      <div key={idx} className="bg-white/5 border border-white/5 rounded-2xl p-3 sm:p-4 text-center">
+                        <div className="text-xl sm:text-2xl font-bold text-white mb-1">{stat.value}</div>
+                        <div className="text-[9px] sm:text-[10px] uppercase tracking-wider text-gray-400">{stat.label}</div>
                       </div>
                     ))}
                   </div>
                 )}
 
                 {step.features && (
-                  <div className="grid grid-cols-2 gap-3 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-6 sm:mb-8">
                     {step.features.map((feature, idx) => (
                       <div key={idx} className="flex items-center gap-3">
                         <div className="w-1.5 h-1.5 rounded-full bg-white/50" />
@@ -334,7 +334,7 @@ export function TourShowcase() {
         </div>
 
         {/* Controls Overlay */}
-        <div className="absolute bottom-6 right-6 flex gap-2">
+        <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-6 flex gap-2">
           <button
             onClick={prevStep}
             className="p-3 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-md transition-colors border border-white/5"

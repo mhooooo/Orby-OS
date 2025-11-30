@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
+import { analytics } from '@/lib/analytics';
 
 interface SavedCourse {
   id: string;
@@ -121,6 +122,10 @@ export function useSavedCourses(): UseSavedCoursesReturn {
 
         // Refetch to get the actual data
         await fetchSavedCourses();
+
+        // Track successful course save
+        analytics.courseSaved(courseId);
+
         return true;
       } catch (err) {
         // Rollback optimistic update
@@ -157,6 +162,9 @@ export function useSavedCourses(): UseSavedCoursesReturn {
         if (!response.ok) {
           throw new Error('Failed to unsave course');
         }
+
+        // Track course unsave
+        analytics.courseUnsaved(courseId);
 
         return true;
       } catch (err) {

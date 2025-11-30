@@ -113,20 +113,20 @@ export function ServiceBento() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4">
+    <div className="w-full max-w-5xl mx-auto p-2 sm:p-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid grid-cols-4 md:grid-cols-6 gap-4 auto-rows-[120px]"
+        className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 sm:gap-4 auto-rows-[100px] sm:auto-rows-[120px]"
       >
         {SERVICES.map((service) => {
           const Icon = service.icon;
           const gridClass = service.size === 'large'
-            ? 'col-span-4 md:col-span-3 row-span-2'
+            ? 'col-span-2 sm:col-span-4 md:col-span-3 row-span-2'
             : service.size === 'medium'
-              ? 'col-span-2 md:col-span-3 row-span-2'
-              : 'col-span-2 md:col-span-2 row-span-1';
+              ? 'col-span-2 sm:col-span-2 md:col-span-3 row-span-2'
+              : 'col-span-1 sm:col-span-2 md:col-span-2 row-span-1';
 
           return (
             <motion.button
@@ -137,7 +137,7 @@ export function ServiceBento() {
               whileTap={{ scale: 0.98 }}
               className={cn(
                 gridClass,
-                "group relative overflow-hidden rounded-3xl p-6 text-left transition-all duration-300",
+                "group relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-left transition-all duration-300",
                 "bg-white/5 backdrop-blur-xl border border-white/10",
                 "hover:bg-white/10 hover:border-white/20 hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
               )}
@@ -154,10 +154,10 @@ export function ServiceBento() {
               <div className="relative h-full flex flex-col z-10">
                 <div className="flex items-start justify-between mb-auto">
                   <div className={cn(
-                    "p-3 rounded-2xl bg-white/5 backdrop-blur-md border border-white/5 group-hover:scale-110 transition-transform duration-300",
+                    "p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/5 backdrop-blur-md border border-white/5 group-hover:scale-110 transition-transform duration-300",
                     "group-hover:bg-white/10 group-hover:border-white/20"
                   )}>
-                    <Icon size={service.size === 'small' ? 20 : 24} className="text-white" />
+                    <Icon size={service.size === 'small' ? 16 : 20} className="text-white sm:w-6 sm:h-6" />
                   </div>
                   <ArrowUpRight
                     size={20}
@@ -168,12 +168,12 @@ export function ServiceBento() {
                 <div className="mt-auto">
                   <h3 className={cn(
                     "font-bold text-white mb-1 leading-tight",
-                    service.size === 'small' ? 'text-sm' : 'text-xl'
+                    service.size === 'small' ? 'text-xs sm:text-sm' : 'text-base sm:text-xl'
                   )}>
                     {service.title}
                   </h3>
                   {service.size !== 'small' && (
-                    <p className="text-sm text-gray-400 line-clamp-2 group-hover:text-gray-200 transition-colors">
+                    <p className="text-xs sm:text-sm text-gray-400 line-clamp-2 group-hover:text-gray-200 transition-colors">
                       {service.description}
                     </p>
                   )}

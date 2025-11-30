@@ -3,6 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import { useChatContext } from '@/context/ChatContext';
 import { Message } from './Message';
+import { TypingIndicator } from './TypingIndicator';
 import { cn } from '@/lib/utils';
 
 interface MessageListProps {
@@ -10,12 +11,12 @@ interface MessageListProps {
 }
 
 export function MessageList({ className }: MessageListProps) {
-  const { messages } = useChatContext();
+  const { messages, isLoading } = useChatContext();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isLoading]);
 
   if (messages.length === 0) {
     return null; // Will be replaced with greeting state
@@ -30,6 +31,11 @@ export function MessageList({ className }: MessageListProps) {
           isLatest={idx === messages.length - 1}
         />
       ))}
+      {isLoading && messages[messages.length - 1]?.role === 'user' && (
+        <div className="flex justify-start">
+          <TypingIndicator />
+        </div>
+      )}
       <div ref={bottomRef} />
     </div>
   );

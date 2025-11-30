@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { CheckCircle, Loader2, Send, User, Mail, Phone, MessageSquare } from 'lucide-react';
 import { useState, useEffect, FormEvent } from 'react';
 import { cn } from '@/lib/utils';
+import { analytics } from '@/lib/analytics';
 
 interface InquiryFormProps {
   itinerarySnapshot?: Record<string, unknown>;
@@ -68,6 +69,16 @@ export default function InquiryForm({
 
       if (!response.ok) throw new Error('Failed to submit');
 
+      const data = await response.json();
+
+      // Track inquiry submission
+      const snapshot = itinerarySnapshot as { courses?: unknown[]; days?: number; groupSize?: number } | undefined;
+      analytics.inquirySubmitted({
+        coursesCount: Array.isArray(snapshot?.courses) ? snapshot.courses.length : 0,
+        days: snapshot?.days || 0,
+        groupSize: snapshot?.groupSize || 0,
+      });
+
       setStatus('success');
       onSuccess?.();
     } catch (error) {
@@ -83,19 +94,19 @@ export default function InquiryForm({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'spring', duration: 0.5, bounce: 0.3 }}
-        className="bg-[#1a1a1a]/80 backdrop-blur-xl rounded-[2rem] p-8 border border-white/10 text-center shadow-2xl"
+        className="bg-[#1a1a1a]/80 backdrop-blur-xl rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 border border-white/10 text-center shadow-2xl"
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: 'spring', duration: 0.6, bounce: 0.4 }}
-          className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+          className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 rounded-full bg-emerald-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]"
         >
-          <CheckCircle size={40} className="text-emerald-400" />
+          <CheckCircle size={36} className="text-emerald-400 sm:w-10 sm:h-10" />
         </motion.div>
 
-        <h3 className="text-white text-3xl font-bold mb-3 tracking-tight">Inquiry Sent!</h3>
-        <p className="text-gray-400 mb-8 text-lg font-light">
+        <h3 className="text-white text-2xl sm:text-3xl font-bold mb-3 tracking-tight">Inquiry Sent!</h3>
+        <p className="text-gray-400 mb-6 sm:mb-8 text-base sm:text-lg font-light">
           We&apos;ll be in touch within 24 hours to help plan your perfect golf trip.
         </p>
 
@@ -118,11 +129,11 @@ export default function InquiryForm({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       onSubmit={handleSubmit}
-      className="bg-[#1a1a1a]/80 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/10 shadow-2xl"
+      className="bg-[#1a1a1a]/80 backdrop-blur-xl rounded-2xl sm:rounded-[2.5rem] p-6 sm:p-8 border border-white/10 shadow-2xl"
     >
-      <div className="mb-8">
-        <h3 className="text-white text-2xl font-bold mb-2">Send Inquiry</h3>
-        <p className="text-gray-400 text-sm">Fill out the form below and our team will get back to you shortly.</p>
+      <div className="mb-6 sm:mb-8">
+        <h3 className="text-white text-xl sm:text-2xl font-bold mb-2">Send Inquiry</h3>
+        <p className="text-gray-400 text-xs sm:text-sm">Fill out the form below and our team will get back to you shortly.</p>
       </div>
 
       <div className="space-y-5">
@@ -225,13 +236,13 @@ export default function InquiryForm({
       )}
 
       {/* Action Buttons */}
-      <div className="flex gap-4 mt-8">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8">
         {onClose && (
           <button
             type="button"
             onClick={onClose}
             disabled={status === 'loading'}
-            className="flex-1 px-6 py-4 rounded-xl bg-white/5 text-white font-bold text-sm hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-white/5 hover:border-white/10"
+            className="sm:flex-1 px-6 py-3 sm:py-4 rounded-xl bg-white/5 text-white font-bold text-sm hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-white/5 hover:border-white/10"
           >
             Cancel
           </button>
@@ -240,7 +251,7 @@ export default function InquiryForm({
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="flex-[2] px-6 py-4 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+          className="sm:flex-[2] px-6 py-3 sm:py-4 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
         >
           {status === 'loading' ? (
             <>

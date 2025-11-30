@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Message, ChatState, ToolCall } from '@/types/chat';
+import { analytics } from '@/lib/analytics';
 
 // Parse tool result markers from response content
 function parseToolResults(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
@@ -121,6 +122,16 @@ export function useChat(initialMessages: Message[] = []) {
         accumulatedContent += chunk;
         updateLastMessage(accumulatedContent);
       }
+
+      // Track chat turn after completion
+      const { toolCalls } = parseToolResults(accumulatedContent);
+      const turnNumber = state.messages.filter(m => m.role === 'user').length + 1;
+      analytics.chatTurn(turnNumber, toolCalls.length > 0);
+
+      // Track individual tool usage
+      toolCalls.forEach(tool => {
+        analytics.toolUsed(tool.name);
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

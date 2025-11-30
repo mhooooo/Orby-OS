@@ -5,13 +5,20 @@ import { motion } from 'framer-motion';
 import { MapPin, Flag, Ruler, Calendar, Users, Sun, Moon, Trophy, Wind } from 'lucide-react';
 import { Course } from '@/types/course';
 import { cn } from '@/lib/utils';
+import { CourseDetailSkeleton } from '@/components/ui/Skeleton';
+import { CloudinaryImage } from '@/components/ui/CloudinaryImage';
 
 interface CourseDetailCardProps {
-  course: Course;
+  course?: Course;
   className?: string;
+  isLoading?: boolean;
 }
 
-export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
+export function CourseDetailCard({ course, className, isLoading = false }: CourseDetailCardProps) {
+  if (isLoading || !course) {
+    return <CourseDetailSkeleton />;
+  }
+
   return (
     <motion.div
       className={cn(
@@ -25,15 +32,21 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       {/* Hero Section */}
-      <div className="relative h-96">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${course.heroImage})` }}
+      <div className="relative h-64 sm:h-80 lg:h-96">
+        <CloudinaryImage
+          src={course.heroImage}
+          alt={course.name}
+          width={1200}
+          height={384}
+          priority
+          blur
+          className="absolute inset-0"
+          objectFit="cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
 
         {/* Top Tags */}
-        <div className="absolute top-6 left-6 flex flex-wrap gap-2">
+        <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex flex-wrap gap-2">
           {course.tags.map((tag) => (
             <span
               key={tag}
@@ -45,12 +58,12 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
         </div>
 
         {/* Title & Location */}
-        <div className="absolute bottom-0 left-0 right-0 p-8">
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight shadow-black drop-shadow-lg"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 sm:mb-3 tracking-tight shadow-black drop-shadow-lg"
           >
             {course.name}
           </motion.h2>
@@ -58,9 +71,9 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="flex items-center gap-2 text-gray-300 text-lg"
+            className="flex items-center gap-2 text-gray-300 text-sm sm:text-base lg:text-lg"
           >
-            <MapPin size={20} className="text-emerald-400" />
+            <MapPin size={18} className="text-emerald-400 sm:w-5 sm:h-5" />
             <span>{course.location}</span>
           </motion.div>
         </div>
@@ -68,39 +81,39 @@ export function CourseDetailCard({ course, className }: CourseDetailCardProps) {
 
       {/* Stats Bar */}
       <div className="grid grid-cols-3 border-b border-white/5 bg-white/5">
-        <div className="flex flex-col items-center py-6 border-r border-white/5 group hover:bg-white/5 transition-colors">
-          <div className="flex items-center gap-2 mb-1">
-            <Flag size={18} className="text-purple-400" />
-            <span className="text-xs text-gray-400 uppercase tracking-wider">Holes</span>
+        <div className="flex flex-col items-center py-4 sm:py-6 border-r border-white/5 group hover:bg-white/5 transition-colors">
+          <div className="flex items-center gap-1 sm:gap-2 mb-1">
+            <Flag size={16} className="text-purple-400 sm:w-[18px] sm:h-[18px]" />
+            <span className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider">Holes</span>
           </div>
-          <span className="text-2xl font-bold text-white">{course.holes}</span>
+          <span className="text-xl sm:text-2xl font-bold text-white">{course.holes}</span>
         </div>
-        <div className="flex flex-col items-center py-6 border-r border-white/5 group hover:bg-white/5 transition-colors">
-          <div className="flex items-center gap-2 mb-1">
-            <Trophy size={18} className="text-yellow-400" />
-            <span className="text-xs text-gray-400 uppercase tracking-wider">Par</span>
+        <div className="flex flex-col items-center py-4 sm:py-6 border-r border-white/5 group hover:bg-white/5 transition-colors">
+          <div className="flex items-center gap-1 sm:gap-2 mb-1">
+            <Trophy size={16} className="text-yellow-400 sm:w-[18px] sm:h-[18px]" />
+            <span className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider">Par</span>
           </div>
-          <span className="text-2xl font-bold text-white">{course.par}</span>
+          <span className="text-xl sm:text-2xl font-bold text-white">{course.par}</span>
         </div>
-        <div className="flex flex-col items-center py-6 group hover:bg-white/5 transition-colors">
-          <div className="flex items-center gap-2 mb-1">
-            <Ruler size={18} className="text-blue-400" />
-            <span className="text-xs text-gray-400 uppercase tracking-wider">Yards</span>
+        <div className="flex flex-col items-center py-4 sm:py-6 group hover:bg-white/5 transition-colors">
+          <div className="flex items-center gap-1 sm:gap-2 mb-1">
+            <Ruler size={16} className="text-blue-400 sm:w-[18px] sm:h-[18px]" />
+            <span className="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider">Yards</span>
           </div>
-          <span className="text-2xl font-bold text-white">{course.yardage.toLocaleString()}</span>
+          <span className="text-xl sm:text-2xl font-bold text-white">{course.yardage.toLocaleString()}</span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-8">
-        <div className="grid md:grid-cols-3 gap-8">
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
           {/* Left Column: Description */}
-          <div className="md:col-span-2 space-y-8">
+          <div className="md:col-span-2 space-y-6 sm:space-y-8">
             <div>
-              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">
+              <h3 className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-widest mb-3 sm:mb-4">
                 About the Course
               </h3>
-              <p className="text-gray-300 leading-relaxed text-lg font-light">
+              <p className="text-gray-300 leading-relaxed text-sm sm:text-base lg:text-lg font-light">
                 {course.description}
               </p>
             </div>

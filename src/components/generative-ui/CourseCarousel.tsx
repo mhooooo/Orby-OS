@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { CourseCard } from './CourseCard';
 import { Course } from '@/types/course';
 import { cn } from '@/lib/utils';
+import { CourseCardSkeleton } from '@/components/ui/Skeleton';
 
 // Mock data for initial development
 export const MOCK_COURSES: Course[] = [
@@ -79,12 +80,14 @@ interface CourseCarouselProps {
   courses?: Course[];
   className?: string;
   onAuthRequired?: () => void;
+  isLoading?: boolean;
 }
 
 export function CourseCarousel({
   courses = MOCK_COURSES,
   className,
   onAuthRequired,
+  isLoading = false,
 }: CourseCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -97,6 +100,20 @@ export function CourseCarousel({
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className={cn('relative', className)}>
+        <div className="flex gap-6 overflow-x-auto pb-8 pt-4 px-4 -mx-4 scrollbar-hide">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex-shrink-0">
+              <CourseCardSkeleton />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn('relative group', className)}>
@@ -117,7 +134,7 @@ export function CourseCarousel({
       {/* Carousel container */}
       <motion.div
         ref={scrollRef}
-        className="flex gap-6 overflow-x-auto pb-8 pt-4 px-4 -mx-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+        className="flex gap-4 sm:gap-6 overflow-x-auto pb-6 sm:pb-8 pt-2 sm:pt-4 px-2 sm:px-4 -mx-2 sm:-mx-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
