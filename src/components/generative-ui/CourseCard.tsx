@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MapPin, Flag, X, ChevronRight, Wind, DollarSign, Loader2 } from 'lucide-react';
+import { Heart, MapPin, Flag, X, ChevronRight, Wind, Loader2 } from 'lucide-react';
 import { Course } from '@/types/course';
 import { cn } from '@/lib/utils';
 import { useChatContext } from '@/context/ChatContext';
@@ -16,7 +16,7 @@ interface CourseCardProps {
   compact?: boolean;
 }
 
-export function CourseCard({ course, onAuthRequired, compact = false }: CourseCardProps) {
+function CourseCardInner({ course, onAuthRequired, compact = false }: CourseCardProps) {
   const { sendMessage } = useChatContext();
   const { user } = useAuth();
   const { saveCourse, unsaveCourse, isSaved } = useSavedCourses();
@@ -253,3 +253,11 @@ export function CourseCard({ course, onAuthRequired, compact = false }: CourseCa
     </motion.div>
   );
 }
+
+// Memoize to prevent re-renders when parent updates (e.g., during streaming)
+export const CourseCard = memo(CourseCardInner, (prevProps, nextProps) => {
+  return (
+    prevProps.course.id === nextProps.course.id &&
+    prevProps.compact === nextProps.compact
+  );
+});

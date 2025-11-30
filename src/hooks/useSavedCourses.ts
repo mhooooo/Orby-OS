@@ -44,11 +44,11 @@ export function useSavedCourses(): UseSavedCoursesReturn {
 
   // Fetch saved courses
   const fetchSavedCourses = useCallback(async () => {
-    console.log('[useSavedCourses] fetchSavedCourses called, user:', user?.email);
     if (!user) {
       setSavedCourses([]);
       return;
     }
+    console.log('[useSavedCourses] fetchSavedCourses for user:', user.email);
 
     setLoading(true);
     setError(null);
@@ -181,9 +181,7 @@ export function useSavedCourses(): UseSavedCoursesReturn {
   // Check if a course is saved
   const isSaved = useCallback(
     (courseId: string): boolean => {
-      const saved = savedCourses.some((c) => c.course_id === courseId);
-      console.log('[useSavedCourses] isSaved check:', courseId, 'result:', saved, 'savedCourses:', savedCourses.map(c => c.course_id));
-      return saved;
+      return savedCourses.some((c) => c.course_id === courseId);
     },
     [savedCourses]
   );
