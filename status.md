@@ -5,6 +5,7 @@
 - [ ] Analytics configuration (Plausible domain setup)
 
 ## Recently Completed
+- [x] Memory Architecture Foundation - Session identity, Active Memory tools, realtime sync
 - [x] Phase 6: Polish & Launch - Responsive design, error handling, analytics integration
 - [x] Phase 5: Booking Flow - Inquiry submission + email notifications
 - [x] Auth Callback Fix - OAuth session persistence to cookies
@@ -108,6 +109,19 @@
   - Documentation: CLAUDE.md, status.md, plan.md, changelog.md updated
   - Analytics: Plausible integration ready (requires NEXT_PUBLIC_PLAUSIBLE_DOMAIN)
   - Note: Tests require Supabase env vars to be configured for full pass rate
+
+- [2025-12-01 XX:XX] ✅ Completed: Memory Architecture Foundation
+  - Session identity layer (src/lib/session.ts) with localStorage UUID persistence
+  - SessionContext provider with automatic guest → user merge on auth
+  - API client wrapper (src/lib/api-client.ts) with X-Session-UUID header injection
+  - Database schema: session_profiles, itinerary_drafts with JSONB columns, pgvector extension
+  - Active Memory tools: set_trip_dates, set_group_size, add_course_to_trip, set_budget, set_transport_needs, set_special_requirements
+  - Tool handlers in src/lib/tool-handlers.ts with Supabase upsert operations
+  - Realtime subscription hook (useRealtimeItinerary) for live itinerary sync
+  - RPC function: merge_session_to_user for session → user data migration
+  - Build verification: TypeScript clean, ESLint 10 warnings (unused vars only)
+  - Test suite: sprint-memory-architecture.spec.ts (6 tests all passing)
+  - Fixed: useChat now uses apiFetch to include session header in all API calls
 
 ## Next Phase
 - Vercel deployment with environment variables

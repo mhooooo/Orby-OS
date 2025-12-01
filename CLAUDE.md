@@ -159,6 +159,9 @@ Mock mode for UI development, cached mode for integration testing.
 - [2024-11]: Playwright tests need proper selectors for components without semantic HTML tags - look for actual DOM structure, not assumed tags
 - [2024-11]: Logo visibility depends on intro animation state (showLogo prop) - tests should account for conditional rendering
 - [2024-11]: Phase 6 polish complete - responsive design tested, build verified, analytics ready for deployment
+- [2024-12]: SessionProvider must wrap inside AuthProvider to access user state for merge workflow
+- [2024-12]: Supabase type inference issues with new tables - use `as any` with eslint-disable for upsert/rpc calls until types are regenerated
+- [2024-12]: getSessionUuid called during SSR throws error - initialize session UUID in useEffect on client-side only, not in useMemo/useState initializer
 
 ---
 
@@ -178,10 +181,14 @@ Mock mode for UI development, cached mode for integration testing.
 - `src/lib/email.ts` - Email notification service (Resend)
 - `src/context/ItineraryContext.tsx` - Wizard state management
 - `src/context/AuthContext.tsx` - Auth state management
+- `src/context/SessionContext.tsx` - Session state management
+- `src/lib/session.ts` - Session UUID utilities
+- `src/lib/api-client.ts` - Fetch wrapper with session header
 - `src/hooks/useChat.ts` - Chat state + tool result parsing
 - `src/hooks/useAuth.ts` - Auth session hooks
 - `src/hooks/useSavedCourses.ts` - Saved courses CRUD
 - `src/hooks/useItineraryDrafts.ts` - Itinerary drafts CRUD
+- `src/hooks/useRealtimeItinerary.ts` - Realtime itinerary subscription
 - `src/lib/tools.ts` - AI tool definitions and system prompt
 - `src/lib/tool-handlers.ts` - Tool execution handlers
 - `src/lib/supabase.ts` - Database client
@@ -190,10 +197,12 @@ Mock mode for UI development, cached mode for integration testing.
 - `supabase/schema.sql` - Database schema + seed data
 - `supabase/migrations/002_user_data.sql` - User data tables
 - `supabase/migrations/003_inquiries.sql` - Inquiries table
+- `supabase/migrations/004_memory_system.sql` - Memory system schema
 - `playwright.config.ts` - E2E test configuration
 - `tests/audit/sprint-phase4-auth.spec.ts` - Auth flow tests
 - `tests/audit/sprint-phase5-booking.spec.ts` - Booking flow tests
 - `tests/audit/sprint-phase6-polish.spec.ts` - Polish & responsive tests
+- `tests/audit/sprint-memory-architecture.spec.ts` - Memory architecture tests
 
 **Design Tokens:**
 ```typescript

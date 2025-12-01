@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-export const golfOkayTools: Anthropic.Tool[] = [
+const BASE_TOOLS: Anthropic.Tool[] = [
   {
     name: 'show_courses',
     description: 'Display a carousel of golf courses based on filters. Use when user asks about courses, recommendations, or wants to browse options.',
@@ -168,6 +168,148 @@ export const golfOkayTools: Anthropic.Tool[] = [
   },
 ];
 
+// Active Memory Tools - Update itinerary_drafts in real-time
+export const ACTIVE_MEMORY_TOOLS: Anthropic.Tool[] = [
+  {
+    name: 'set_trip_dates',
+    description: 'Set the travel dates for the trip. Use when user specifies dates like "next Tuesday", "March 15-20", etc.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        start_date: {
+          type: 'string',
+          description: 'Start date in YYYY-MM-DD format',
+        },
+        end_date: {
+          type: 'string',
+          description: 'End date in YYYY-MM-DD format (optional for single day)',
+        },
+        flexibility: {
+          type: 'string',
+          enum: ['fixed', 'flexible_1_day', 'flexible_week'],
+          description: 'How flexible are these dates',
+        },
+      },
+      required: ['start_date'],
+    },
+  },
+  {
+    name: 'set_group_size',
+    description: 'Set the number of golfers in the group. Use when user mentions party size.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        count: {
+          type: 'number',
+          description: 'Number of golfers',
+        },
+        composition: {
+          type: 'string',
+          description: 'Optional: "couples", "friends", "corporate", "solo"',
+        },
+      },
+      required: ['count'],
+    },
+  },
+  {
+    name: 'add_course_to_trip',
+    description: 'Add a specific golf course to the itinerary. Use when user says they want to play a specific course.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        course_name: {
+          type: 'string',
+          description: 'Name of the course',
+        },
+        course_id: {
+          type: 'string',
+          description: 'Course ID if known',
+        },
+        preferred_date: {
+          type: 'string',
+          description: 'Preferred date for this course (YYYY-MM-DD)',
+        },
+        tee_time_preference: {
+          type: 'string',
+          enum: ['early_morning', 'morning', 'midday', 'afternoon'],
+          description: 'Preferred tee time slot',
+        },
+      },
+      required: ['course_name'],
+    },
+  },
+  {
+    name: 'set_budget',
+    description: 'Set budget constraints for the trip. Use when user mentions budget, price sensitivity, or spending limits.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        total_budget: {
+          type: 'number',
+          description: 'Total budget in THB',
+        },
+        per_round_budget: {
+          type: 'number',
+          description: 'Max budget per round in THB',
+        },
+        tier: {
+          type: 'string',
+          enum: ['budget', 'mid_range', 'premium', 'luxury'],
+          description: 'General budget tier',
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'set_transport_needs',
+    description: 'Set transportation requirements. Use when user mentions transport, transfers, or vehicle needs.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        need_airport_transfer: {
+          type: 'boolean',
+        },
+        need_daily_transport: {
+          type: 'boolean',
+        },
+        vehicle_preference: {
+          type: 'string',
+          enum: ['sedan', 'suv', 'van', 'minibus'],
+        },
+        pickup_location: {
+          type: 'string',
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'set_special_requirements',
+    description: 'Record special requirements or constraints. Use for accessibility, dietary, health needs.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        needs_golf_cart: {
+          type: 'boolean',
+          description: 'User requires a golf cart',
+        },
+        dietary_restrictions: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        mobility_notes: {
+          type: 'string',
+        },
+        other: {
+          type: 'string',
+        },
+      },
+      required: [],
+    },
+  },
+];
+
 export const GOLF_OKAY_SYSTEM_PROMPT = `You are Golf Okay, a friendly Golf Concierge for Thailand. Founded by Tanyawit and Pharuehat.
 
 TRIP PLANNING:
@@ -184,6 +326,19 @@ You: "Let's build your perfect Thailand golf experience!" [start_itinerary_build
 User: "I want to plan a trip to Phuket"
 You: "Great choice! Let's plan your Phuket golf adventure." [start_itinerary_builder with region: "phuket"]
 
+ACTIVE MEMORY TOOLS:
+When user provides HARD DATA (dates, group size, specific courses, budget, transport needs), use Active Memory tools to save this information:
+- set_trip_dates - When user mentions specific dates (e.g., "March 15-20", "next Tuesday")
+- set_group_size - When user mentions how many people (e.g., "we're 6 golfers", "solo trip")
+- add_course_to_trip - When user names a specific course they want to play
+- set_budget - When user mentions budget constraints (e.g., "under 5000 THB per round", "luxury only")
+- set_transport_needs - When user mentions transport preferences (e.g., "need airport pickup", "prefer van")
+- set_special_requirements - When user mentions dietary, mobility, or special needs
+
+These tools update the itinerary_drafts table in real-time. The data persists and will be remembered across the session.
+
+IMPORTANT: Use Active Memory tools for explicit data, not preferences or soft signals.
+
 FOR OTHER REQUESTS:
 - show_courses - When browsing/exploring courses
 - show_course_detail - When asking about specific course
@@ -198,3 +353,6 @@ PERSONALITY:
 - Warm, concise, helpful
 - Let the pickers do the work
 - Celebrate their choices: "Great choice!", "Perfect!", "Nice!"`;
+
+// Export combined tools array
+export const golfOkayTools: Anthropic.Tool[] = [...BASE_TOOLS, ...ACTIVE_MEMORY_TOOLS];

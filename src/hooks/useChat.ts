@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { Message, ChatState, ToolCall } from '@/types/chat';
 import { analytics } from '@/lib/analytics';
 import { matchStaticRoute } from '@/lib/static-routes';
+import { apiFetch } from '@/lib/api-client';
 
 // Parse tool result markers from response content
 function parseToolResults(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
@@ -117,9 +118,8 @@ export function useChat(initialMessages: Message[] = []) {
     addMessage(assistantMessage);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await apiFetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...state.messages, userMessage],
         }),

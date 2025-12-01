@@ -18,6 +18,9 @@ export async function POST(request: NextRequest) {
   try {
     const { messages } = await request.json();
 
+    // Extract session UUID from headers for Active Memory tools
+    const sessionUuid = request.headers.get('X-Session-UUID') || undefined;
+
     // Transform messages to Anthropic format
     // Filter out messages with empty content (can happen with tool-only responses)
     const anthropicMessages: Anthropic.MessageParam[] = messages
@@ -52,7 +55,8 @@ export async function POST(request: NextRequest) {
       for (const toolUse of toolUseBlocks) {
         const result = await executeToolCall(
           toolUse.name,
-          toolUse.input as Record<string, unknown>
+          toolUse.input as Record<string, unknown>,
+          sessionUuid
         );
 
         // Store for frontend
