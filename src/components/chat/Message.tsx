@@ -14,6 +14,7 @@ import {
   GroupSizePicker,
   DaysPicker,
 } from '@/components/generative-ui/pickers';
+import { ItineraryBuilder } from '@/components/generative-ui/ItineraryBuilder';
 import { TourShowcase } from '@/components/generative-ui/TourShowcase';
 import { ServiceBento } from '@/components/generative-ui/ServiceBento';
 import { Course } from '@/types/course';
@@ -197,7 +198,23 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
       return null;
     }
 
-    // Chipotle-style pickers for trip planning
+    // Itinerary Builder wizard
+    case 'start_itinerary_builder': {
+      const input = tool.input as { region?: string } | undefined;
+      const regionMap: Record<string, 'bangkok' | 'phuket' | 'hua_hin' | 'chiang_mai' | 'pattaya'> = {
+        bangkok: 'bangkok',
+        phuket: 'phuket',
+        hua_hin: 'hua_hin',
+        chiang_mai: 'chiang_mai',
+        pattaya: 'pattaya',
+      };
+      const initialRegion = input?.region ? regionMap[input.region] : undefined;
+      return wrapWithErrorBoundary(
+        <ItineraryBuilder initialRegion={initialRegion} />
+      );
+    }
+
+    // Individual pickers (for future segmented flow)
     case 'pick_region':
       return wrapWithErrorBoundary(<RegionPicker />);
 

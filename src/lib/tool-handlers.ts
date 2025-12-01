@@ -138,7 +138,13 @@ export async function executeToolCall(
     case 'show_about_us':
       return handleShowAboutUs();
 
-    // Chipotle-style pickers - return empty object, frontend renders the picker
+    // Itinerary Builder wizard - returns input for region pre-selection
+    case 'start_itinerary_builder': {
+      const { region } = toolInput as { region?: string };
+      return { region: region || null };
+    }
+
+    // Individual pickers - return empty object, frontend renders the picker
     case 'pick_region':
     case 'pick_group_size':
     case 'pick_days':

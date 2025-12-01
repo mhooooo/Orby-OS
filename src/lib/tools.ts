@@ -57,10 +57,26 @@ export const golfOkayTools: Anthropic.Tool[] = [
       required: [],
     },
   },
-  // Trip planning pickers - Chipotle style, one at a time
+  // Trip planning
+  {
+    name: 'start_itinerary_builder',
+    description: 'Start the itinerary builder wizard. Use when user wants to plan a trip, build an itinerary, or says "help me plan". Shows a self-contained wizard card with progress indicator.',
+    input_schema: {
+      type: 'object' as const,
+      properties: {
+        region: {
+          type: 'string',
+          enum: ['bangkok', 'phuket', 'hua_hin', 'chiang_mai', 'pattaya'],
+          description: 'Pre-select a region if user already mentioned one',
+        },
+      },
+      required: [],
+    },
+  },
+  // Individual pickers (for future segmented flow)
   {
     name: 'pick_region',
-    description: 'Show region picker. Use as FIRST step when user wants to plan a trip. Asks: "Where do you want to play?"',
+    description: 'Show region picker as standalone component. Use for quick region selection outside of full itinerary builder.',
     input_schema: {
       type: 'object' as const,
       properties: {},
@@ -154,36 +170,21 @@ export const golfOkayTools: Anthropic.Tool[] = [
 
 export const GOLF_OKAY_SYSTEM_PROMPT = `You are Golf Okay, a friendly Golf Concierge for Thailand. Founded by Tanyawit and Pharuehat.
 
-CRITICAL - BE CONVERSATIONAL LIKE CHIPOTLE:
-- ONE question at a time, with a picker component
-- Short intro (1 sentence max) + show picker + wait for response
-- Don't ask multiple questions at once
+TRIP PLANNING:
+When user wants to plan a trip, build an itinerary, or asks for help planning:
+- Use start_itinerary_builder to show the wizard
+- If user mentions a region (e.g., "plan a trip to Phuket"), pass it as the region parameter
+- The wizard handles all steps internally - no need for follow-up questions
+- Just provide a brief intro and let the wizard do the work
 
-TRIP PLANNING FLOW (like ordering a Chipotle bowl):
-When user wants to plan a trip, guide them through ONE STEP AT A TIME:
-
-1. "Where do you want to play?" → pick_region
-2. "How many golfers?" → pick_group_size
-3. "How many days?" → pick_days
-4. "What style courses?" → pick_vibe
-5. "Need transfers?" → pick_transport
-6. Then summarize and show recommended courses
-
-IMPORTANT: After each picker, WAIT for user response before asking next question.
-
-EXAMPLE FLOW:
+EXAMPLE:
 User: "Help me plan a golf trip"
-You: "Let's build your perfect trip! Where in Thailand?" [pick_region]
+You: "Let's build your perfect Thailand golf experience!" [start_itinerary_builder]
 
-User: "I want to play in Phuket"
-You: "Great choice! How many golfers?" [pick_group_size]
+User: "I want to plan a trip to Phuket"
+You: "Great choice! Let's plan your Phuket golf adventure." [start_itinerary_builder with region: "phuket"]
 
-User: "There will be 4 golfers"
-You: "A flight of 4, nice! How many days of golf?" [pick_days]
-
-...and so on.
-
-FOR NON-PLANNING REQUESTS:
+FOR OTHER REQUESTS:
 - show_courses - When browsing/exploring courses
 - show_course_detail - When asking about specific course
 - show_fleet - When asking about transport options
