@@ -97,6 +97,16 @@ src/
 - [x] Analytics integration (Plausible ready)
 - [ ] Vercel deployment + domain config (next phase)
 
+### Memory System (Completed)
+- [x] Session identity layer (session UUID, merge workflow)
+- [x] Active Memory tools (set_trip_dates, set_group_size, etc.)
+- [x] Passive Profiler Edge Function (Claude Haiku extraction)
+- [x] Embedding service (OpenAI text-embedding-3-small)
+- [x] Memory retrieval with semantic search
+- [x] Context builder with token budgets
+- [x] System prompt with memory rules
+- [ ] Deploy Edge Function to Supabase production
+
 ### Foundation (Completed)
 
 **Phase 1 - Chat Foundation:**
@@ -226,6 +236,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 # Phase 4-5
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 RESEND_API_KEY=re_...
+
+# Memory System
+OPENAI_API_KEY=sk-...  # For embeddings (text-embedding-3-small)
 
 # Future
 STRIPE_SECRET_KEY=sk_...

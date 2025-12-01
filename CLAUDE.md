@@ -203,6 +203,11 @@ Mock mode for UI development, cached mode for integration testing.
 - `tests/audit/sprint-phase5-booking.spec.ts` - Booking flow tests
 - `tests/audit/sprint-phase6-polish.spec.ts` - Polish & responsive tests
 - `tests/audit/sprint-memory-architecture.spec.ts` - Memory architecture tests
+- `tests/audit/sprint-memory-pipeline.spec.ts` - Memory pipeline tests
+- `src/lib/embeddings.ts` - OpenAI embedding service (1536 dimensions)
+- `src/lib/memory-retrieval.ts` - Memory retrieval with semantic search
+- `src/lib/context-builder.ts` - Enhanced system prompt builder
+- `supabase/functions/extract-memories/index.ts` - Passive profiler Edge Function
 
 **Design Tokens:**
 ```typescript
@@ -218,10 +223,12 @@ const colors = {
 ```env
 # AI
 ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...  # For embeddings (text-embedding-3-small)
 
 # Database
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...  # For Edge Functions
 
 # Email
 RESEND_API_KEY=re_...

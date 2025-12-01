@@ -3,8 +3,10 @@
 ## Active Tasks
 - [ ] Deployment to Vercel
 - [ ] Analytics configuration (Plausible domain setup)
+- [ ] Deploy extract-memories Edge Function to Supabase
 
 ## Recently Completed
+- [x] Memory Logic Pipeline - Extraction, Retrieval, Context Injection
 - [x] Memory Architecture Foundation - Session identity, Active Memory tools, realtime sync
 - [x] Phase 6: Polish & Launch - Responsive design, error handling, analytics integration
 - [x] Phase 5: Booking Flow - Inquiry submission + email notifications
@@ -122,6 +124,19 @@
   - Build verification: TypeScript clean, ESLint 10 warnings (unused vars only)
   - Test suite: sprint-memory-architecture.spec.ts (6 tests all passing)
   - Fixed: useChat now uses apiFetch to include session header in all API calls
+
+- [2025-12-01 XX:XX] ✅ Completed: Memory Logic Pipeline
+  - Embedding service (src/lib/embeddings.ts) - OpenAI text-embedding-3-small, 1536 dimensions
+  - Memory retrieval service (src/lib/memory-retrieval.ts) - Semantic search via search_memories RPC
+  - Context builder (src/lib/context-builder.ts) - User Profile, Trip State, Recent Conversation sections
+  - Passive Profiler Edge Function (supabase/functions/extract-memories/index.ts)
+  - Chat route integration with context injection (src/app/api/chat/route.ts)
+  - System prompt updated with Memory System rules (LONG-TERM, ACTIVE, PASSIVE)
+  - Fire-and-forget extraction trigger for non-blocking memory extraction
+  - Graceful degradation when embeddings fail
+  - Token budget controls for prompt sections (500 for memories, 1000 for history)
+  - Build verification: TypeScript clean, ESLint 10 warnings (unused vars only)
+  - Test suite: sprint-memory-pipeline.spec.ts (13 tests all passing)
 
 ## Next Phase
 - Vercel deployment with environment variables

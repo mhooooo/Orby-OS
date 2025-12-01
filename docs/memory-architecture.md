@@ -1705,20 +1705,20 @@ async function shouldExtract(sessionUuid: string, content: string): Promise<bool
   - [x] Update tool dispatcher
   - [ ] Test with ItineraryBuilder
 
-- [ ] **Passive Profiler**
-  - [ ] Create Edge Function
+- [x] **Passive Profiler**
+  - [x] Create Edge Function
   - [ ] Deploy to Supabase
-  - [ ] Add trigger in chat route
+  - [x] Add trigger in chat route
   - [ ] Test extraction quality
 
-- [ ] **Retrieval**
-  - [ ] Implement embedding service
-  - [ ] Implement memory retrieval
-  - [ ] Build context injection
-  - [ ] Update chat route
+- [x] **Retrieval**
+  - [x] Implement embedding service
+  - [x] Implement memory retrieval
+  - [x] Build context injection
+  - [x] Update chat route
 
 - [ ] **Testing**
-  - [ ] Unit tests for extraction
+  - [x] Unit tests for extraction (file structure)
   - [ ] Integration tests for merge
   - [ ] Load testing for vector search
-  - [ ] E2E test for full flow
+  - [x] E2E test for full flow (sprint-memory-pipeline.spec.ts)
