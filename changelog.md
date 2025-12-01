@@ -357,3 +357,142 @@
 4. AI responds → response saved to `chat_messages`
 5. Passive profiler → extracts preferences (async, non-blocking)
 6. Memories stored → available for future context injection
+
+---
+
+## [2025-12-02] UI/UX Overhaul
+
+### Added
+- **Chat History System** - Persistent conversation threads
+  - `supabase/migrations/20241201150000_chats_table.sql` - Chats table with session/user ownership
+  - `src/app/api/chats/route.ts` - List/create chats API
+  - `src/app/api/chats/[chatId]/route.ts` - Get/update/delete single chat
+  - `src/hooks/useChatHistory.ts` - Chat list state management
+  - `src/context/ChatHistoryContext.tsx` - Global chat history provider
+  - `loadChat()` in useChat - Properly loads messages for selected chat
+  - Why: Users needed persistent conversation history like Claude
+  - Impact: Conversations persist and can be resumed
+
+- **Sidebar Redesign** - Gemini-style layout
+  - New Chat button at top with SquarePen icon
+  - My Golf section with horizontal scrolling course cards
+  - Plans section with Draft badges and delete buttons
+  - Chats grouped by date (Today, Yesterday, Previous 7 Days, Previous 30 Days, Older)
+  - Settings at bottom
+  - Why: Declutter sidebar, organize by user intent
+  - Impact: Cleaner navigation, better UX
+
+- **Header Explore Dropdown** - Navigation menu
+  - DISCOVER section: Find a Course, Plan a Trip (orange icons)
+  - SERVICES section: Fleet & Transport, Club Rentals, etc. (gray icons)
+  - Unified list design with strokeWidth={1.5} for consistency
+  - Gray subtitles (not orange) for proper visual hierarchy
+  - Why: Move Explore from sidebar to header for quick access
+  - Impact: Streamlined navigation without sidebar clutter
+
+- **Spectrum Pills** - Target mindset actions
+  - First-Time Guide (purple #9B5DE5) - The Beginner
+  - Top Rated (blue #00BBF9) - The Dreamer
+  - Build a Trip (orange #FF6B35) - The Planner
+  - Get a Price (red #F05D5E) - The Buyer
+  - Premium pill design with colored icon containers
+  - Why: Guide users based on their intent/mindset
+  - Impact: Clear entry points for different user types
+
+- **Morphing Avatar** - Dynamic agent presence
+  - `src/components/AgentAvatar.tsx` - Avatar with halo effects
+  - `src/components/MorphingAvatar.tsx` - Position morphing component
+  - Thinking state: 5-color spinning conic gradient (blur: 8px)
+  - Idle state: Subtle breathing glow animation
+  - Hero position: Centered above greeting (80x80)
+  - Chat position: Top-left header area (32x32)
+  - Framer Motion spring animations for smooth transitions
+  - Why: Establish AI as "main character" then get out of the way
+  - Impact: Polished, premium feel during interactions
+
+### Changed
+- **GreetingState** - Removed static GolfOkayIcon (replaced by MorphingAvatar)
+- **Page Layout** - Refactored to PageContent component for context access
+
+### Fixed
+- **Nested Button Error** - Changed saved course cards from `<button>` to `<div>`
+- **Type Mismatches** - Fixed `handlePlanClick` to accept `string | null`
+
+### Technical Details
+- New files: AgentAvatar.tsx, MorphingAvatar.tsx, ChatHistoryContext.tsx, useChatHistory.ts
+- Updated: Sidebar.tsx (complete rewrite), Header.tsx, GreetingState.tsx, page.tsx
+- Migration: chats table with session_uuid, user_id, title, timestamps
+- Colors: Brand palette (purple, blue, orange, red) in BRAND_COLORS constant
+- Animation: Framer Motion for avatar morphing and halo spin
+
+---
+
+## [2025-12-02] NeuralDots Actor & Premium Polish
+
+### Added
+- **NeuralDots "Persistent Actor"** - AI presence visualization
+  - Pentagon formation: 5 dots at 72° intervals (closed shape, not C-arc)
+  - Dark Glass Orb: `bg-white/5 backdrop-blur-md border-white/10`
+  - Neon glow on dots: `box-shadow: 0 0 15px color`
+  - Three states: loading (chaos), hero (order), chat (compact)
+  - Why: Golf ball dots on black don't read as a logo without a container
+  - Impact: Premium "Iron Man / Jarvis" aesthetic
+
+- **Snap-to-Static Behavior** - Confidence through stillness
+  - Hero mode: NO animation - solid, fixed, confident
+  - Loading mode: Spinning, breathing, chaotic
+  - `isStatic` flag controls animation behavior
+  - Scale locks at 1.15 with spring snap
+  - Why: Constant breathing creates anxiety, signals "not ready"
+  - Impact: Chaos → Order transition feels premium (Apple/Sony pattern)
+
+- **Profile Modal "Black Card"** - Premium member card design
+  - Credit card aspect ratio (340×195px, scaled down 20%)
+  - Matte black (`#0a0a0a`) with SVG noise texture overlay
+  - Gold accent (`#D4AF37`) for avatar ring, MEMBER badge, PRO status
+  - Holographic name: `bg-gradient-to-r from-white via-purple-200 to-cyan-200`
+  - Stats strip: HANDICAP | TRIPS | STATUS
+  - Why: Generic admin modal doesn't convey golf status/premium
+  - Impact: Amex Centurion-style exclusivity
+
+- **Explore Menu "HUD Panel"** - Glassmorphism navigation
+  - `border border-white/10` for crisp edges
+  - `shadow-[0_10px_40px_-10px_rgba(255,255,255,0.05)]` white glow
+  - `backdrop-blur-xl` for frosted glass depth
+  - Hover: `bg-gradient-to-r from-white/5 to-transparent`
+  - Left orange accent bar on hover (`border-l-2 border-l-[#FF6B35]`)
+  - Why: Default CSS shadow looked flat against dark background
+  - Impact: Menu floats with premium depth
+
+### Changed
+- **Sidebar Transparency** - Unified "dark glass" material
+  - Changed from `bg-[#1E1F20]` to `bg-transparent`
+  - Added `border-r border-white/5` for subtle edge
+  - Why: Solid sidebar block clashed with airy center
+  - Impact: Background flows through, cohesive material language
+
+- **New Chat Button Demoted** - Concierge doesn't shout
+  - Changed from loud orange gradient to ghost button
+  - `bg-white/5` with `border-white/5` and muted text
+  - Why: Bright orange button stole focus from "Hi, there!" hero
+  - Impact: Sidebar whispers, center speaks
+
+- **Course Images Desaturated** - Visual hierarchy fix
+  - Added `opacity-50 grayscale-[30%]` at rest
+  - `opacity-80 grayscale-0` on hover
+  - Why: Colorful thumbnails fought with orange accent colors
+  - Impact: Images subtle until intentionally viewed
+
+### Fixed
+- **Header Z-Index Stacking** - Actor no longer covers header
+  - Added fixed Header at `z-[70]` to page layout
+  - Actor drops to `z-10` in chat mode
+  - Chat layer at `z-[60]`
+  - Why: Dark glass orb's backdrop-blur created stacking issues
+  - Impact: Logo, Explore, Profile always accessible
+
+### Technical Details
+- Updated: NeuralDots.tsx (complete rewrite), Header.tsx, Sidebar.tsx, page.tsx
+- Key values: DOT_CONFIGS radius 16px (hero), pentagon angles at 72° intervals
+- Animation: Framer Motion springs with stiffness 300 for snap effect
+- Colors: Gold `#D4AF37`, holographic gradient, glassmorphism `white/5`

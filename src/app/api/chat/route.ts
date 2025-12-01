@@ -19,7 +19,8 @@ async function saveChatMessage(
   sessionUuid: string,
   userId: string | null,
   role: 'user' | 'assistant',
-  content: string
+  content: string,
+  chatId?: string
 ): Promise<string | null> {
   try {
     const supabase = getServerSupabase();
@@ -30,6 +31,7 @@ async function saveChatMessage(
         user_id: userId,
         role,
         content,
+        chat_id: chatId || null,
       })
       .select('id')
       .single();
@@ -44,6 +46,18 @@ async function saveChatMessage(
     console.error('[Chat] Error saving message:', err);
     return null;
   }
+}
+
+/**
+ * Auto-generate a title for a chat from the first user message
+ */
+function generateChatTitle(content: string): string {
+  // Take first 50 chars, cut at word boundary
+  const maxLen = 50;
+  if (content.length <= maxLen) return content;
+  const truncated = content.slice(0, maxLen);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return (lastSpace > 20 ? truncated.slice(0, lastSpace) : truncated) + '...';
 }
 
 /**
@@ -130,13 +144,35 @@ interface ToolCallResult {
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages } = await request.json();
+    const { messages, chatId: providedChatId } = await request.json();
 
     // Extract session UUID from headers for Active Memory tools
     const sessionUuid = request.headers.get('X-Session-UUID') || undefined;
 
     // Get user ID from session (if authenticated)
     const userId = await getUserIdFromSession();
+
+    // Auto-create chat if none provided
+    let chatId = providedChatId;
+    if (!chatId && sessionUuid) {
+      const supabase = getServerSupabase();
+      const latestUserMessage = messages[messages.length - 1]?.content || '';
+      const title = generateChatTitle(latestUserMessage);
+
+      const { data: newChat } = await supabase
+        .from('chats')
+        .insert({
+          session_uuid: sessionUuid,
+          user_id: userId,
+          title,
+        })
+        .select('id')
+        .single();
+
+      if (newChat) {
+        chatId = newChat.id;
+      }
+    }
 
     // Transform messages to Anthropic format
     // Filter out messages with empty content (can happen with tool-only responses)
@@ -154,7 +190,7 @@ export async function POST(request: NextRequest) {
     // Save the user message to the database (non-blocking)
     let userMessageId: string | null = null;
     if (sessionUuid && latestContent && latestMessage?.role === 'user') {
-      userMessageId = await saveChatMessage(sessionUuid, userId, 'user', latestContent);
+      userMessageId = await saveChatMessage(sessionUuid, userId, 'user', latestContent, chatId);
     }
 
     // Step 1: Retrieve context (memories, history, itinerary state)
@@ -280,7 +316,7 @@ export async function POST(request: NextRequest) {
 
     // Save the assistant response to the database (non-blocking)
     if (sessionUuid && textContent) {
-      saveChatMessage(sessionUuid, userId, 'assistant', textContent);
+      saveChatMessage(sessionUuid, userId, 'assistant', textContent, chatId);
     }
 
     // Step 6: Trigger passive profiler (async, non-blocking)
@@ -301,6 +337,7 @@ export async function POST(request: NextRequest) {
     return new Response(finalResponse, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
+        'X-Chat-Id': chatId || '',
       },
     });
   } catch (error) {

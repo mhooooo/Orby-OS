@@ -4,6 +4,12 @@
 - [ ] Deployment to Vercel
 - [ ] Analytics configuration (Plausible domain setup)
 - [x] Deploy extract-memories Edge Function to Supabase
+- [x] Sidebar Redesign (Gemini-style) with Chat History
+- [x] Explore Menu in Header
+- [x] Spectrum Pills on Greeting State
+- [x] Morphing Avatar with Thinking Halo
+- [x] NeuralDots Actor - Dark Glass Orb with Snap-to-Static
+- [x] Premium Polish - Black Card Profile, HUD Explore, Unified Design
 
 ## Recently Completed
 - [x] Memory Logic Pipeline - Extraction, Retrieval, Context Injection
@@ -145,6 +151,58 @@
   - Added chat message persistence (user + assistant messages)
   - Created supabase-server.ts with service role key for API routes
   - Verified end-to-end: messages saved, memories extracted, context injected
+
+## Log
+- [2025-12-02 XX:XX] ✅ Completed: UI/UX Overhaul - Sidebar, Header, Greeting State
+  - Sidebar redesigned (Gemini-style):
+    - New Chat button at top
+    - My Golf section with horizontal scrolling course cards
+    - Plans section with Draft badges
+    - Chats grouped by date (Today, Yesterday, Previous 7 Days, etc.)
+    - Settings at bottom
+  - Chat History system:
+    - chats table migration with session/user ownership
+    - /api/chats routes for CRUD operations
+    - useChatHistory hook + ChatHistoryContext
+    - loadChat function in useChat for proper message loading
+  - Header Explore dropdown:
+    - DISCOVER section: Find a Course, Plan a Trip (orange icons)
+    - SERVICES section: Fleet & Transport, Club Rentals, etc. (gray icons)
+    - Unified list design with proper visual hierarchy
+  - Greeting State spectrum pills:
+    - First-Time Guide (purple), Top Rated (blue), Build a Trip (orange), Get a Price (red)
+    - Premium pill design with colored icon containers
+    - Target mindset prompts for each user type
+  - Morphing Avatar with Thinking Halo:
+    - AgentAvatar component with breathing glow and spinning halo
+    - MorphingAvatar using Framer Motion layoutId
+    - Hero → Header position transition on first message
+    - 5-color conic gradient during AI thinking
+
+- [2025-12-02 16:00] ✅ Completed: NeuralDots Actor & Premium Polish
+  - NeuralDots "Persistent Actor":
+    - Pentagon formation (5 dots at 72° intervals)
+    - Dark Glass Orb (glassmorphism bg-white/5 + backdrop-blur)
+    - Snap-to-Static: No breathing in hero mode - solid, confident, ready
+    - Loading chaos → Hero order transition
+    - Neon glow on dots (box-shadow)
+  - Profile Modal → "Black Card":
+    - Credit card aspect ratio (340x195px)
+    - Matte black with SVG noise texture
+    - Gold accent (#D4AF37) for avatar ring, MEMBER badge, PRO status
+    - Holographic name gradient (white → purple → cyan)
+    - Stats strip: HANDICAP | TRIPS | STATUS
+  - Explore Menu → "HUD Panel":
+    - border-white/10 crisp edge
+    - White glow shadow for depth
+    - backdrop-blur-xl frosted glass
+    - Left orange accent bar on hover
+  - Unified Design Alignment:
+    - Sidebar transparent (bg-transparent + border-r border-white/5)
+    - New Chat demoted to ghost button
+    - Course images desaturated (opacity-50 grayscale-[30%])
+    - Profile card scaled down 20%
+  - Fixed header z-index stacking
 
 ## Next Phase
 - Vercel deployment with environment variables

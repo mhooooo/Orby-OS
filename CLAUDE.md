@@ -167,6 +167,22 @@ Mock mode for UI development, cached mode for integration testing.
 - [2024-12]: Edge Function generating IDs before message persistence causes FK violations - either remove FK constraint or ensure parent row exists first
 - [2024-12]: Fire-and-forget async patterns (no await) for non-blocking operations like memory extraction - use `.catch()` for error handling
 - [2024-12]: Token budgeting for AI prompts - set explicit limits per section (e.g., 500 for memories, 1000 for history) to prevent context overflow
+- [2024-12]: Chat history requires atomic state updates - use single `loadChat()` function in ChatContext instead of separate selectChat + setMessages to avoid race conditions
+- [2024-12]: Nested buttons cause React hydration errors - use `<div>` with `cursor-pointer` for clickable containers that have button children
+- [2024-12]: Visual hierarchy in menus: use color (orange vs gray) for importance, not shapes/backgrounds - unified list design looks more premium
+- [2024-12]: Framer Motion `layoutId` enables smooth position morphing between components - great for hero-to-header avatar transitions
+- [2024-12]: Conic gradients with blur create elegant "thinking halo" effects for AI loading states
+- [2024-12]: Date grouping for chat history: Today, Yesterday, Previous 7 Days, Previous 30 Days, Older - intuitive temporal organization
+- [2024-12]: Snap-to-Static animation pattern - constant breathing creates anxiety; lock to fixed position on state change (Chaos → Order)
+- [2024-12]: Pentagon formation for 5-dot logos: use 72° intervals starting at -90° (top) for closed shape, not C-arc
+- [2024-12]: Dark Glass orb (glassmorphism): `bg-white/5 backdrop-blur-md border-white/10` - unified material language
+- [2024-12]: backdrop-blur creates stacking context issues - use explicit z-index on parent containers
+- [2024-12]: Sidebar transparency with border (`bg-transparent border-r border-white/5`) lets background flow through
+- [2024-12]: Demote loud buttons (orange gradients) to ghost buttons when they steal focus from hero content
+- [2024-12]: Profile cards: Credit card aspect ratio (340×195), matte black with noise texture, gold accents for premium
+- [2024-12]: Holographic text gradient: `bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent`
+- [2024-12]: Left accent bar on hover: `border-l-2 border-l-transparent hover:border-l-[#FF6B35]` for menu items
+- [2024-12]: Desaturate competing visuals: `opacity-50 grayscale-[30%]` at rest, full color on hover
 
 ---
 
@@ -189,11 +205,15 @@ Mock mode for UI development, cached mode for integration testing.
 - `src/context/SessionContext.tsx` - Session state management
 - `src/lib/session.ts` - Session UUID utilities
 - `src/lib/api-client.ts` - Fetch wrapper with session header
-- `src/hooks/useChat.ts` - Chat state + tool result parsing
+- `src/hooks/useChat.ts` - Chat state + tool result parsing + loadChat
+- `src/hooks/useChatHistory.ts` - Chat history list management
 - `src/hooks/useAuth.ts` - Auth session hooks
 - `src/hooks/useSavedCourses.ts` - Saved courses CRUD
 - `src/hooks/useItineraryDrafts.ts` - Itinerary drafts CRUD
 - `src/hooks/useRealtimeItinerary.ts` - Realtime itinerary subscription
+- `src/context/ChatHistoryContext.tsx` - Chat history provider
+- `src/components/AgentAvatar.tsx` - Avatar with thinking halo
+- `src/components/MorphingAvatar.tsx` - Position morphing wrapper
 - `src/lib/tools.ts` - AI tool definitions and system prompt
 - `src/lib/tool-handlers.ts` - Tool execution handlers
 - `src/lib/supabase.ts` - Database client (anon key)

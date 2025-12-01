@@ -1,48 +1,52 @@
 'use client';
 
-import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { ChatInput } from './chat/ChatInput';
-import { Compass, Flag, Sparkles, ChevronDown, ConciergeBell } from 'lucide-react';
+import { Sparkles, Trophy, Wand2, Tag } from 'lucide-react';
 import { useChatContext } from '@/context/ChatContext';
-import { GolfOkayIcon } from './icons/GolfOkayIcon';
 
-interface SuggestedAction {
+// Brand color palette for spectrum pills - Supercharged contrast
+const BRAND_COLORS = {
+  purple: 'text-[#E0C3FC] bg-[#9B5DE5]/20 border-[#9B5DE5]/40 hover:bg-[#9B5DE5]/30',
+  blue: 'text-[#B3ECFF] bg-[#00BBF9]/20 border-[#00BBF9]/40 hover:bg-[#00BBF9]/30',
+  orange: 'text-[#FFCDB3] bg-[#FF6B35]/20 border-[#FF6B35]/40 hover:bg-[#FF6B35]/30',
+  red: 'text-[#FFC5C5] bg-[#F05D5E]/20 border-[#F05D5E]/40 hover:bg-[#F05D5E]/30',
+} as const;
+
+type ColorKey = keyof typeof BRAND_COLORS;
+
+interface SpectrumPill {
   icon: React.ElementType;
   label: string;
-  subPrompts?: string[];
-  directPrompt?: string; // For actions that trigger immediately without dropdown
-  highlight?: boolean; // For special styling
+  colorKey: ColorKey;
+  prompt: string;
 }
 
-const SUGGESTED_ACTIONS: SuggestedAction[] = [
-  {
-    icon: Compass,
-    label: "Plan a trip",
-    subPrompts: [
-      "Help me plan my first golf trip to Thailand",
-      "I have 5 days, what can I see?",
-      "Plan a trip for 4 golfers in March"
-    ]
-  },
-  {
-    icon: Flag,
-    label: "Explore courses",
-    subPrompts: [
-      "What are the top courses for first-timers?",
-      "Show me the most scenic courses",
-      "Which courses are closest to Bangkok?"
-    ]
-  },
-  {
-    icon: ConciergeBell,
-    label: "Our services",
-    directPrompt: "What services do you offer?",
-  },
+const SPECTRUM_PILLS: SpectrumPill[] = [
   {
     icon: Sparkles,
-    label: "Why Golf Okay?",
-    directPrompt: "Show me everything Golf Okay has to offer",
-    highlight: true, // Special styling for tour button
+    label: "First-Time Guide",
+    colorKey: "purple",
+    prompt: "I've never played golf in Thailand before. Guide me through the best regions and what I need to know."
+  },
+  {
+    icon: Trophy,
+    label: "Top Rated",
+    colorKey: "blue",
+    prompt: "Show me the top 3 rated golf courses in Thailand with a 'Course HoloCard' for each."
+  },
+  {
+    icon: Wand2,
+    label: "Build a Trip",
+    colorKey: "orange",
+    prompt: "I want to plan a custom trip. Ask me the necessary questions (dates, pax, skill) to build an itinerary."
+  },
+  {
+    icon: Tag,
+    label: "Get a Price",
+    colorKey: "red",
+    prompt: "I need a quick quote. Ask me for my requirements so you can give me an estimated price breakdown."
   },
 ];
 
@@ -50,181 +54,71 @@ interface GreetingStateContentProps {
   onIntroComplete?: () => void;
 }
 
-const TAGLINE = "We're passionate about golf and travel, and we want to share that passion with you";
-
-export function GreetingStateContent({ onIntroComplete }: GreetingStateContentProps) {
-  const [introPhase, setIntroPhase] = useState<'logo' | 'shrinking' | 'content'>('logo');
-  const [contentVisible, setContentVisible] = useState(false);
-  const [activeChip, setActiveChip] = useState<string | null>(null);
-  const [typedText, setTypedText] = useState('');
+export function GreetingStateContent({ onIntroComplete: _onIntroComplete }: GreetingStateContentProps) {
   const { sendMessage } = useChatContext();
-  const hasInitialized = useRef(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Typing effect for tagline
-  useEffect(() => {
-    if (introPhase === 'logo' && typedText.length < TAGLINE.length) {
-      const timeout = setTimeout(() => {
-        setTypedText(TAGLINE.slice(0, typedText.length + 1));
-      }, 25); // Speed of typing
-      return () => clearTimeout(timeout);
-    }
-  }, [typedText, introPhase]);
-
-  // Start typing after a short delay
-  useEffect(() => {
-    const startTyping = setTimeout(() => {
-      setTypedText(TAGLINE[0]);
-    }, 400);
-    return () => clearTimeout(startTyping);
-  }, []);
-
-  // Intro animation sequence
-  useLayoutEffect(() => {
-    if (!hasInitialized.current) {
-      hasInitialized.current = true;
-
-      // Wait for typing to complete + small pause, then shrink
-      // TAGLINE length * 25ms typing speed + 400ms initial delay + 500ms pause
-      const typingDuration = TAGLINE.length * 25 + 400 + 800;
-
-      const shrinkTimer = setTimeout(() => {
-        setIntroPhase('shrinking');
-      }, typingDuration);
-
-      // Phase 2: After shrink animation (0.6s), show content
-      const contentTimer = setTimeout(() => {
-        setIntroPhase('content');
-        onIntroComplete?.();
-        // Small delay before fading in content
-        setTimeout(() => setContentVisible(true), 100);
-      }, typingDuration + 600);
-
-      return () => {
-        clearTimeout(shrinkTimer);
-        clearTimeout(contentTimer);
-      };
-    }
-  }, [onIntroComplete]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setActiveChip(null);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const handleChipClick = (label: string) => {
-    setActiveChip(activeChip === label ? null : label);
-  };
-
-  const handleSubPromptClick = (prompt: string) => {
+  const handlePillClick = (prompt: string) => {
     sendMessage(prompt);
-    setActiveChip(null);
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full h-full relative overflow-hidden" onClick={() => setActiveChip(null)}>
-      {/* Intro Logo Animation */}
-      {introPhase !== 'content' && (
-        <div
-          className={`absolute inset-0 flex flex-col items-center justify-center z-50 transition-all duration-600 ease-out
-            ${introPhase === 'shrinking' ? 'opacity-0 scale-50 -translate-y-[40vh] -translate-x-[30vw]' : 'opacity-100 scale-100'}
-          `}
-        >
-          <h1 className="text-8xl md:text-9xl lg:text-[10rem] font-medium tracking-tight text-gray-100 mb-6">
-            golfokay
-          </h1>
-          <p className="text-lg md:text-xl text-gray-400 text-center max-w-lg px-4 h-14 flex items-center">
-            <span>{typedText}</span>
-            <span className="inline-block w-0.5 h-5 bg-gray-400 ml-1 animate-pulse" />
-          </p>
-        </div>
-      )}
+    <div className="w-full flex flex-col items-center relative">
+      {/* Wide Ambient Glow Spotlight - Anchors the entire scene */}
+      <div className="fixed top-[20%] left-1/2 -translate-x-1/2 w-[90vw] max-w-[800px] h-[60vh] bg-gradient-to-b from-purple-500/20 via-orange-500/10 to-transparent rounded-full blur-[150px] opacity-50 pointer-events-none" />
 
       {/* Main Content */}
-      <div
-        className={`w-full max-w-3xl mx-auto flex flex-col items-center justify-center -mt-20 transition-all duration-500
-          ${introPhase === 'content' ? 'opacity-100' : 'opacity-0 pointer-events-none'}
-        `}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Greeting Area */}
-        <div className="mb-8 text-left w-full max-w-2xl px-4">
-          <div className={`flex items-center gap-4 transition-all duration-500 delay-100 ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <GolfOkayIcon size={56} className="text-gray-100 flex-shrink-0" />
-            <h2 className="text-5xl md:text-6xl font-medium text-gray-100 tracking-tight">
-              Hi, there!
-            </h2>
-          </div>
-        </div>
+      <div className="w-full flex flex-col items-center">
+        {/* Greeting Text */}
+        <motion.div
+          className="mb-10 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <h2 className="text-5xl md:text-6xl font-semibold text-white tracking-tight drop-shadow-lg">
+            Hi, there!
+          </h2>
+        </motion.div>
 
         {/* Centered Input */}
-        <div className={`w-full px-4 transition-all duration-500 delay-200 ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <motion.div
+          className="w-full px-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <ChatInput variant="centered" className="p-0" />
-        </div>
+        </motion.div>
 
-        {/* Suggestion Chips */}
-        <div className={`mt-6 flex flex-wrap justify-center gap-3 relative transition-all duration-500 delay-300 ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          {SUGGESTED_ACTIONS.map((action, idx) => (
-            <div key={idx} className="relative">
-              {action.directPrompt ? (
-                /* Direct action button - no dropdown */
-                <button
-                  onClick={() => sendMessage(action.directPrompt!)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all border ${
-                    action.highlight
-                      ? 'bg-orange-500/10 text-orange-400 border-orange-500/30 hover:bg-orange-500/20 hover:border-orange-500/50'
-                      : 'bg-[#1E1F20] text-gray-400 hover:text-gray-200 border-transparent hover:border-gray-700'
-                  }`}
-                >
-                  <action.icon size={16} />
-                  <span className="text-sm font-medium">{action.label}</span>
-                </button>
-              ) : (
-                /* Dropdown action button */
-                <>
-                  <button
-                    onClick={() => handleChipClick(action.label)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all border ${activeChip === action.label
-                        ? 'bg-[#282A2C] text-gray-200 border-gray-600'
-                        : 'bg-[#1E1F20] text-gray-400 hover:text-gray-200 border-transparent hover:border-gray-700'
-                      }`}
-                  >
-                    <action.icon size={16} />
-                    <span className="text-sm font-medium">{action.label}</span>
-                    {activeChip === action.label && <ChevronDown size={14} className="animate-in fade-in zoom-in" />}
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {activeChip === action.label && action.subPrompts && (
-                    <div
-                      ref={dropdownRef}
-                      className="absolute top-full left-0 mt-2 w-64 bg-[#1E1F20] border border-gray-800 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100"
-                    >
-                      {action.subPrompts.map((prompt, pIdx) => (
-                        <button
-                          key={pIdx}
-                          onClick={() => handleSubPromptClick(prompt)}
-                          className="w-full text-left px-4 py-3 text-sm text-gray-300 hover:bg-[#282A2C] hover:text-white transition-colors border-b border-gray-800/50 last:border-0"
-                        >
-                          {prompt}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          ))}
-        </div>
+        {/* Spectrum Pills */}
+        <motion.div
+          className="mt-6 flex flex-wrap justify-center gap-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          {SPECTRUM_PILLS.map((pill) => {
+            const colorClasses = BRAND_COLORS[pill.colorKey];
+            return (
+              <button
+                key={pill.label}
+                onClick={() => handlePillClick(pill.prompt)}
+                className="group relative flex items-center gap-3 pl-2 pr-4 py-2.5 bg-white/5 backdrop-blur-sm border border-white/15 rounded-full hover:bg-white/10 hover:border-white/30 hover:shadow-lg hover:shadow-black/20 transition-all duration-300"
+              >
+                {/* Icon Container */}
+                <div className={`p-2 rounded-full border transition-all duration-300 group-hover:scale-110 ${colorClasses}`}>
+                  <pill.icon size={18} strokeWidth={1.5} />
+                </div>
+                {/* Label */}
+                <span className="text-sm font-medium text-gray-100 group-hover:text-white">
+                  {pill.label}
+                </span>
+              </button>
+            );
+          })}
+        </motion.div>
       </div>
     </div>
   );
 }
+
