@@ -105,7 +105,8 @@ src/
 - [x] Memory retrieval with semantic search
 - [x] Context builder with token budgets
 - [x] System prompt with memory rules
-- [ ] Deploy Edge Function to Supabase production
+- [x] Deploy Edge Function to Supabase production
+- [x] Chat message persistence to database
 
 ### Foundation (Completed)
 

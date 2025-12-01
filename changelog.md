@@ -281,3 +281,79 @@
 - ✅ Error handling implemented
 - ✅ Analytics integration ready
 - 🔜 Requires Vercel deployment + env var configuration
+
+---
+
+## [2025-12-01] Memory System Complete
+
+### Added
+- **Embedding Service** - OpenAI text-embedding-3-small
+  - `src/lib/embeddings.ts` - 1536-dimension vector generation
+  - `getEmbedding()` and `getEmbeddingSafe()` functions
+  - `cosineSimilarity()` utility for local comparisons
+  - Why: Enable semantic search over user memories
+  - Impact: AI can find relevant memories based on meaning, not keywords
+
+- **Memory Retrieval Service** - Context gathering
+  - `src/lib/memory-retrieval.ts` - Parallel query execution
+  - Semantic search via `search_memories` RPC function
+  - Recent chat history from `chat_messages` table
+  - Current itinerary from `itinerary_drafts` table
+  - Graceful fallback to recent memories if embeddings fail
+  - Why: Gather all relevant context before AI responds
+  - Impact: AI has full context of user preferences and trip state
+
+- **Context Builder** - Enhanced system prompt
+  - `src/lib/context-builder.ts` - Token-budgeted prompt sections
+  - User Profile section (memories sorted by confidence)
+  - Trip Planning State section (itinerary data)
+  - Recent Conversation section (trimmed chat history)
+  - Token budgets: 500 for memories, 1000 for history
+  - Why: Inject relevant context into Claude's system prompt
+  - Impact: AI responses are personalized and contextually aware
+
+- **Passive Profiler Edge Function** - Implicit preference extraction
+  - `supabase/functions/extract-memories/index.ts` - Deno Edge Function
+  - Uses Claude Haiku for cost-effective extraction
+  - Categories: play_style, budget, logistics, social, health
+  - Rate limiting: 20 char min, 50 extractions/session max
+  - Deduplication via similarity search (0.9 threshold)
+  - Fire-and-forget trigger from chat route
+  - Why: Extract preferences without explicit user input
+  - Impact: AI learns user preferences naturally from conversation
+
+- **Chat Message Persistence** - Conversation history
+  - `src/lib/supabase-server.ts` - Service role client for API routes
+  - User messages saved on receipt
+  - Assistant responses saved before return
+  - Why: Enable context retrieval from past conversations
+  - Impact: AI remembers what was discussed in previous messages
+
+- **System Prompt Updates** - Memory rules
+  - LONG-TERM MEMORY: Prioritize User Profile facts
+  - ACTIVE MEMORY: Use tools for hard data (dates, group size)
+  - PASSIVE MEMORY: Automatic extraction of soft preferences
+  - Why: Guide AI behavior around memory system
+  - Impact: Consistent memory usage across conversations
+
+### Fixed
+- **FK Constraint on user_memories** - Migration to remove constraint
+  - `supabase/migrations/20241201131900_fix_user_memories_fk.sql`
+  - Why: Passive profiler generates message IDs before persistence
+  - Impact: Memory extraction no longer fails on insert
+
+### Technical Details
+- New dependencies: None (uses existing OpenAI via fetch)
+- New files: embeddings.ts, memory-retrieval.ts, context-builder.ts, supabase-server.ts
+- Edge Function: extract-memories deployed to Supabase
+- Secrets: ANTHROPIC_API_KEY, OPENAI_API_KEY set in Supabase
+- Tests: sprint-memory-pipeline.spec.ts (13 tests all passing)
+- Environment: OPENAI_API_KEY required for embeddings
+
+### Memory System Flow
+1. User sends message → saved to `chat_messages`
+2. Context retrieved → memories, history, itinerary
+3. Enhanced prompt built → injected into Claude
+4. AI responds → response saved to `chat_messages`
+5. Passive profiler → extracts preferences (async, non-blocking)
+6. Memories stored → available for future context injection

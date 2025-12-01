@@ -162,6 +162,11 @@ Mock mode for UI development, cached mode for integration testing.
 - [2024-12]: SessionProvider must wrap inside AuthProvider to access user state for merge workflow
 - [2024-12]: Supabase type inference issues with new tables - use `as any` with eslint-disable for upsert/rpc calls until types are regenerated
 - [2024-12]: getSessionUuid called during SSR throws error - initialize session UUID in useEffect on client-side only, not in useMemo/useState initializer
+- [2024-12]: Supabase Edge Functions use Deno runtime - exclude `supabase/functions` from tsconfig.json and eslint to avoid Node/Deno conflicts
+- [2024-12]: Service role key required for server-side Supabase operations that bypass RLS - anon key subject to RLS policies
+- [2024-12]: Edge Function generating IDs before message persistence causes FK violations - either remove FK constraint or ensure parent row exists first
+- [2024-12]: Fire-and-forget async patterns (no await) for non-blocking operations like memory extraction - use `.catch()` for error handling
+- [2024-12]: Token budgeting for AI prompts - set explicit limits per section (e.g., 500 for memories, 1000 for history) to prevent context overflow
 
 ---
 
@@ -191,7 +196,8 @@ Mock mode for UI development, cached mode for integration testing.
 - `src/hooks/useRealtimeItinerary.ts` - Realtime itinerary subscription
 - `src/lib/tools.ts` - AI tool definitions and system prompt
 - `src/lib/tool-handlers.ts` - Tool execution handlers
-- `src/lib/supabase.ts` - Database client
+- `src/lib/supabase.ts` - Database client (anon key)
+- `src/lib/supabase-server.ts` - Server-side client (service role key, bypasses RLS)
 - `src/lib/auth.ts` - Auth helper functions
 - `public/golfokay-logo.svg` - Brand logo (white, no background)
 - `supabase/schema.sql` - Database schema + seed data

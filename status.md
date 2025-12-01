@@ -3,7 +3,7 @@
 ## Active Tasks
 - [ ] Deployment to Vercel
 - [ ] Analytics configuration (Plausible domain setup)
-- [ ] Deploy extract-memories Edge Function to Supabase
+- [x] Deploy extract-memories Edge Function to Supabase
 
 ## Recently Completed
 - [x] Memory Logic Pipeline - Extraction, Retrieval, Context Injection
@@ -137,6 +137,14 @@
   - Token budget controls for prompt sections (500 for memories, 1000 for history)
   - Build verification: TypeScript clean, ESLint 10 warnings (unused vars only)
   - Test suite: sprint-memory-pipeline.spec.ts (13 tests all passing)
+
+- [2025-12-01 14:30] ✅ Completed: Memory System Deployment & Fixes
+  - Deployed extract-memories Edge Function to Supabase production
+  - Set ANTHROPIC_API_KEY and OPENAI_API_KEY secrets
+  - Fixed FK constraint on user_memories.source_message_id
+  - Added chat message persistence (user + assistant messages)
+  - Created supabase-server.ts with service role key for API routes
+  - Verified end-to-end: messages saved, memories extracted, context injected
 
 ## Next Phase
 - Vercel deployment with environment variables
