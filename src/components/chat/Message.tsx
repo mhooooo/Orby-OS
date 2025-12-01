@@ -14,11 +14,13 @@ import {
   GroupSizePicker,
   DaysPicker,
 } from '@/components/generative-ui/pickers';
+import { ItineraryBuilder } from '@/components/generative-ui/ItineraryBuilder';
 import { TourShowcase } from '@/components/generative-ui/TourShowcase';
 import { ServiceBento } from '@/components/generative-ui/ServiceBento';
 import { Course } from '@/types/course';
 import AuthGateModal from '@/components/generative-ui/AuthGateModal';
 import InquiryForm from '@/components/generative-ui/InquiryForm';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 // Typing effect component for AI messages
 function TypewriterText({ text, onComplete }: { text: string; onComplete?: () => void }) {
@@ -142,22 +144,35 @@ function InquiryFormFromTool() {
 }
 
 function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
+  // Wrap each component in ErrorBoundary for isolation
+  const wrapWithErrorBoundary = (component: React.ReactNode) => (
+    <ErrorBoundary key={tool.id}>
+      {component}
+    </ErrorBoundary>
+  );
+
   switch (tool.name) {
     case 'show_courses': {
       const result = tool.result as ShowCoursesResult | undefined;
       if (result?.courses && result.courses.length > 0) {
-        return <CourseCarousel key={tool.id} courses={result.courses} onAuthRequired={onAuthRequired} />;
+        return wrapWithErrorBoundary(
+          <CourseCarousel courses={result.courses} onAuthRequired={onAuthRequired} />
+        );
       }
-      return <CourseCarousel key={tool.id} onAuthRequired={onAuthRequired} />;
+      return wrapWithErrorBoundary(
+        <CourseCarousel onAuthRequired={onAuthRequired} />
+      );
     }
 
     case 'show_course_detail': {
       const result = tool.result as ShowCourseDetailResult | undefined;
       if (result?.course) {
-        return <CourseDetailCard key={tool.id} course={result.course} />;
+        return wrapWithErrorBoundary(
+          <CourseDetailCard course={result.course} />
+        );
       }
-      return (
-        <div key={tool.id} className="rounded-xl bg-[#1E1F20] p-4 border border-gray-800">
+      return wrapWithErrorBoundary(
+        <div className="rounded-xl bg-[#1E1F20] p-4 border border-gray-800">
           <p className="text-sm text-gray-400">Course not found</p>
         </div>
       );
@@ -166,7 +181,9 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
     case 'show_fleet': {
       const result = tool.result as FleetData | undefined;
       if (result) {
-        return <FleetCard key={tool.id} data={result} />;
+        return wrapWithErrorBoundary(
+          <FleetCard data={result} />
+        );
       }
       return null;
     }
@@ -174,37 +191,57 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
     case 'show_about_us': {
       const result = tool.result as AboutData | undefined;
       if (result) {
-        return <AboutCard key={tool.id} data={result} />;
+        return wrapWithErrorBoundary(
+          <AboutCard data={result} />
+        );
       }
       return null;
     }
 
-    // Chipotle-style pickers for trip planning
+    // Itinerary Builder wizard
+    case 'start_itinerary_builder': {
+      const input = tool.input as { region?: string } | undefined;
+      const regionMap: Record<string, 'bangkok' | 'phuket' | 'hua_hin' | 'chiang_mai' | 'pattaya'> = {
+        bangkok: 'bangkok',
+        phuket: 'phuket',
+        hua_hin: 'hua_hin',
+        chiang_mai: 'chiang_mai',
+        pattaya: 'pattaya',
+      };
+      const initialRegion = input?.region ? regionMap[input.region] : undefined;
+      return wrapWithErrorBoundary(
+        <ItineraryBuilder initialRegion={initialRegion} />
+      );
+    }
+
+    // Individual pickers (for future segmented flow)
     case 'pick_region':
-      return <RegionPicker key={tool.id} />;
+      return wrapWithErrorBoundary(<RegionPicker />);
 
     case 'pick_group_size':
-      return <GroupSizePicker key={tool.id} />;
+      return wrapWithErrorBoundary(<GroupSizePicker />);
 
     case 'pick_days':
-      return <DaysPicker key={tool.id} />;
+      return wrapWithErrorBoundary(<DaysPicker />);
 
     case 'pick_vibe':
-      return <VibePicker key={tool.id} />;
+      return wrapWithErrorBoundary(<VibePicker />);
 
     case 'pick_transport':
-      return <TransportPicker key={tool.id} />;
+      return wrapWithErrorBoundary(<TransportPicker />);
 
     case 'start_tour':
-      return <TourShowcase key={tool.id} />;
+      return wrapWithErrorBoundary(<TourShowcase />);
 
     case 'show_services':
-      return <ServiceBento key={tool.id} />;
+      return wrapWithErrorBoundary(<ServiceBento />);
 
     case 'trigger_auth_gate': {
       const result = tool.result as AuthGateResult | undefined;
       if (result) {
-        return <AuthGateFromTool key={tool.id} result={result} />;
+        return wrapWithErrorBoundary(
+          <AuthGateFromTool result={result} />
+        );
       }
       return null;
     }
@@ -212,17 +249,16 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
     case 'start_inquiry': {
       const result = tool.result as InquiryFormResult | undefined;
       if (result) {
-        return <InquiryFormFromTool key={tool.id} />;
+        return wrapWithErrorBoundary(
+          <InquiryFormFromTool />
+        );
       }
       return null;
     }
 
     default:
-      return (
-        <div
-          key={tool.id}
-          className="rounded-xl bg-[#1E1F20] p-4 border border-gray-800"
-        >
+      return wrapWithErrorBoundary(
+        <div className="rounded-xl bg-[#1E1F20] p-4 border border-gray-800">
           <p className="text-xs text-gray-500">
             Component: {tool.name}
           </p>

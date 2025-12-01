@@ -3,8 +3,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { Check, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { analytics } from '@/lib/analytics';
 
 interface AuthGateModalProps {
   isOpen: boolean;
@@ -16,10 +17,19 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
   const { signIn, loading } = useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
 
+  // Track auth trigger when modal opens
+  useEffect(() => {
+    if (isOpen && triggerReason) {
+      analytics.authTrigger(triggerReason);
+    }
+  }, [isOpen, triggerReason]);
+
   const handleSignIn = async () => {
     setIsSigningIn(true);
     try {
       await signIn();
+      // Track successful auth conversion
+      analytics.authConversion(triggerReason || 'unknown', 'google');
     } catch (error) {
       console.error('Sign in error:', error);
       setIsSigningIn(false);
@@ -54,7 +64,7 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
         >
           {/* Blurred Backdrop */}
           <div
@@ -68,7 +78,7 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', duration: 0.5, bounce: 0.3 }}
             className={cn(
-              "relative w-full max-w-md overflow-hidden rounded-[2rem]",
+              "relative w-full max-w-md overflow-hidden rounded-2xl sm:rounded-[2rem]",
               "bg-[#1a1a1a]/80 backdrop-blur-2xl border border-white/10",
               "shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)]"
             )}
@@ -77,18 +87,18 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+              className="absolute top-3 sm:top-4 right-3 sm:right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
             >
               <X size={20} />
             </button>
 
             {/* Decorative Gradient */}
-            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-emerald-500/20 to-transparent pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-b from-emerald-500/20 to-transparent pointer-events-none" />
 
-            <div className="relative p-8 pt-12">
+            <div className="relative p-6 sm:p-8 pt-10 sm:pt-12">
               {/* Icon */}
-              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-5 sm:mb-6 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white sm:w-8 sm:h-8">
                   <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -96,15 +106,15 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
               </div>
 
               {/* Heading */}
-              <h2 className="text-white text-2xl font-bold mb-2 text-center">
+              <h2 className="text-white text-xl sm:text-2xl font-bold mb-2 text-center">
                 {getHeading()}
               </h2>
-              <p className="text-gray-400 text-center mb-8 text-sm">
+              <p className="text-gray-400 text-center mb-6 sm:mb-8 text-xs sm:text-sm">
                 Sign in to unlock the full Golf Okay experience.
               </p>
 
               {/* Benefits List */}
-              <div className="space-y-3 mb-8 bg-white/5 rounded-2xl p-4 border border-white/5">
+              <div className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8 bg-white/5 rounded-2xl p-3 sm:p-4 border border-white/5">
                 {benefits.map((benefit, index) => (
                   <motion.div
                     key={benefit}

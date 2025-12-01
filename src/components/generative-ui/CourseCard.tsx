@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MapPin, Flag, X, ChevronRight, Wind, DollarSign } from 'lucide-react';
+import { Heart, MapPin, Flag, X, ChevronRight, Wind, Loader2 } from 'lucide-react';
 import { Course } from '@/types/course';
 import { cn } from '@/lib/utils';
 import { useChatContext } from '@/context/ChatContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useSavedCourses } from '@/hooks/useSavedCourses';
+import { CloudinaryImage } from '@/components/ui/CloudinaryImage';
 
 interface CourseCardProps {
   course: Course;
@@ -15,7 +16,7 @@ interface CourseCardProps {
   compact?: boolean;
 }
 
-export function CourseCard({ course, onAuthRequired, compact = false }: CourseCardProps) {
+function CourseCardInner({ course, onAuthRequired, compact = false }: CourseCardProps) {
   const { sendMessage } = useChatContext();
   const { user } = useAuth();
   const { saveCourse, unsaveCourse, isSaved } = useSavedCourses();
@@ -63,7 +64,7 @@ export function CourseCard({ course, onAuthRequired, compact = false }: CourseCa
       layout
       className={cn(
         'relative group z-0',
-        compact ? 'w-[260px]' : 'w-[320px]',
+        compact ? 'w-[280px] sm:w-[260px]' : 'w-[300px] sm:w-[320px]',
         isExpanded ? 'z-50' : ''
       )}
       initial={{ opacity: 0, y: 20 }}
@@ -86,7 +87,7 @@ export function CourseCard({ course, onAuthRequired, compact = false }: CourseCa
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-500/30 rounded-full blur-[50px] pointer-events-none" />
 
         {/* Hero Image Section */}
-        <motion.div 
+        <motion.div
           layout
           className={cn(
             "relative w-full overflow-hidden",
@@ -94,12 +95,21 @@ export function CourseCard({ course, onAuthRequired, compact = false }: CourseCa
           )}
         >
           <motion.div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${course.heroImage})` }}
+            className="absolute inset-0"
             animate={{ scale: isExpanded ? 1.05 : 1 }}
             whileHover={{ scale: isExpanded ? 1.05 : 1.1 }}
             transition={{ duration: 0.6 }}
-          />
+          >
+            <CloudinaryImage
+              src={course.heroImage}
+              alt={course.name}
+              width={320}
+              height={400}
+              blur
+              className="w-full h-full"
+              objectFit="cover"
+            />
+          </motion.div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
           
           {/* Top Actions */}
@@ -117,17 +127,22 @@ export function CourseCard({ course, onAuthRequired, compact = false }: CourseCa
             
             <motion.button
               onClick={handleSave}
-              whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.2)' }}
-              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: isProcessing ? 1 : 1.1, backgroundColor: 'rgba(255,255,255,0.2)' }}
+              whileTap={{ scale: isProcessing ? 1 : 0.9 }}
               className="p-2.5 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white transition-colors"
+              disabled={isProcessing}
             >
-              <Heart
-                size={18}
-                className={cn(
-                  'transition-colors duration-300',
-                  courseIsSaved ? 'fill-rose-500 text-rose-500' : 'text-white'
-                )}
-              />
+              {isProcessing ? (
+                <Loader2 size={18} className="animate-spin text-white" />
+              ) : (
+                <Heart
+                  size={18}
+                  className={cn(
+                    'transition-colors duration-300',
+                    courseIsSaved ? 'fill-rose-500 text-rose-500' : 'text-white'
+                  )}
+                />
+              )}
             </motion.button>
           </div>
 
@@ -238,3 +253,11 @@ export function CourseCard({ course, onAuthRequired, compact = false }: CourseCa
     </motion.div>
   );
 }
+
+// Memoize to prevent re-renders when parent updates (e.g., during streaming)
+export const CourseCard = memo(CourseCardInner, (prevProps, nextProps) => {
+  return (
+    prevProps.course.id === nextProps.course.id &&
+    prevProps.compact === nextProps.compact
+  );
+});

@@ -113,11 +113,11 @@ export function ItinerarySummary({
       "shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
     )}>
       {/* Header */}
-      <div className="p-8 border-b border-white/5 bg-white/5">
-        <div className="flex items-start justify-between mb-6">
+      <div className="p-4 sm:p-6 lg:p-8 border-b border-white/5 bg-white/5">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-2">Your Golf Trip</h2>
-            <div className="flex items-center gap-4 text-sm text-gray-400">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Your Golf Trip</h2>
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400">
               <div className="flex items-center gap-1.5">
                 <MapPin size={14} className="text-emerald-400" />
                 {draft.region && REGION_NAMES[draft.region]}
@@ -141,13 +141,13 @@ export function ItinerarySummary({
       </div>
 
       {/* Timeline Section */}
-      <div className="p-8 bg-black/20">
+      <div className="p-4 sm:p-6 lg:p-8 bg-black/20">
         <Timeline draft={draft} />
       </div>
 
       {/* Price Breakdown */}
-      <div className="p-8 bg-white/5 border-t border-white/5">
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Price Breakdown</h3>
+      <div className="p-4 sm:p-6 lg:p-8 bg-white/5 border-t border-white/5">
+        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 sm:mb-6">Price Breakdown</h3>
 
         <div className="space-y-4">
           {/* Green Fees */}
@@ -200,7 +200,7 @@ export function ItinerarySummary({
       </div>
 
       {/* CTA */}
-      <div className="p-6 border-t border-white/5 bg-black/20 space-y-3">
+      <div className="p-4 sm:p-6 border-t border-white/5 bg-black/20 space-y-3">
         {/* Save Trip Button */}
         <button
           onClick={handleSaveTrip}
@@ -359,9 +359,9 @@ function Timeline({ draft }: { draft: ItineraryDraft }) {
   }
 
   return (
-    <div className="relative pl-2">
+    <div className="relative pl-1 sm:pl-2">
       {/* Vertical Line */}
-      <div className="absolute left-[19px] top-4 bottom-4 w-px bg-white/10" />
+      <div className="absolute left-[17px] sm:left-[19px] top-4 bottom-4 w-px bg-white/10" />
 
       {items.map((item, index) => (
         <motion.div
@@ -369,12 +369,12 @@ function Timeline({ draft }: { draft: ItineraryDraft }) {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="relative flex gap-6 mb-8 last:mb-0"
+          className="relative flex gap-4 sm:gap-6 mb-6 sm:mb-8 last:mb-0"
         >
           {/* Icon */}
           <div
             className={cn(
-              'relative z-10 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-white/5 backdrop-blur-md shadow-lg',
+              'relative z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-white/5 backdrop-blur-md shadow-lg',
               item.iconBg
             )}
           >
@@ -382,9 +382,9 @@ function Timeline({ draft }: { draft: ItineraryDraft }) {
           </div>
 
           {/* Content */}
-          <div className="pt-1">
-            <h4 className="font-bold text-white text-sm mb-1">{item.title}</h4>
-            <p className="text-xs text-gray-400">{item.subtitle}</p>
+          <div className="pt-0.5 sm:pt-1">
+            <h4 className="font-bold text-white text-xs sm:text-sm mb-1">{item.title}</h4>
+            <p className="text-[10px] sm:text-xs text-gray-400">{item.subtitle}</p>
           </div>
         </motion.div>
       ))}
@@ -417,18 +417,18 @@ function BreakdownRow({
 }) {
   return (
     <div className="flex items-center justify-between group">
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-white/5 text-gray-400 group-hover:text-white group-hover:bg-white/10 transition-colors">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <div className="p-1.5 sm:p-2 rounded-lg bg-white/5 text-gray-400 group-hover:text-white group-hover:bg-white/10 transition-colors">
           {icon}
         </div>
         <div>
-          <span className="text-sm font-medium text-gray-300 block">{label}</span>
-          {detail && <span className="text-xs text-gray-500">{detail}</span>}
+          <span className="text-xs sm:text-sm font-medium text-gray-300 block">{label}</span>
+          {detail && <span className="text-[10px] sm:text-xs text-gray-500">{detail}</span>}
         </div>
       </div>
       <span
         className={cn(
-          'font-bold',
+          'font-bold text-sm sm:text-base',
           isDiscount ? 'text-emerald-400' : 'text-white'
         )}
       >
@@ -460,10 +460,10 @@ function AnimatedTotal({ total }: { total: number }) {
 
   return (
     <div className="text-right">
-      <motion.span className="text-3xl font-bold text-emerald-400 drop-shadow-lg">
+      <motion.span className="text-2xl sm:text-3xl font-bold text-emerald-400 drop-shadow-lg">
         ฿{displayValue}
       </motion.span>
-      <span className="text-xs text-gray-500 ml-1 font-medium">THB</span>
+      <span className="text-[10px] sm:text-xs text-gray-500 ml-1 font-medium">THB</span>
     </div>
   );
 }

@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from 'react';
 import { Message, ChatState, ToolCall } from '@/types/chat';
+import { analytics } from '@/lib/analytics';
+import { matchStaticRoute } from '@/lib/static-routes';
 
 // Parse tool result markers from response content
 function parseToolResults(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
@@ -79,6 +81,29 @@ export function useChat(initialMessages: Message[] = []) {
     };
 
     addMessage(userMessage);
+
+    // Check for static route match first (instant response, no API call)
+    const staticRoute = matchStaticRoute(content);
+    if (staticRoute) {
+      const assistantMessage: Message = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: staticRoute.responseText,
+        toolCalls: staticRoute.toolCalls,
+        createdAt: new Date(),
+      };
+      addMessage(assistantMessage);
+
+      // Track analytics for static route
+      const turnNumber = state.messages.filter(m => m.role === 'user').length + 1;
+      analytics.chatTurn(turnNumber, true);
+      staticRoute.toolCalls.forEach(tool => {
+        analytics.toolUsed(tool.name);
+      });
+
+      return; // Skip API call
+    }
+
     setLoading(true);
     setError(null);
 
@@ -121,6 +146,16 @@ export function useChat(initialMessages: Message[] = []) {
         accumulatedContent += chunk;
         updateLastMessage(accumulatedContent);
       }
+
+      // Track chat turn after completion
+      const { toolCalls } = parseToolResults(accumulatedContent);
+      const turnNumber = state.messages.filter(m => m.role === 'user').length + 1;
+      analytics.chatTurn(turnNumber, toolCalls.length > 0);
+
+      // Track individual tool usage
+      toolCalls.forEach(tool => {
+        analytics.toolUsed(tool.name);
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

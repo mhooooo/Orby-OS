@@ -46,22 +46,22 @@ export function FleetCard({ data, className }: FleetCardProps) {
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
 
       {/* Header */}
-      <div className="relative p-8 border-b border-white/5">
+      <div className="relative p-4 sm:p-6 lg:p-8 border-b border-white/5">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
-            <Car size={24} />
+            <Car size={20} className="sm:w-6 sm:h-6" />
           </div>
-          <h2 className="text-2xl font-bold text-white">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">
             Premium Transport
           </h2>
         </div>
-        <p className="text-gray-400 text-sm pl-12">
+        <p className="text-gray-400 text-xs sm:text-sm pl-11 sm:pl-12">
           Select your preferred vehicle for the duration of your trip.
         </p>
       </div>
 
       {/* Vehicle Grid */}
-      <div className="p-8 grid gap-6 md:grid-cols-2">
+      <div className="p-4 sm:p-6 lg:p-8 grid gap-4 sm:gap-6 md:grid-cols-2">
         {data.vehicles.map((vehicle, index) => (
           <motion.div
             key={vehicle.id}
@@ -87,7 +87,7 @@ export function FleetCard({ data, className }: FleetCardProps) {
             </div>
 
             {/* Image Area */}
-            <div className="relative h-48 overflow-hidden">
+            <div className="relative h-40 sm:h-48 overflow-hidden">
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                 style={{ backgroundImage: `url(${vehicle.image})` }}
@@ -105,8 +105,8 @@ export function FleetCard({ data, className }: FleetCardProps) {
             </div>
 
             {/* Details */}
-            <div className="p-5">
-              <div className="flex gap-4 mb-5">
+            <div className="p-4 sm:p-5">
+              <div className="flex gap-3 sm:gap-4 mb-4 sm:mb-5">
                 <div className="flex items-center gap-2 text-gray-400 text-xs font-medium bg-white/5 px-3 py-1.5 rounded-lg">
                   <Users size={14} className="text-blue-400" />
                   <span>{vehicle.capacity} Pax</span>
@@ -149,7 +149,7 @@ export function FleetCard({ data, className }: FleetCardProps) {
       </div>
 
       {/* Footer Info */}
-      <div className="px-8 pb-8">
+      <div className="px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
         <div className="flex items-start gap-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
           <Info size={18} className="text-blue-400 shrink-0 mt-0.5" />
           <p className="text-xs text-blue-200/80 leading-relaxed">

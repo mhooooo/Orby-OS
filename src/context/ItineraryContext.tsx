@@ -12,6 +12,7 @@ import {
   createId,
 } from '@/types/itinerary';
 import { Course } from '@/types/course';
+import { analytics } from '@/lib/analytics';
 
 // Initial state
 const createInitialState = (initialRegion?: Region | null): ItineraryWizardState => ({
@@ -185,16 +186,27 @@ export function ItineraryProvider({ children, initialRegion }: ItineraryProvider
   const [state, dispatch] = useReducer(itineraryReducer, createInitialState(initialRegion));
 
   // Convenience methods
-  const setRegion = (region: Region) => dispatch({ type: 'SET_REGION', payload: region });
-
-  const setVibe = (vibe: ItineraryDraft['vibe']) => {
-    if (vibe) dispatch({ type: 'SET_VIBE', payload: vibe });
+  const setRegion = (region: Region) => {
+    dispatch({ type: 'SET_REGION', payload: region });
+    analytics.itineraryStepCompleted(1, 'region');
   };
 
-  const setDates = (startDate: string, endDate: string, numberOfDays: number) =>
-    dispatch({ type: 'SET_DATES', payload: { startDate, endDate, numberOfDays } });
+  const setVibe = (vibe: ItineraryDraft['vibe']) => {
+    if (vibe) {
+      dispatch({ type: 'SET_VIBE', payload: vibe });
+      analytics.itineraryStepCompleted(2, 'vibe');
+    }
+  };
 
-  const setGroupSize = (size: number) => dispatch({ type: 'SET_GROUP_SIZE', payload: size });
+  const setDates = (startDate: string, endDate: string, numberOfDays: number) => {
+    dispatch({ type: 'SET_DATES', payload: { startDate, endDate, numberOfDays } });
+    analytics.itineraryStepCompleted(3, 'dates');
+  };
+
+  const setGroupSize = (size: number) => {
+    dispatch({ type: 'SET_GROUP_SIZE', payload: size });
+    analytics.itineraryStepCompleted(4, 'group_size');
+  };
 
   const toggleTransfers = (enabled: boolean) =>
     dispatch({ type: 'SET_TRANSFERS', payload: { enabled } });

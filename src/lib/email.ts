@@ -1,6 +1,29 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resendInstance: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (resendInstance) {
+    return resendInstance;
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('Missing RESEND_API_KEY environment variable');
+  }
+
+  resendInstance = new Resend(apiKey);
+  return resendInstance;
+}
+
+const resend = new Proxy({} as Resend, {
+  get(target, prop) {
+    const client = getResendClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const value = (client as any)[prop];
+    return typeof value === 'function' ? value.bind(client) : value;
+  },
+});
 
 interface InquiryNotificationData {
   id: string;

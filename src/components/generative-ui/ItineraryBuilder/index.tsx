@@ -71,7 +71,7 @@ function WizardContent() {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto px-2 sm:px-0">
       {/* Progress Indicator */}
       <ProgressIndicator
         steps={WIZARD_STEPS.slice(0, -1)} // Exclude summary from progress
@@ -113,10 +113,10 @@ function ItineraryBuilderInner() {
   }
 
   return (
-    <div className="rounded-3xl bg-[#1E1F20] p-6 border border-gray-800">
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-white">Plan Your Golf Trip</h2>
-        <p className="text-sm text-gray-400 mt-1">
+    <div className="rounded-2xl sm:rounded-3xl bg-[#1E1F20] p-4 sm:p-6 border border-gray-800">
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-white">Plan Your Golf Trip</h2>
+        <p className="text-xs sm:text-sm text-gray-400 mt-1">
           Let&apos;s build your perfect Thailand golf experience
         </p>
       </div>

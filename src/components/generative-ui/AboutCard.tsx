@@ -48,7 +48,7 @@ export function AboutCard({ data, className }: AboutCardProps) {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-orange-500/20 rounded-full blur-[80px] pointer-events-none" />
 
       {/* Header */}
-      <div className="relative p-8 pb-6 text-center">
+      <div className="relative p-4 sm:p-6 lg:p-8 pb-4 sm:pb-6 text-center">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -57,35 +57,35 @@ export function AboutCard({ data, className }: AboutCardProps) {
         >
           Since {data.founded}
         </motion.div>
-        <h2 className="text-4xl font-bold text-white mb-2 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 tracking-tight">
           {data.company}
         </h2>
-        <p className="text-lg text-gray-400 font-light">
+        <p className="text-base sm:text-lg text-gray-400 font-light">
           {data.tagline}
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-3 gap-px bg-white/5 border-y border-white/5">
-        <div className="p-6 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors">
-          <Calendar size={24} className="text-orange-400 mb-3 group-hover:scale-110 transition-transform" />
-          <span className="text-3xl font-bold text-white mb-1">{data.yearsExperience}</span>
-          <span className="text-xs text-gray-500 uppercase tracking-wider">Years</span>
+        <div className="p-4 sm:p-6 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors">
+          <Calendar size={20} className="text-orange-400 mb-2 sm:mb-3 group-hover:scale-110 transition-transform sm:w-6 sm:h-6" />
+          <span className="text-2xl sm:text-3xl font-bold text-white mb-1">{data.yearsExperience}</span>
+          <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Years</span>
         </div>
-        <div className="p-6 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors border-x border-white/5">
-          <MapPin size={24} className="text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
-          <span className="text-3xl font-bold text-white mb-1">{data.stats.coursesPartner}+</span>
-          <span className="text-xs text-gray-500 uppercase tracking-wider">Courses</span>
+        <div className="p-4 sm:p-6 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors border-x border-white/5">
+          <MapPin size={20} className="text-blue-400 mb-2 sm:mb-3 group-hover:scale-110 transition-transform sm:w-6 sm:h-6" />
+          <span className="text-2xl sm:text-3xl font-bold text-white mb-1">{data.stats.coursesPartner}+</span>
+          <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Courses</span>
         </div>
-        <div className="p-6 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors">
-          <Star size={24} className="text-yellow-400 mb-3 group-hover:scale-110 transition-transform" />
-          <span className="text-3xl font-bold text-white mb-1">{data.stats.averageRating}</span>
-          <span className="text-xs text-gray-500 uppercase tracking-wider">Rating</span>
+        <div className="p-4 sm:p-6 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors">
+          <Star size={20} className="text-yellow-400 mb-2 sm:mb-3 group-hover:scale-110 transition-transform sm:w-6 sm:h-6" />
+          <span className="text-2xl sm:text-3xl font-bold text-white mb-1">{data.stats.averageRating}</span>
+          <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Rating</span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <p className="text-gray-300 leading-relaxed mb-8 text-center max-w-2xl mx-auto">
           {data.description}
         </p>

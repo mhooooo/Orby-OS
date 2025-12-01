@@ -3,7 +3,7 @@
 import React, { useState, KeyboardEvent } from 'react';
 import { useChatContext } from '@/context/ChatContext';
 import { cn } from '@/lib/utils';
-import { Send, Plus, Mic } from 'lucide-react';
+import { Send, Plus, Mic, Loader2 } from 'lucide-react';
 
 interface ChatInputProps {
   className?: string;
@@ -31,24 +31,24 @@ export function ChatInput({ className, variant = 'default' }: ChatInputProps) {
   };
 
   return (
-    <div className={cn('p-4', className)}>
+    <div className={cn('p-2 sm:p-4', className)}>
       <div className={cn(
-        'w-full mx-auto rounded-full px-4 transition-all duration-200 border border-transparent relative flex items-center gap-3',
-        variant === 'centered' ? 'bg-[#1E1F20] h-[56px] max-w-2xl' : 'bg-[#1E1F20] h-[64px] max-w-3xl',
+        'w-full mx-auto rounded-full px-3 sm:px-4 transition-all duration-200 border border-transparent relative flex items-center gap-2 sm:gap-3',
+        variant === 'centered' ? 'bg-[#1E1F20] h-[48px] sm:h-[56px] max-w-2xl' : 'bg-[#1E1F20] h-[52px] sm:h-[64px] max-w-3xl',
         isFocused
           ? 'shadow-lg ring-1 ring-gray-400/20 bg-[#282A2C]'
           : 'bg-[#1E1F20]'
       )}>
         <button
-          className="p-2 rounded-full bg-[#282A2C] hover:bg-[#3a3c3e] text-gray-400 transition-colors flex-shrink-0"
+          className="p-1.5 sm:p-2 rounded-full bg-[#282A2C] hover:bg-[#3a3c3e] text-gray-400 transition-colors flex-shrink-0"
         >
-          <Plus size={20} />
+          <Plus size={18} className="sm:w-5 sm:h-5" />
         </button>
 
         <input
           type="text"
           placeholder="Ask me anything about golf in Thailand..."
-          className="flex-1 bg-transparent text-base outline-none text-gray-200 placeholder-gray-500"
+          className="flex-1 bg-transparent text-sm sm:text-base outline-none text-gray-200 placeholder-gray-500"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onFocus={() => setIsFocused(true)}
@@ -57,22 +57,26 @@ export function ChatInput({ className, variant = 'default' }: ChatInputProps) {
           disabled={isLoading}
         />
 
-        <button className="p-2 rounded-full hover:bg-[#282A2C] text-gray-400 transition-colors flex-shrink-0">
-          <Mic size={20} />
+        <button className="p-1.5 sm:p-2 rounded-full hover:bg-[#282A2C] text-gray-400 transition-colors flex-shrink-0 hidden sm:flex">
+          <Mic size={18} className="sm:w-5 sm:h-5" />
         </button>
 
-        {input && (
+        {(input || isLoading) && (
           <button
             onClick={handleSubmit}
             disabled={isLoading}
             className={cn(
-              'p-2 rounded-full text-white transition-colors flex-shrink-0',
+              'p-1.5 sm:p-2 rounded-full text-white transition-colors flex-shrink-0',
               isLoading
                 ? 'bg-gray-600 cursor-not-allowed'
                 : 'bg-blue-500 hover:bg-blue-600'
             )}
           >
-            <Send size={18} />
+            {isLoading ? (
+              <Loader2 size={16} className="sm:w-[18px] sm:h-[18px] animate-spin" />
+            ) : (
+              <Send size={16} className="sm:w-[18px] sm:h-[18px]" />
+            )}
           </button>
         )}
       </div>
