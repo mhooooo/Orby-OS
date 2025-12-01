@@ -281,3 +281,218 @@
 - ✅ Error handling implemented
 - ✅ Analytics integration ready
 - 🔜 Requires Vercel deployment + env var configuration
+
+---
+
+## [2025-12-01] Memory System Complete
+
+### Added
+- **Embedding Service** - OpenAI text-embedding-3-small
+  - `src/lib/embeddings.ts` - 1536-dimension vector generation
+  - `getEmbedding()` and `getEmbeddingSafe()` functions
+  - `cosineSimilarity()` utility for local comparisons
+  - Why: Enable semantic search over user memories
+  - Impact: AI can find relevant memories based on meaning, not keywords
+
+- **Memory Retrieval Service** - Context gathering
+  - `src/lib/memory-retrieval.ts` - Parallel query execution
+  - Semantic search via `search_memories` RPC function
+  - Recent chat history from `chat_messages` table
+  - Current itinerary from `itinerary_drafts` table
+  - Graceful fallback to recent memories if embeddings fail
+  - Why: Gather all relevant context before AI responds
+  - Impact: AI has full context of user preferences and trip state
+
+- **Context Builder** - Enhanced system prompt
+  - `src/lib/context-builder.ts` - Token-budgeted prompt sections
+  - User Profile section (memories sorted by confidence)
+  - Trip Planning State section (itinerary data)
+  - Recent Conversation section (trimmed chat history)
+  - Token budgets: 500 for memories, 1000 for history
+  - Why: Inject relevant context into Claude's system prompt
+  - Impact: AI responses are personalized and contextually aware
+
+- **Passive Profiler Edge Function** - Implicit preference extraction
+  - `supabase/functions/extract-memories/index.ts` - Deno Edge Function
+  - Uses Claude Haiku for cost-effective extraction
+  - Categories: play_style, budget, logistics, social, health
+  - Rate limiting: 20 char min, 50 extractions/session max
+  - Deduplication via similarity search (0.9 threshold)
+  - Fire-and-forget trigger from chat route
+  - Why: Extract preferences without explicit user input
+  - Impact: AI learns user preferences naturally from conversation
+
+- **Chat Message Persistence** - Conversation history
+  - `src/lib/supabase-server.ts` - Service role client for API routes
+  - User messages saved on receipt
+  - Assistant responses saved before return
+  - Why: Enable context retrieval from past conversations
+  - Impact: AI remembers what was discussed in previous messages
+
+- **System Prompt Updates** - Memory rules
+  - LONG-TERM MEMORY: Prioritize User Profile facts
+  - ACTIVE MEMORY: Use tools for hard data (dates, group size)
+  - PASSIVE MEMORY: Automatic extraction of soft preferences
+  - Why: Guide AI behavior around memory system
+  - Impact: Consistent memory usage across conversations
+
+### Fixed
+- **FK Constraint on user_memories** - Migration to remove constraint
+  - `supabase/migrations/20241201131900_fix_user_memories_fk.sql`
+  - Why: Passive profiler generates message IDs before persistence
+  - Impact: Memory extraction no longer fails on insert
+
+### Technical Details
+- New dependencies: None (uses existing OpenAI via fetch)
+- New files: embeddings.ts, memory-retrieval.ts, context-builder.ts, supabase-server.ts
+- Edge Function: extract-memories deployed to Supabase
+- Secrets: ANTHROPIC_API_KEY, OPENAI_API_KEY set in Supabase
+- Tests: sprint-memory-pipeline.spec.ts (13 tests all passing)
+- Environment: OPENAI_API_KEY required for embeddings
+
+### Memory System Flow
+1. User sends message → saved to `chat_messages`
+2. Context retrieved → memories, history, itinerary
+3. Enhanced prompt built → injected into Claude
+4. AI responds → response saved to `chat_messages`
+5. Passive profiler → extracts preferences (async, non-blocking)
+6. Memories stored → available for future context injection
+
+---
+
+## [2025-12-02] UI/UX Overhaul
+
+### Added
+- **Chat History System** - Persistent conversation threads
+  - `supabase/migrations/20241201150000_chats_table.sql` - Chats table with session/user ownership
+  - `src/app/api/chats/route.ts` - List/create chats API
+  - `src/app/api/chats/[chatId]/route.ts` - Get/update/delete single chat
+  - `src/hooks/useChatHistory.ts` - Chat list state management
+  - `src/context/ChatHistoryContext.tsx` - Global chat history provider
+  - `loadChat()` in useChat - Properly loads messages for selected chat
+  - Why: Users needed persistent conversation history like Claude
+  - Impact: Conversations persist and can be resumed
+
+- **Sidebar Redesign** - Gemini-style layout
+  - New Chat button at top with SquarePen icon
+  - My Golf section with horizontal scrolling course cards
+  - Plans section with Draft badges and delete buttons
+  - Chats grouped by date (Today, Yesterday, Previous 7 Days, Previous 30 Days, Older)
+  - Settings at bottom
+  - Why: Declutter sidebar, organize by user intent
+  - Impact: Cleaner navigation, better UX
+
+- **Header Explore Dropdown** - Navigation menu
+  - DISCOVER section: Find a Course, Plan a Trip (orange icons)
+  - SERVICES section: Fleet & Transport, Club Rentals, etc. (gray icons)
+  - Unified list design with strokeWidth={1.5} for consistency
+  - Gray subtitles (not orange) for proper visual hierarchy
+  - Why: Move Explore from sidebar to header for quick access
+  - Impact: Streamlined navigation without sidebar clutter
+
+- **Spectrum Pills** - Target mindset actions
+  - First-Time Guide (purple #9B5DE5) - The Beginner
+  - Top Rated (blue #00BBF9) - The Dreamer
+  - Build a Trip (orange #FF6B35) - The Planner
+  - Get a Price (red #F05D5E) - The Buyer
+  - Premium pill design with colored icon containers
+  - Why: Guide users based on their intent/mindset
+  - Impact: Clear entry points for different user types
+
+- **Morphing Avatar** - Dynamic agent presence
+  - `src/components/AgentAvatar.tsx` - Avatar with halo effects
+  - `src/components/MorphingAvatar.tsx` - Position morphing component
+  - Thinking state: 5-color spinning conic gradient (blur: 8px)
+  - Idle state: Subtle breathing glow animation
+  - Hero position: Centered above greeting (80x80)
+  - Chat position: Top-left header area (32x32)
+  - Framer Motion spring animations for smooth transitions
+  - Why: Establish AI as "main character" then get out of the way
+  - Impact: Polished, premium feel during interactions
+
+### Changed
+- **GreetingState** - Removed static GolfOkayIcon (replaced by MorphingAvatar)
+- **Page Layout** - Refactored to PageContent component for context access
+
+### Fixed
+- **Nested Button Error** - Changed saved course cards from `<button>` to `<div>`
+- **Type Mismatches** - Fixed `handlePlanClick` to accept `string | null`
+
+### Technical Details
+- New files: AgentAvatar.tsx, MorphingAvatar.tsx, ChatHistoryContext.tsx, useChatHistory.ts
+- Updated: Sidebar.tsx (complete rewrite), Header.tsx, GreetingState.tsx, page.tsx
+- Migration: chats table with session_uuid, user_id, title, timestamps
+- Colors: Brand palette (purple, blue, orange, red) in BRAND_COLORS constant
+- Animation: Framer Motion for avatar morphing and halo spin
+
+---
+
+## [2025-12-02] NeuralDots Actor & Premium Polish
+
+### Added
+- **NeuralDots "Persistent Actor"** - AI presence visualization
+  - Pentagon formation: 5 dots at 72° intervals (closed shape, not C-arc)
+  - Dark Glass Orb: `bg-white/5 backdrop-blur-md border-white/10`
+  - Neon glow on dots: `box-shadow: 0 0 15px color`
+  - Three states: loading (chaos), hero (order), chat (compact)
+  - Why: Golf ball dots on black don't read as a logo without a container
+  - Impact: Premium "Iron Man / Jarvis" aesthetic
+
+- **Snap-to-Static Behavior** - Confidence through stillness
+  - Hero mode: NO animation - solid, fixed, confident
+  - Loading mode: Spinning, breathing, chaotic
+  - `isStatic` flag controls animation behavior
+  - Scale locks at 1.15 with spring snap
+  - Why: Constant breathing creates anxiety, signals "not ready"
+  - Impact: Chaos → Order transition feels premium (Apple/Sony pattern)
+
+- **Profile Modal "Black Card"** - Premium member card design
+  - Credit card aspect ratio (340×195px, scaled down 20%)
+  - Matte black (`#0a0a0a`) with SVG noise texture overlay
+  - Gold accent (`#D4AF37`) for avatar ring, MEMBER badge, PRO status
+  - Holographic name: `bg-gradient-to-r from-white via-purple-200 to-cyan-200`
+  - Stats strip: HANDICAP | TRIPS | STATUS
+  - Why: Generic admin modal doesn't convey golf status/premium
+  - Impact: Amex Centurion-style exclusivity
+
+- **Explore Menu "HUD Panel"** - Glassmorphism navigation
+  - `border border-white/10` for crisp edges
+  - `shadow-[0_10px_40px_-10px_rgba(255,255,255,0.05)]` white glow
+  - `backdrop-blur-xl` for frosted glass depth
+  - Hover: `bg-gradient-to-r from-white/5 to-transparent`
+  - Left orange accent bar on hover (`border-l-2 border-l-[#FF6B35]`)
+  - Why: Default CSS shadow looked flat against dark background
+  - Impact: Menu floats with premium depth
+
+### Changed
+- **Sidebar Transparency** - Unified "dark glass" material
+  - Changed from `bg-[#1E1F20]` to `bg-transparent`
+  - Added `border-r border-white/5` for subtle edge
+  - Why: Solid sidebar block clashed with airy center
+  - Impact: Background flows through, cohesive material language
+
+- **New Chat Button Demoted** - Concierge doesn't shout
+  - Changed from loud orange gradient to ghost button
+  - `bg-white/5` with `border-white/5` and muted text
+  - Why: Bright orange button stole focus from "Hi, there!" hero
+  - Impact: Sidebar whispers, center speaks
+
+- **Course Images Desaturated** - Visual hierarchy fix
+  - Added `opacity-50 grayscale-[30%]` at rest
+  - `opacity-80 grayscale-0` on hover
+  - Why: Colorful thumbnails fought with orange accent colors
+  - Impact: Images subtle until intentionally viewed
+
+### Fixed
+- **Header Z-Index Stacking** - Actor no longer covers header
+  - Added fixed Header at `z-[70]` to page layout
+  - Actor drops to `z-10` in chat mode
+  - Chat layer at `z-[60]`
+  - Why: Dark glass orb's backdrop-blur created stacking issues
+  - Impact: Logo, Explore, Profile always accessible
+
+### Technical Details
+- Updated: NeuralDots.tsx (complete rewrite), Header.tsx, Sidebar.tsx, page.tsx
+- Key values: DOT_CONFIGS radius 16px (hero), pentagon angles at 72° intervals
+- Animation: Framer Motion springs with stiffness 300 for snap effect
+- Colors: Gold `#D4AF37`, holographic gradient, glassmorphism `white/5`

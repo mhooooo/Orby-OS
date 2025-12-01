@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { Message, ChatState, ToolCall } from '@/types/chat';
 import { analytics } from '@/lib/analytics';
 import { matchStaticRoute } from '@/lib/static-routes';
+import { apiFetch } from '@/lib/api-client';
 
 // Parse tool result markers from response content
 function parseToolResults(content: string): { cleanContent: string; toolCalls: ToolCall[] } {
@@ -32,12 +33,13 @@ function parseToolResults(content: string): { cleanContent: string; toolCalls: T
   return { cleanContent, toolCalls };
 }
 
-export function useChat(initialMessages: Message[] = []) {
+export function useChat(initialMessages: Message[] = [], chatId?: string | null) {
   const [state, setState] = useState<ChatState>({
     messages: initialMessages,
     isLoading: false,
     error: null,
   });
+  const [currentChatId, setCurrentChatId] = useState<string | null>(chatId || null);
 
   const addMessage = useCallback((message: Message) => {
     setState(prev => ({
@@ -69,6 +71,59 @@ export function useChat(initialMessages: Message[] = []) {
 
   const clearMessages = useCallback(() => {
     setState({ messages: [], isLoading: false, error: null });
+  }, []);
+
+  const loadChat = useCallback(async (loadChatId: string) => {
+    console.log('[useChat] Loading chat:', loadChatId);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await apiFetch(`/api/chats/${loadChatId}`);
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to load chat');
+      }
+
+      const data = await response.json();
+      console.log('[useChat] Loaded chat data:', {
+        chatId: loadChatId,
+        messageCount: data.messages?.length || 0,
+        chatTitle: data.chat?.title
+      });
+
+      const loadedMessages: Message[] = (data.messages || []).map((msg: { id: string; role: 'user' | 'assistant'; content: string; createdAt: string }) => ({
+        id: msg.id,
+        role: msg.role,
+        content: msg.content,
+        createdAt: new Date(msg.createdAt),
+      }));
+
+      setState(prev => ({
+        ...prev,
+        messages: loadedMessages,
+        isLoading: false,
+      }));
+
+      setCurrentChatId(loadChatId);
+      console.log('[useChat] Chat loaded successfully, messages set:', loadedMessages.length);
+
+      return true;
+    } catch (err) {
+      console.error('[useChat] Failed to load chat:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load chat');
+      setLoading(false);
+      return false;
+    }
+  }, [setLoading, setError]);
+
+  // Set messages directly (for loading from chat history)
+  const setMessages = useCallback((messages: Message[]) => {
+    setState(prev => ({
+      ...prev,
+      messages,
+    }));
   }, []);
 
   const sendMessage = useCallback(async (content: string) => {
@@ -117,11 +172,11 @@ export function useChat(initialMessages: Message[] = []) {
     addMessage(assistantMessage);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await apiFetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...state.messages, userMessage],
+          chatId: currentChatId,
         }),
       });
 
@@ -131,6 +186,12 @@ export function useChat(initialMessages: Message[] = []) {
 
       if (!response.body) {
         throw new Error('No response body');
+      }
+
+      // Check if a new chat was created and update the chatId
+      const newChatId = response.headers.get('X-Chat-Id');
+      if (newChatId && !currentChatId) {
+        setCurrentChatId(newChatId);
       }
 
       // Handle streaming response
@@ -161,14 +222,18 @@ export function useChat(initialMessages: Message[] = []) {
     } finally {
       setLoading(false);
     }
-  }, [state.messages, addMessage, updateLastMessage, setLoading, setError]);
+  }, [state.messages, currentChatId, addMessage, updateLastMessage, setLoading, setError]);
 
   return {
     messages: state.messages,
     isLoading: state.isLoading,
     error: state.error,
+    currentChatId,
     sendMessage,
     addMessage,
     clearMessages,
+    loadChat,
+    setMessages,
+    setCurrentChatId,
   };
 }

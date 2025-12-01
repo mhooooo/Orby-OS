@@ -16,6 +16,13 @@
 - [ ] Monitor initial user sessions
 - [ ] Document deployment process
 
+### UI/UX Overhaul Tasks (Completed)
+- [x] Sidebar redesign (Gemini-style with chat history)
+- [x] Chat history system (chats table, API routes, hooks)
+- [x] Header Explore dropdown (Discover + Services sections)
+- [x] Greeting State spectrum pills (4 color-coded mindset triggers)
+- [x] Morphing Avatar with thinking halo (Framer Motion)
+
 ### Phase 6 Tasks (Completed)
 - [x] Mobile responsive breakpoints for all components
 - [x] Image optimization with Next.js Image component
@@ -97,6 +104,17 @@ src/
 - [x] Analytics integration (Plausible ready)
 - [ ] Vercel deployment + domain config (next phase)
 
+### Memory System (Completed)
+- [x] Session identity layer (session UUID, merge workflow)
+- [x] Active Memory tools (set_trip_dates, set_group_size, etc.)
+- [x] Passive Profiler Edge Function (Claude Haiku extraction)
+- [x] Embedding service (OpenAI text-embedding-3-small)
+- [x] Memory retrieval with semantic search
+- [x] Context builder with token budgets
+- [x] System prompt with memory rules
+- [x] Deploy Edge Function to Supabase production
+- [x] Chat message persistence to database
+
 ### Foundation (Completed)
 
 **Phase 1 - Chat Foundation:**
@@ -116,6 +134,9 @@ Supabase Auth with Google OAuth, AuthGateModal with save/book triggers, saved co
 
 **Phase 5 - Booking Flow:**
 InquiryForm component, inquiry API routes, Resend email integration, email notifications, database persistence, start_inquiry AI tool
+
+**UI/UX Overhaul:**
+Gemini-style sidebar with chat history (date grouping, My Golf cards, Plans section), Header Explore dropdown (Discover + Services), Spectrum pills on greeting (4 user mindsets), Morphing Avatar with 5-color thinking halo (Framer Motion), Chat history persistence with loadChat
 
 ---
 
@@ -226,6 +247,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 # Phase 4-5
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 RESEND_API_KEY=re_...
+
+# Memory System
+OPENAI_API_KEY=sk-...  # For embeddings (text-embedding-3-small)
 
 # Future
 STRIPE_SECRET_KEY=sk_...
