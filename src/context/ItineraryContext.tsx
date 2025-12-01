@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useCallback, useMemo } from 'react';
 import {
   ItineraryWizardState,
   ItineraryAction,
@@ -185,66 +185,67 @@ interface ItineraryProviderProps {
 export function ItineraryProvider({ children, initialRegion }: ItineraryProviderProps) {
   const [state, dispatch] = useReducer(itineraryReducer, createInitialState(initialRegion));
 
-  // Convenience methods
-  const setRegion = (region: Region) => {
+  // Memoized convenience methods to prevent infinite re-renders
+  const setRegion = useCallback((region: Region) => {
     dispatch({ type: 'SET_REGION', payload: region });
     analytics.itineraryStepCompleted(1, 'region');
-  };
+  }, []);
 
-  const setVibe = (vibe: ItineraryDraft['vibe']) => {
+  const setVibe = useCallback((vibe: ItineraryDraft['vibe']) => {
     if (vibe) {
       dispatch({ type: 'SET_VIBE', payload: vibe });
       analytics.itineraryStepCompleted(2, 'vibe');
     }
-  };
+  }, []);
 
-  const setDates = (startDate: string, endDate: string, numberOfDays: number) => {
+  const setDates = useCallback((startDate: string, endDate: string, numberOfDays: number) => {
     dispatch({ type: 'SET_DATES', payload: { startDate, endDate, numberOfDays } });
     analytics.itineraryStepCompleted(3, 'dates');
-  };
+  }, []);
 
-  const setGroupSize = (size: number) => {
+  const setGroupSize = useCallback((size: number) => {
     dispatch({ type: 'SET_GROUP_SIZE', payload: size });
     analytics.itineraryStepCompleted(4, 'group_size');
-  };
+  }, []);
 
-  const toggleTransfers = (enabled: boolean) =>
-    dispatch({ type: 'SET_TRANSFERS', payload: { enabled } });
+  const toggleTransfers = useCallback((enabled: boolean) =>
+    dispatch({ type: 'SET_TRANSFERS', payload: { enabled } }), []);
 
-  const toggleCaddieTips = (enabled: boolean) =>
-    dispatch({ type: 'SET_CADDIE_TIPS', payload: enabled });
+  const toggleCaddieTips = useCallback((enabled: boolean) =>
+    dispatch({ type: 'SET_CADDIE_TIPS', payload: enabled }), []);
 
-  const nextStep = () => dispatch({ type: 'NEXT_STEP' });
+  const nextStep = useCallback(() => dispatch({ type: 'NEXT_STEP' }), []);
 
-  const prevStep = () => dispatch({ type: 'PREV_STEP' });
+  const prevStep = useCallback(() => dispatch({ type: 'PREV_STEP' }), []);
 
-  const goToStep = (step: WizardStep) => dispatch({ type: 'SET_STEP', payload: step });
+  const goToStep = useCallback((step: WizardStep) => dispatch({ type: 'SET_STEP', payload: step }), []);
 
-  const setCourses = (courses: Course[]) => dispatch({ type: 'SET_COURSES', payload: courses });
+  const setCourses = useCallback((courses: Course[]) => dispatch({ type: 'SET_COURSES', payload: courses }), []);
 
-  const completeWizard = () => dispatch({ type: 'COMPLETE_WIZARD' });
+  const completeWizard = useCallback(() => dispatch({ type: 'COMPLETE_WIZARD' }), []);
 
-  const reset = () => dispatch({ type: 'RESET' });
+  const reset = useCallback(() => dispatch({ type: 'RESET' }), []);
+
+  // Memoize context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
+    state,
+    dispatch,
+    setRegion,
+    setVibe,
+    setDates,
+    setGroupSize,
+    toggleTransfers,
+    toggleCaddieTips,
+    nextStep,
+    prevStep,
+    goToStep,
+    setCourses,
+    completeWizard,
+    reset,
+  }), [state, setRegion, setVibe, setDates, setGroupSize, toggleTransfers, toggleCaddieTips, nextStep, prevStep, goToStep, setCourses, completeWizard, reset]);
 
   return (
-    <ItineraryContext.Provider
-      value={{
-        state,
-        dispatch,
-        setRegion,
-        setVibe,
-        setDates,
-        setGroupSize,
-        toggleTransfers,
-        toggleCaddieTips,
-        nextStep,
-        prevStep,
-        goToStep,
-        setCourses,
-        completeWizard,
-        reset,
-      }}
-    >
+    <ItineraryContext.Provider value={value}>
       {children}
     </ItineraryContext.Provider>
   );
