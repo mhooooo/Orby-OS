@@ -6,7 +6,7 @@ import { retrieveContext } from '@/lib/memory-retrieval';
 import { buildEnhancedSystemPrompt } from '@/lib/context-builder';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { supabase } from '@/lib/supabase';
+import { getServerSupabase } from '@/lib/supabase-server';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -22,8 +22,8 @@ async function saveChatMessage(
   content: string
 ): Promise<string | null> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const supabase = getServerSupabase();
+    const { data, error } = await supabase
       .from('chat_messages')
       .insert({
         session_uuid: sessionUuid,
