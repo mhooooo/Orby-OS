@@ -1707,7 +1707,7 @@ async function shouldExtract(sessionUuid: string, content: string): Promise<bool
 
 - [x] **Passive Profiler**
   - [x] Create Edge Function
-  - [ ] Deploy to Supabase
+  - [x] Deploy to Supabase
   - [x] Add trigger in chat route
   - [ ] Test extraction quality
 
