@@ -6,10 +6,45 @@ import { retrieveContext } from '@/lib/memory-retrieval';
 import { buildEnhancedSystemPrompt } from '@/lib/context-builder';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { supabase } from '@/lib/supabase';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+/**
+ * Save a chat message to the database
+ */
+async function saveChatMessage(
+  sessionUuid: string,
+  userId: string | null,
+  role: 'user' | 'assistant',
+  content: string
+): Promise<string | null> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
+      .from('chat_messages')
+      .insert({
+        session_uuid: sessionUuid,
+        user_id: userId,
+        role,
+        content,
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('[Chat] Failed to save message:', error);
+      return null;
+    }
+
+    return data?.id || null;
+  } catch (err) {
+    console.error('[Chat] Error saving message:', err);
+    return null;
+  }
+}
 
 /**
  * Trigger passive profiler edge function (fire-and-forget)
@@ -115,6 +150,12 @@ export async function POST(request: NextRequest) {
     // Get the latest user message for context retrieval
     const latestMessage = messages[messages.length - 1];
     const latestContent = latestMessage?.content || '';
+
+    // Save the user message to the database (non-blocking)
+    let userMessageId: string | null = null;
+    if (sessionUuid && latestContent && latestMessage?.role === 'user') {
+      userMessageId = await saveChatMessage(sessionUuid, userId, 'user', latestContent);
+    }
 
     // Step 1: Retrieve context (memories, history, itinerary state)
     let systemPrompt = GOLF_OKAY_SYSTEM_PROMPT;
@@ -237,12 +278,16 @@ export async function POST(request: NextRequest) {
       finalResponse += `\n<!--TOOL_RESULT:${Buffer.from(toolData).toString('base64')}-->`;
     }
 
+    // Save the assistant response to the database (non-blocking)
+    if (sessionUuid && textContent) {
+      saveChatMessage(sessionUuid, userId, 'assistant', textContent);
+    }
+
     // Step 6: Trigger passive profiler (async, non-blocking)
     // Extracts implicit preferences from user messages
-    if (sessionUuid && latestContent) {
-      const messageId = crypto.randomUUID(); // Generate a unique ID for tracking
+    if (sessionUuid && latestContent && userMessageId) {
       triggerPassiveProfiler(
-        messageId,
+        userMessageId,
         sessionUuid,
         userId,
         latestContent,
