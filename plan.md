@@ -1,95 +1,23 @@
 # Golf Okay: Implementation Plan
 
-## 📍 Current Phase: Deployment & Production Setup
-**Goal:** Live production deployment with monitoring and analytics
+## 📍 Current Phase: Phase 7 - Admin MVP
+**Goal:** B2B operations dashboard to serve Vietnam client and import existing rate data
 
 ### Active Priorities
-1. Vercel deployment with environment variables
-2. Plausible analytics domain configuration
-3. Production monitoring and error tracking
-4. Performance optimization (optional)
+1. Admin route structure (`/admin/*`)
+2. Course data import from Excel
+3. Rate sheet PDF generator
+4. Quote builder for B2B clients
 
 ### Immediate Task List
-- [ ] Deploy to Vercel with production environment variables
-- [ ] Configure custom domain (if applicable)
-- [ ] Set up Plausible analytics with domain
-- [ ] Monitor initial user sessions
-- [ ] Document deployment process
-
-### Critical UI Fixes (Completed)
-- [x] FIX 29: Remove golf stats from CourseCard/CourseDetailCard, add "Best For" tags
-- [x] FIX 30: AboutCard floating bubble pills for stats
-- [x] FIX 31: Educational cards responsive layout (6 cards)
-- [x] FIX 32: ServiceBento modal renders educational cards
-- [x] FIX 33: ItinerarySummary reduce spacing
-- [x] FIX 34: Wizard steps reordered - WHEN (dates) first
-- [x] FIX 35: Wizard buttons toned down (white CTAs, subtle toggles)
-- [x] FIX 36: RegionCard multi-select verified
-- [x] FIX 37: Global orange/coral reduction
-
-### Proactive UI System (Completed)
-- [x] DateIntentModal - Quick date/time intent capture
-- [x] AvailabilityBadge - Live availability status badges
-- [x] ProactiveUIManager - Central orchestrator with rate limits
-- [x] GroupSizeNudge - Quick group size capture
-- [x] TripBuilderPrompt - Floating pill after 3+ courses viewed
-- [x] Audit page "Proactive UI" section
-
-### UI/UX Overhaul Tasks (Completed)
-- [x] Sidebar redesign (Gemini-style with chat history)
-- [x] Chat history system (chats table, API routes, hooks)
-- [x] Header Explore dropdown (Discover + Services sections)
-- [x] Greeting State spectrum pills (4 color-coded mindset triggers)
-- [x] Morphing Avatar with thinking halo (Framer Motion)
-
-### Component Styling Overhaul (Completed)
-- [x] Educational service cards (AirportFastTrackCard, GolfInsuranceCard, FleetCard)
-- [x] CourseCard information hierarchy (front: all-in price, tier; back: breakdown, facilities)
-- [x] CourseCard flip animation fix (initial={false}, unified timing)
-- [x] DatesCard duration selector (start date + duration buttons)
-- [x] LogisticsStep info-first pattern with auto-selection
-- [x] Neutral design system (removed glow, neutral surfaces, accent punctuation only)
-
-### Design System Foundation (Completed)
-- [x] Design token audit (250+ values extracted, inconsistencies documented)
-- [x] Experimental CourseCard variants (Edgy, Colorful, Personality, Composition)
-- [x] V2 CourseCard explorations (80/20, 50/50, 30/70, context-aware)
-- [x] UI primitive migration (Spinner, Toast, ErrorState, EmptyState)
-- [x] Chat component migration (Message, ChatInput, TypingIndicator)
-- [x] Tool widget migration (9 components: CourseCarousel, CourseDetailCard, FleetCard, AboutCard, TourShowcase, ServiceBento, AuthGateModal, InquiryForm, ItinerarySummary)
-- [x] ItineraryBuilder wizard migration (8 components: index, RegionStep, VibeStep, LogisticsStep, DateGroupStep, ProgressIndicator, WizardNavigation, PriceCounter)
-- [x] Audit page updated with design experiments
-
-### Phase 6 Tasks (Completed)
-- [x] Mobile responsive breakpoints for all components
-- [x] Image optimization with Next.js Image component
-- [x] Error handling and graceful degradation
-- [x] Loading states for async operations
-- [x] Analytics integration (Plausible ready)
-- [x] Build verification (production build passes)
-- [x] Playwright test suite (11 tests created)
-- [x] Visual verification (3 viewport screenshots)
-- [x] Documentation updates
-
-### Phase 5 Tasks (Completed)
-- [x] Create inquiry submission API endpoint
-- [x] Build inquiry form component
-- [x] Implement email notifications with Resend
-- [x] Add inquiry tracking in database
-- [x] Update ItinerarySummary with Book Now button
-- [x] Register start_inquiry AI tool
-- [x] Build verification and Playwright tests
-
-### Phase 4 Tasks (Completed)
-- [x] Set up Supabase Auth in project
-- [x] Implement Google OAuth flow
-- [x] Create AuthGateModal component with trigger logic
-- [x] Add `trigger_auth_gate` tool to AI
-- [x] Persist saved courses to user account
-- [x] Persist itinerary drafts to user account
-- [x] Build verification and Playwright tests
-- [x] Fix OAuth callback session persistence (createServerClient with cookies)
-- [x] Sidebar "My Golf" section with real-time data
+- [ ] Create admin layout and sidebar
+- [ ] Build CSV/Excel import tool for courses
+- [ ] Create database migration for rates, clients, quotes tables
+- [ ] Import 50+ courses from existing spreadsheets
+- [ ] Build rate sheet export (PDF + Excel)
+- [ ] Create quote builder interface
+- [ ] Add client/inquiry tracker
+- [ ] Respond to Vietnam B2B client
 
 ---
 
@@ -101,56 +29,103 @@
 - **AI:** Anthropic Claude API (claude-sonnet-4-20250514)
 - **Database:** Supabase (Postgres) with RLS
 - **Animation:** Framer Motion
-- **Hosting:** Vercel (planned)
+- **Email:** Resend
+- **PDF:** (TBD - react-pdf or @react-pdf/renderer)
+- **Hosting:** Vercel
 
-### Key Components
+### Route Structure
 ```
-src/
-├── app/api/chat/route.ts      # Tool execution loop + Anthropic
-├── components/chat/           # ChatContainer, MessageList, Message, ChatInput
-├── components/generative-ui/  # CourseCarousel, ItineraryBuilder, FleetCard, etc.
-├── context/                   # ChatContext, ItineraryContext
-├── hooks/useChat.ts           # Chat state + tool result parsing
-├── lib/tools.ts               # 12 AI tool definitions
-└── lib/tool-handlers.ts       # Tool execution handlers
+golfokay.co/              → Consumer chat (existing demo)
+golfokay.co/admin         → Operations dashboard (Phase 7)
+golfokay.co/admin/courses → Course & rate management
+golfokay.co/admin/quotes  → Quote builder & export
+golfokay.co/admin/clients → B2B client management
+golfokay.co/admin/bookings→ Booking tracker
 ```
 
-### Current Tools (14 registered)
-`show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`, `pick_region`, `pick_group_size`, `pick_days`, `pick_vibe`, `pick_transport`, `start_tour`, `show_services`, `trigger_auth_gate`, `start_inquiry`
+### Admin File Structure
+```
+src/app/admin/
+├── layout.tsx              # Admin layout with sidebar
+├── page.tsx                # Dashboard
+├── courses/
+│   ├── page.tsx            # Course list
+│   ├── [id]/page.tsx       # Course detail/edit
+│   └── import/page.tsx     # Bulk import
+├── transport/
+│   ├── page.tsx            # Transport rates
+│   └── import/page.tsx     # Bulk import
+├── clients/
+│   ├── page.tsx            # Client list
+│   └── [id]/page.tsx       # Client detail
+├── quotes/
+│   ├── page.tsx            # Quote list
+│   ├── new/page.tsx        # Quote builder
+│   └── [id]/page.tsx       # Quote detail/edit
+├── bookings/
+│   ├── page.tsx            # Booking list
+│   └── [id]/page.tsx       # Booking detail
+└── components/
+    ├── AdminSidebar.tsx
+    ├── AdminHeader.tsx
+    ├── DataTable.tsx
+    ├── QuoteBuilder.tsx
+    ├── RateSheetExport.tsx
+    └── PDFGenerator.tsx
+```
 
-### Database Schema
-- **courses** - 15 seeded across Bangkok, Phuket, Pattaya, Hua Hin, Chiang Mai
-- **saved_courses** - User saved courses (Phase 4: ✅)
-- **itinerary_drafts** - User trip drafts (Phase 4: ✅)
-- **inquiries** - Booking inquiries with email notifications (Phase 5: ✅)
+### Database Schema (New Tables)
+- **clients** - B2B partners (tour operators, travel agents)
+- **course_rates** - Net rates, rack rates, seasonal pricing
+- **transport_rates** - Vehicle and route pricing
+- **quotes** - Quote builder with line items
+- **bookings** - Confirmed bookings from quotes
+
+### Existing Assets
+- **50+ courses** with net rates (in Excel)
+- **Transport rates** (in Excel)
+- **Course contacts** (direct relationships)
+- **Vietnam B2B inquiry** (active lead)
 
 ---
 
 ## 📅 Roadmap
 
-### Phase 5: Booking Flow (Completed)
-- [x] Inquiry submission form + API
-- [x] Email notifications to Golf Okay team
-- [x] Inquiry tracking in database
-- [x] AI tool: start_inquiry
+### Phase 7: Admin MVP (Current - 1-2 Weeks)
+**Goal:** Serve Vietnam client, import existing data
 
-### Phase 6: Polish & Launch (Completed)
-- [x] Mobile responsive design
-- [x] Image optimization (Next.js Image)
-- [x] Error handling + offline states
-- [x] Analytics integration (Plausible ready)
-- [ ] Vercel deployment + domain config (next phase)
+Week 1: Data Foundation
+- [ ] CSV/Excel bulk import tool
+- [ ] Course rates table + import
+- [ ] Transport rates table + import
+- [ ] Admin CRUD interface
 
-### Memory System (Completed)
-- [x] Session identity layer (session UUID, merge workflow)
-- [x] Active Memory tools (set_trip_dates, set_group_size, etc.)
-- [x] Passive Profiler Edge Function (Claude Haiku extraction)
-- [x] Embedding service (OpenAI text-embedding-3-small)
-- [x] Memory retrieval with semantic search
-- [x] Context builder with token budgets
-- [x] System prompt with memory rules
-- [x] Deploy Edge Function to Supabase production
-- [x] Chat message persistence to database
+Week 2: Operations Tools
+- [ ] Rate sheet PDF generator
+- [ ] Quote builder
+- [ ] Client/inquiry tracker
+- [ ] Dashboard with metrics
+
+### Phase 8: Quote & Booking Workflow (2-3 Weeks)
+- [ ] Quote templates
+- [ ] Version tracking
+- [ ] Convert quote → booking
+- [ ] Booking confirmation workflow
+- [ ] Payment tracking
+- [ ] Reporting
+
+### Phase 9: B2B Partner Portal (4-6 Weeks)
+- [ ] Partner login
+- [ ] View contracted rates
+- [ ] Submit booking requests
+- [ ] Track bookings
+- [ ] Download invoices
+
+### Phase 10: Consumer Enhancement (Lower Priority)
+- [ ] Connect chat to real course data
+- [ ] Real pricing display
+- [ ] Inquiry → Admin notification
+- [ ] SEO/content
 
 ### Foundation (Completed)
 
@@ -158,118 +133,92 @@ src/
 Chat engine with streaming, Anthropic integration, CourseCarousel with 3D flip animation
 
 **Phase 2 - Data Layer:**
-Supabase integration, 15 courses seeded, tool execution loop, CourseDetailCard, FleetCard, AboutCard
+Supabase integration, 15 seed courses, tool execution loop, CourseDetailCard, FleetCard, AboutCard
 
 **Phase 3 - ItineraryBuilder:**
-4-step wizard (Region → Vibe → Logistics → Dates), pricing with group discounts, ItinerarySummary with timeline
+4-step wizard (Region → Vibe → Logistics → Dates), pricing with group discounts, ItinerarySummary
 
 **Phase 3b - Tour & Services:**
-TourShowcase auto-playing carousel, ServiceBento grid, GolfOkay logo, expanded canvas layout, Chipotle-style pickers
+TourShowcase auto-playing carousel, ServiceBento grid, GolfOkay logo, Chipotle-style pickers
 
-**Phase 4 - Authentication & User Features:**
-Supabase Auth with Google OAuth, AuthGateModal with save/book triggers, saved courses + itinerary drafts persistence, auth context, user hooks (useSavedCourses, useItineraryDrafts)
+**Phase 4 - Authentication:**
+Supabase Auth with Google OAuth, AuthGateModal, saved courses + itinerary drafts
 
 **Phase 5 - Booking Flow:**
-InquiryForm component, inquiry API routes, Resend email integration, email notifications, database persistence, start_inquiry AI tool
+InquiryForm component, inquiry API routes, Resend email integration
+
+**Phase 6 - Polish & Launch:**
+Mobile responsive design, error boundaries, loading states, Plausible analytics ready
+
+**Memory System:**
+Session identity, passive profiler Edge Function, OpenAI embeddings, semantic retrieval, context builder
 
 **UI/UX Overhaul:**
-Gemini-style sidebar with chat history (date grouping, My Golf cards, Plans section), Header Explore dropdown (Discover + Services), Spectrum pills on greeting (4 user mindsets), Morphing Avatar with 5-color thinking halo (Framer Motion), Chat history persistence with loadChat
+Gemini-style sidebar, chat history, Header Explore dropdown, NeuralDots avatar, thinking halo
 
 ---
 
 ## 📝 Implementation Notes
 
-### Auth Gate Strategy (Decision Needed)
-Options:
-1. **Turn-based:** Trigger after 3+ chat turns
-2. **Intent-based:** Trigger only on save/book actions
-3. **Hybrid:** Soft prompt at 3 turns, hard gate on save/book
-
-### Tool Result Pattern
+### Admin Security
 ```typescript
-// Tool results embedded as base64 markers in response stream
-const marker = `[[TOOL_RESULT:${toolName}:${base64Data}]]`;
-// Frontend parses markers and renders components
-```
+// Protect admin routes with email whitelist
+const ADMIN_EMAILS = ['your-email@gmail.com'];
 
-### Design Tokens
-```typescript
-const colors = {
-  bg: '#131314',
-  sidebar: '#1E1F20',
-  hover: '#282A2C',
-  accent: {
-    orange: '#FF6B35',
-    cyan: '#00D4FF',
-    red: '#FF3B3B',
-    purple: '#A855F7',
-    yellow: '#FBBF24'
-  }
-};
-```
-
----
-
-## 📊 Success Metrics (Phase 5)
-- Inquiry form submits successfully
-- Email notifications sent to Golf Okay team
-- Inquiries persisted to database
-- Form validation prevents invalid submissions
-
-### Business Targets (Post-Launch)
-- Guest → Signed Up: 15% conversion
-- Average turns per session: 5+
-- Time to inquiry: <10 min
-
----
-
-## Generative UI Components
-
-| Component | Trigger Tool | Status |
-|-----------|-------------|--------|
-| CourseCarousel | `show_courses` | ✅ |
-| CourseDetailCard | `show_course_detail` | ✅ |
-| FleetCard | `show_fleet` | ✅ |
-| AboutCard | `show_about_us` | ✅ |
-| ItineraryBuilder | `start_itinerary_builder` | ✅ |
-| ItinerarySummary | (wizard completion) | ✅ |
-| TourShowcase | `start_tour` | ✅ |
-| ServiceBento | `show_services` | ✅ |
-| AuthGateModal | `trigger_auth_gate` | ✅ |
-| InquiryForm | `start_inquiry` | ✅ |
-| GearRentalCard | `show_gear_rental` | 📋 Backlog |
-
----
-
-## Data Models
-
-### ItineraryDraft (Current)
-```typescript
-interface ItineraryDraft {
-  id: string;
-  userId?: string;
-  region: string;
-  groupSize: number;
-  vibe: 'championship' | 'scenic' | 'value';
-  days: ItineraryDay[];
-  includesTransfer: boolean;
-  transferType?: 'sedan' | 'vip_van';
-  totalEstimate: number;
-  status: 'draft' | 'inquiry_sent' | 'confirmed';
+// In admin layout.tsx
+const { user } = await getUser();
+if (!user || !ADMIN_EMAILS.includes(user.email)) {
+  redirect('/');
 }
 ```
 
-### User (Phase 4)
+### Rate Sheet Export Pattern
 ```typescript
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-  savedCourses: string[];
-  userType: 'guest' | 'member';
+// Generate PDF with course rates
+interface RateSheetOptions {
+  courses: Course[];
+  region?: string;
+  dateRange: { from: Date; to: Date };
+  markupPercent: number;
+  format: 'pdf' | 'excel';
 }
 ```
+
+### Quote Builder Pattern
+```typescript
+interface QuoteLineItem {
+  type: 'golf' | 'transport' | 'service';
+  description: string;
+  quantity: number;
+  netRate: number;
+  sellRate: number;
+  date?: Date;
+}
+
+interface Quote {
+  client: Client;
+  items: QuoteLineItem[];
+  validUntil: Date;
+  notes: string;
+}
+```
+
+---
+
+## 📊 Success Metrics
+
+### Phase 7 (Admin MVP)
+- [ ] 50+ courses imported with net rates
+- [ ] Transport rates in system
+- [ ] Generate rate sheet PDF in <5 minutes
+- [ ] Create custom quote in <10 minutes
+- [ ] Vietnam client served professionally
+
+### Business (Ongoing)
+- B2B clients onboarded: Target 5
+- Quotes sent per month: Track
+- Quote → Booking conversion: Track
+- Revenue pipeline: Track
 
 ---
 
@@ -278,17 +227,15 @@ interface User {
 ```env
 # Required
 ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-
-# Phase 4-5
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 RESEND_API_KEY=re_...
 
-# Memory System
-OPENAI_API_KEY=sk-...  # For embeddings (text-embedding-3-small)
+# Admin
+ADMIN_EMAILS=your-email@gmail.com
 
 # Future
 STRIPE_SECRET_KEY=sk_...
-CLOUDINARY_API_KEY=...
 ```
