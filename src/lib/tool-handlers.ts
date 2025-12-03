@@ -336,19 +336,21 @@ export async function executeToolCall(
     case 'show_about_us':
       return handleShowAboutUs();
 
-    // Itinerary Builder wizard - returns input for region pre-selection
-    case 'start_itinerary_builder': {
-      const { region } = toolInput as { region?: string };
-      return { region: region || null };
+    // Trip planning cards - return input for pre-filling
+    case 'show_dates_card': {
+      const { start_date, duration, golfers } = toolInput as { start_date?: string; duration?: number; golfers?: number };
+      return { start_date, duration, golfers };
     }
 
-    // Individual pickers - return empty object, frontend renders the picker
-    case 'pick_region':
-    case 'pick_group_size':
-    case 'pick_days':
-    case 'pick_vibe':
-    case 'pick_transport':
-      return {};
+    case 'show_region_map': {
+      const { selected_regions, filter } = toolInput as { selected_regions?: string[]; filter?: string };
+      return { selected_regions: selected_regions || [], filter };
+    }
+
+    case 'show_logistics_card': {
+      const { airport_transfers, vehicle_type } = toolInput as { airport_transfers?: boolean; vehicle_type?: string };
+      return { airport_transfers, vehicle_type };
+    }
 
     // Guided tour - showcases all services
     case 'start_tour':

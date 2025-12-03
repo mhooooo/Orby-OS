@@ -57,65 +57,64 @@ const BASE_TOOLS: Anthropic.Tool[] = [
       required: [],
     },
   },
-  // Trip planning
+  // Trip planning - card-based flow
   {
-    name: 'start_itinerary_builder',
-    description: 'Start the itinerary builder wizard. Use when user wants to plan a trip, build an itinerary, or says "help me plan". Shows a self-contained wizard card with progress indicator.',
+    name: 'show_dates_card',
+    description: 'Show the dates and group size card. Use when user wants to plan a trip, set dates, or specify group size. This is the first step in trip planning.',
     input_schema: {
       type: 'object' as const,
       properties: {
-        region: {
+        start_date: {
           type: 'string',
-          enum: ['bangkok', 'phuket', 'hua_hin', 'chiang_mai', 'pattaya'],
-          description: 'Pre-select a region if user already mentioned one',
+          description: 'Pre-fill start date if user mentioned one (YYYY-MM-DD format)',
+        },
+        duration: {
+          type: 'number',
+          description: 'Pre-fill duration in days if user mentioned it',
+        },
+        golfers: {
+          type: 'number',
+          description: 'Pre-fill group size if user mentioned it',
         },
       },
       required: [],
     },
   },
-  // Individual pickers (for future segmented flow)
   {
-    name: 'pick_region',
-    description: 'Show region picker as standalone component. Use for quick region selection outside of full itinerary builder.',
+    name: 'show_region_map',
+    description: 'Show the interactive Thailand map for region selection. Use when user asks about regions, where to play, or needs to choose a destination.',
     input_schema: {
       type: 'object' as const,
-      properties: {},
+      properties: {
+        selected_regions: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Pre-select regions if user already mentioned them',
+        },
+        filter: {
+          type: 'string',
+          description: 'Filter to highlight (e.g., "nightGolf", "championship", "scenic")',
+        },
+      },
       required: [],
     },
   },
   {
-    name: 'pick_group_size',
-    description: 'Show group size picker. Use AFTER knowing region. Asks: "How many golfers?"',
+    name: 'show_logistics_card',
+    description: 'Show the transport and logistics card. Use when user asks about transfers, transport, vehicles, or getting around.',
     input_schema: {
       type: 'object' as const,
-      properties: {},
-      required: [],
-    },
-  },
-  {
-    name: 'pick_days',
-    description: 'Show days picker. Use AFTER knowing group size. Asks: "How many days of golf?"',
-    input_schema: {
-      type: 'object' as const,
-      properties: {},
-      required: [],
-    },
-  },
-  {
-    name: 'pick_vibe',
-    description: 'Show vibe/style picker. Use AFTER knowing days. Asks: "What style of courses?"',
-    input_schema: {
-      type: 'object' as const,
-      properties: {},
-      required: [],
-    },
-  },
-  {
-    name: 'pick_transport',
-    description: 'Show transport picker. Use AFTER knowing vibe. Asks: "Need transfers?"',
-    input_schema: {
-      type: 'object' as const,
-      properties: {},
+      properties: {
+        airport_transfers: {
+          type: 'boolean',
+          description: 'Pre-fill airport transfer preference',
+        },
+        vehicle_type: {
+          type: 'string',
+          enum: ['sedan', 'suv', 'vip-van', 'minibus'],
+          description: 'Pre-fill vehicle preference',
+        },
+      },
       required: [],
     },
   },
@@ -331,17 +330,23 @@ You have access to a memory system that helps you remember user preferences and 
 
 TRIP PLANNING:
 When user wants to plan a trip, build an itinerary, or asks for help planning:
-- Use start_itinerary_builder to show the wizard
-- If user mentions a region (e.g., "plan a trip to Phuket"), pass it as the region parameter
-- The wizard handles all steps internally - no need for follow-up questions
-- Just provide a brief intro and let the wizard do the work
+- Use show_dates_card to start - this captures dates and group size
+- Use show_region_map when user needs to pick where to play
+- Use show_logistics_card when discussing transport/transfers
+- Each card is standalone - show them one at a time based on conversation flow
 
 EXAMPLE:
 User: "Help me plan a golf trip"
-You: "Let's build your perfect Thailand golf experience!" [start_itinerary_builder]
+You: "Let's build your perfect Thailand golf experience! First, when are you looking to travel?" [show_dates_card]
 
-User: "I want to plan a trip to Phuket"
-You: "Great choice! Let's plan your Phuket golf adventure." [start_itinerary_builder with region: "phuket"]
+User: "I want to play golf in Phuket"
+You: "Great choice! Here's what Phuket has to offer." [show_region_map with selected_regions: ["phuket"]]
+
+User: "We're 6 golfers coming March 15-18"
+You: "Perfect! Let me set that up for you." [show_dates_card with start_date, duration: 4, golfers: 6]
+
+User: "Do you offer airport transfers?"
+You: "Absolutely! Here are your transport options." [show_logistics_card]
 
 ACTIVE MEMORY TOOLS:
 When user provides HARD DATA (dates, group size, specific courses, budget, transport needs), use Active Memory tools to save this information:

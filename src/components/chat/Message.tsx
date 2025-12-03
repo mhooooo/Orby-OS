@@ -8,6 +8,9 @@ import { CourseCard } from '@/components/generative-ui/CourseCard';
 import { FleetCard } from '@/components/generative-ui/FleetCard';
 import { AboutCard } from '@/components/generative-ui/AboutCard';
 import { ServiceBento } from '@/components/generative-ui/ServiceBento';
+import { DatesCard } from '@/components/generative-ui/DatesCard';
+import { TacticalMap } from '@/components/TacticalMap';
+import { LogisticsCard } from '@/components/LogisticsCard';
 import { Course } from '@/types/course';
 import AuthGateModal from '@/components/generative-ui/AuthGateModal';
 import InquiryForm from '@/components/generative-ui/InquiryForm';
@@ -103,6 +106,22 @@ interface AuthGateResult {
 interface InquiryFormResult {
   type: 'inquiry_form';
   context: string | null;
+}
+
+interface DatesCardResult {
+  start_date?: string;
+  duration?: number;
+  golfers?: number;
+}
+
+interface RegionMapResult {
+  selected_regions: string[];
+  filter?: string;
+}
+
+interface LogisticsCardResult {
+  airport_transfers?: boolean;
+  vehicle_type?: string;
 }
 
 // Wrapper component to manage auth gate modal state
@@ -207,6 +226,41 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
         );
       }
       return null;
+    }
+
+    case 'show_dates_card': {
+      const result = tool.result as DatesCardResult | undefined;
+      return wrapWithErrorBoundary(
+        <DatesCard
+          startDate={result?.start_date ? new Date(result.start_date) : undefined}
+          duration={result?.duration}
+          onDateChange={(date) => console.log('Date changed:', date)}
+          onDurationChange={(days) => console.log('Duration changed:', days)}
+        />
+      );
+    }
+
+    case 'show_region_map': {
+      const result = tool.result as RegionMapResult | undefined;
+      return wrapWithErrorBoundary(
+        <TacticalMap
+          selectedRegions={result?.selected_regions || []}
+          onSelect={(regions) => console.log('Regions selected:', regions)}
+          multiSelect
+        />
+      );
+    }
+
+    case 'show_logistics_card': {
+      const result = tool.result as LogisticsCardResult | undefined;
+      return wrapWithErrorBoundary(
+        <LogisticsCard
+          airportTransfers={result?.airport_transfers ?? true}
+          vehicleType={(result?.vehicle_type as 'vip-van' | 'vvip-van') ?? 'vip-van'}
+          onTransfersChange={(enabled) => console.log('Transfers:', enabled)}
+          onVehicleChange={(type) => console.log('Vehicle:', type)}
+        />
+      );
     }
 
     default:
