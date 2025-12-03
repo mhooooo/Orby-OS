@@ -120,13 +120,13 @@ export function CourseCarousel({
       {/* Navigation arrows */}
       <button
         onClick={() => scroll('left')}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110 shadow-lg"
+        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 rounded-full bg-background-elevated/80 backdrop-blur-md border border-white/10 text-text-primary flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-background-hover hover:scale-110 shadow-glass"
       >
         <ChevronLeft size={24} />
       </button>
       <button
         onClick={() => scroll('right')}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70 hover:scale-110 shadow-lg"
+        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 rounded-full bg-background-elevated/80 backdrop-blur-md border border-white/10 text-text-primary flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-background-hover hover:scale-110 shadow-glass"
       >
         <ChevronRight size={24} />
       </button>

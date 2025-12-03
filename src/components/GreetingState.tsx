@@ -63,9 +63,6 @@ export function GreetingStateContent({ onIntroComplete: _onIntroComplete }: Gree
 
   return (
     <div className="w-full flex flex-col items-center relative">
-      {/* Wide Ambient Glow Spotlight - Anchors the entire scene */}
-      <div className="fixed top-[20%] left-1/2 -translate-x-1/2 w-[90vw] max-w-[800px] h-[60vh] bg-gradient-to-b from-purple-500/20 via-orange-500/10 to-transparent rounded-full blur-[150px] opacity-50 pointer-events-none" />
-
       {/* Main Content */}
       <div className="w-full flex flex-col items-center">
         {/* Greeting Text */}

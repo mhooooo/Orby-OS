@@ -17,17 +17,17 @@ export function Skeleton({
   className,
   animate = true,
 }: SkeletonProps) {
-  const baseClasses = 'bg-[#282A2C] rounded-lg';
+  const baseClasses = 'bg-shimmer-base rounded-lg';
 
   const variantClasses = {
     text: 'h-4 rounded-md',
-    card: 'h-64 rounded-3xl',
-    image: 'aspect-video rounded-2xl',
+    card: 'h-64 rounded-card',
+    image: 'aspect-video rounded-xl',
     circle: 'rounded-full aspect-square',
   };
 
   const animationClasses = animate
-    ? 'bg-gradient-to-r from-[#282A2C] via-[#333537] to-[#282A2C] bg-[length:200%_100%] animate-shimmer'
+    ? 'bg-gradient-to-r from-shimmer-base via-shimmer-highlight to-shimmer-base bg-[length:200%_100%] animate-shimmer'
     : '';
 
   const styles: React.CSSProperties = {};
@@ -76,17 +76,40 @@ export function SkeletonGroup({
 
 /**
  * Skeleton for course card
+ * Matches CourseCard glass treatment: same radius, surface, shadow
  */
-export function CourseCardSkeleton() {
+export function CourseCardSkeleton({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="bg-[#1E1F20] rounded-3xl p-6 space-y-4">
-      <Skeleton variant="image" className="w-full" />
-      <div className="space-y-3">
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-card',
+        'bg-surface-glass backdrop-blur-xl border border-white/10',
+        'shadow-glass',
+        compact ? 'w-[280px] sm:w-[260px] h-[340px]' : 'w-[300px] sm:w-[320px] h-[400px]'
+      )}
+    >
+      {/* Glow Effects (muted for skeleton) */}
+      <div className="absolute -top-20 -right-20 w-40 h-40 bg-accent-purpleMuted rounded-full blur-[50px] pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-accent-cyanMuted rounded-full blur-[50px] pointer-events-none" />
+
+      {/* Image placeholder - full height */}
+      <div className="absolute inset-0">
+        <Skeleton variant="image" className="w-full h-full rounded-none" />
+      </div>
+
+      {/* Content overlay at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-5 space-y-3">
+        {/* Title */}
         <Skeleton variant="text" className="h-6 w-3/4" />
+        {/* Location */}
         <Skeleton variant="text" className="h-4 w-1/2" />
-        <div className="flex gap-2">
-          <Skeleton variant="text" className="h-8 w-24" />
-          <Skeleton variant="text" className="h-8 w-24" />
+        {/* Price and button row */}
+        <div className="flex justify-between items-center pt-2">
+          <div className="space-y-1">
+            <Skeleton variant="text" className="h-3 w-12" />
+            <Skeleton variant="text" className="h-5 w-16" />
+          </div>
+          <Skeleton variant="text" className="h-8 w-24 rounded-button" />
         </div>
       </div>
     </div>
@@ -94,19 +117,20 @@ export function CourseCardSkeleton() {
 }
 
 /**
- * Skeleton for course detail
+ * Skeleton for course detail (expanded CourseCard)
+ * Matches CourseCard expanded glass treatment
  */
 export function CourseDetailSkeleton() {
   return (
-    <div className="bg-[#1E1F20] rounded-3xl overflow-hidden space-y-6">
-      <Skeleton variant="image" className="w-full h-96" />
+    <div className="bg-surface-glass backdrop-blur-xl border border-white/10 shadow-glass rounded-card overflow-hidden space-y-6">
+      <Skeleton variant="image" className="w-full h-96 rounded-none" />
       <div className="p-6 space-y-4">
         <Skeleton variant="text" className="h-8 w-2/3" />
         <Skeleton variant="text" className="h-6 w-1/3" />
         <SkeletonGroup count={4} className="h-4 w-full" />
         <div className="flex gap-3 pt-4">
-          <Skeleton variant="text" className="h-12 w-32" />
-          <Skeleton variant="text" className="h-12 w-32" />
+          <Skeleton variant="text" className="h-12 w-32 rounded-button" />
+          <Skeleton variant="text" className="h-12 w-32 rounded-button" />
         </div>
       </div>
     </div>

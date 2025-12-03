@@ -17,26 +17,37 @@ interface ToastProps {
   onDismiss: (id: string) => void;
 }
 
-const TOAST_COLORS: Record<ToastType, { bg: string; icon: string; border: string }> = {
+/**
+ * Toast colors using semantic tokens:
+ * - success: gold (positive actions, confirmations)
+ * - error: red (errors, destructive actions)
+ * - warning: coral (warnings, attention needed)
+ * - info: cyan (informational states)
+ */
+const TOAST_COLORS: Record<ToastType, { bg: string; icon: string; border: string; progress: string }> = {
   success: {
-    bg: 'bg-green-500/10',
-    icon: 'text-green-500',
-    border: 'border-green-500/20',
+    bg: 'bg-accent-goldMuted',
+    icon: 'text-accent-gold',
+    border: 'border-accent-gold/20',
+    progress: 'bg-accent-gold',
   },
   error: {
-    bg: 'bg-[#FF3B3B]/10',
-    icon: 'text-[#FF3B3B]',
-    border: 'border-[#FF3B3B]/20',
+    bg: 'bg-accent-redMuted',
+    icon: 'text-accent-red',
+    border: 'border-accent-red/20',
+    progress: 'bg-accent-red',
   },
   warning: {
-    bg: 'bg-[#FBBF24]/10',
-    icon: 'text-[#FBBF24]',
-    border: 'border-[#FBBF24]/20',
+    bg: 'bg-accent-coralMuted',
+    icon: 'text-accent-coral',
+    border: 'border-accent-coral/20',
+    progress: 'bg-accent-coral',
   },
   info: {
-    bg: 'bg-[#00D4FF]/10',
-    icon: 'text-[#00D4FF]',
-    border: 'border-[#00D4FF]/20',
+    bg: 'bg-accent-cyanMuted',
+    icon: 'text-accent-cyan',
+    border: 'border-accent-cyan/20',
+    progress: 'bg-accent-cyan',
   },
 };
 
@@ -120,8 +131,9 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   return (
     <div
       className={cn(
-        'pointer-events-auto w-full max-w-sm rounded-2xl border p-4 shadow-lg transition-all duration-300',
-        'bg-[#1E1F20]',
+        // Glass surface with token-based styling
+        'pointer-events-auto w-full max-w-sm rounded-cardSmall border p-4 shadow-glass transition-all duration-300',
+        'bg-surface-glass backdrop-blur-xl',
         colors.border,
         isExiting
           ? 'opacity-0 translate-x-8'
@@ -136,7 +148,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
 
         {/* Message */}
         <div className="flex-1 pt-0.5">
-          <p className="text-sm text-gray-200 leading-relaxed">
+          <p className="text-sm text-text-primary leading-relaxed">
             {toast.message}
           </p>
         </div>
@@ -144,7 +156,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
         {/* Dismiss Button */}
         <button
           onClick={handleDismiss}
-          className="flex-shrink-0 text-gray-500 hover:text-gray-300 transition-colors"
+          className="flex-shrink-0 text-text-muted hover:text-text-primary transition-colors"
           aria-label="Dismiss"
         >
           <svg
@@ -162,9 +174,9 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       </div>
 
       {/* Progress Bar */}
-      <div className="mt-3 h-1 w-full bg-[#131314] rounded-full overflow-hidden">
+      <div className="mt-3 h-1 w-full bg-background-base rounded-full overflow-hidden">
         <div
-          className={cn('h-full transition-all ease-linear', colors.bg)}
+          className={cn('h-full transition-all ease-linear', colors.progress)}
           style={{
             animation: `toast-progress ${duration}ms linear forwards`,
           }}

@@ -14,10 +14,10 @@ import {
 import { Course } from '@/types/course';
 import { analytics } from '@/lib/analytics';
 
-// Initial state
+// Initial state - Start with dates (WHEN first)
 const createInitialState = (initialRegion?: Region | null): ItineraryWizardState => ({
   draft: createInitialDraft(initialRegion),
-  currentStep: initialRegion ? 'vibe' : 'region',
+  currentStep: initialRegion ? 'vibe' : 'dates',
   availableCourses: [],
   isLoading: false,
   error: null,
@@ -63,6 +63,12 @@ function itineraryReducer(
       return {
         ...state,
         draft: { ...state.draft, groupSize: action.payload },
+      };
+
+    case 'SET_NON_GOLFER_COUNT':
+      return {
+        ...state,
+        draft: { ...state.draft, nonGolferCount: action.payload },
       };
 
     case 'SET_TRANSFERS':
@@ -160,10 +166,11 @@ interface ItineraryContextType {
   state: ItineraryWizardState;
   dispatch: React.Dispatch<ItineraryAction>;
   // Convenience methods
-  setRegion: (region: Region) => void;
+  setRegion: (regions: Region[]) => void;
   setVibe: (vibe: ItineraryDraft['vibe']) => void;
   setDates: (startDate: string, endDate: string, numberOfDays: number) => void;
   setGroupSize: (size: number) => void;
+  setNonGolferCount: (count: number) => void;
   toggleTransfers: (enabled: boolean) => void;
   toggleCaddieTips: (enabled: boolean) => void;
   nextStep: () => void;
@@ -186,8 +193,8 @@ export function ItineraryProvider({ children, initialRegion }: ItineraryProvider
   const [state, dispatch] = useReducer(itineraryReducer, createInitialState(initialRegion));
 
   // Memoized convenience methods to prevent infinite re-renders
-  const setRegion = useCallback((region: Region) => {
-    dispatch({ type: 'SET_REGION', payload: region });
+  const setRegion = useCallback((regions: Region[]) => {
+    dispatch({ type: 'SET_REGION', payload: regions });
     analytics.itineraryStepCompleted(1, 'region');
   }, []);
 
@@ -206,6 +213,10 @@ export function ItineraryProvider({ children, initialRegion }: ItineraryProvider
   const setGroupSize = useCallback((size: number) => {
     dispatch({ type: 'SET_GROUP_SIZE', payload: size });
     analytics.itineraryStepCompleted(4, 'group_size');
+  }, []);
+
+  const setNonGolferCount = useCallback((count: number) => {
+    dispatch({ type: 'SET_NON_GOLFER_COUNT', payload: count });
   }, []);
 
   const toggleTransfers = useCallback((enabled: boolean) =>
@@ -234,6 +245,7 @@ export function ItineraryProvider({ children, initialRegion }: ItineraryProvider
     setVibe,
     setDates,
     setGroupSize,
+    setNonGolferCount,
     toggleTransfers,
     toggleCaddieTips,
     nextStep,
@@ -242,7 +254,7 @@ export function ItineraryProvider({ children, initialRegion }: ItineraryProvider
     setCourses,
     completeWizard,
     reset,
-  }), [state, setRegion, setVibe, setDates, setGroupSize, toggleTransfers, toggleCaddieTips, nextStep, prevStep, goToStep, setCourses, completeWizard, reset]);
+  }), [state, setRegion, setVibe, setDates, setGroupSize, setNonGolferCount, toggleTransfers, toggleCaddieTips, nextStep, prevStep, goToStep, setCourses, completeWizard, reset]);
 
   return (
     <ItineraryContext.Provider value={value}>

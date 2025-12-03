@@ -3,6 +3,10 @@
 ## Active Tasks
 - [ ] Deployment to Vercel
 - [ ] Analytics configuration (Plausible domain setup)
+- [x] Component Styling Overhaul - Educational Cards, CourseCard Hierarchy, DatesCard Duration
+- [x] Critical UI Fixes (FIX 29-37) - Golf stats, spacing, wizard order, orange reduction
+- [x] Proactive UI System - DateIntentModal, AvailabilityBadge, ProactiveUIManager
+- [x] Design System Foundation & Token Migration
 - [x] Deploy extract-memories Edge Function to Supabase
 - [x] Sidebar Redesign (Gemini-style) with Chat History
 - [x] Explore Menu in Header
@@ -203,6 +207,98 @@
     - Course images desaturated (opacity-50 grayscale-[30%])
     - Profile card scaled down 20%
   - Fixed header z-index stacking
+
+- [2025-12-03 XX:XX] ✅ Completed: Component Styling Overhaul
+  - Educational Service Cards (info-first pattern):
+    - AirportFastTrackCard: Hero image, stats row, benefits list, soft prompt
+    - GolfInsuranceCard: Hero image, shield badge, coverage icons
+    - FleetCard: Hero image, vehicle images, feature icons
+    - Pattern: "What is this?" + "Why would you want it?" + "What's included"
+  - CourseCard Hierarchy Redesign:
+    - Extended Course type with tier, travelTime, hookLine, facilities
+    - Front: Name, tier badge, all-in price, travel time, hook line
+    - Back: Price breakdown, facilities, "Best For" section
+    - Flip animation fix: initial={false} + duration 0.4s easeInOut
+  - DatesCard Duration Selector:
+    - Changed from start+end date to start date + duration buttons
+    - Duration options: 1-7+ days as selectable chips
+    - End date calculated internally from start + duration
+  - LogisticsStep Info-First Pattern:
+    - "What's included" section at top before selection
+    - Auto-selection based on group size (sedan ≤4, vip-van >4)
+    - Neutral styling: border-white/30 instead of coral for selection
+  - Neutral Design System Applied:
+    - Removed glow effects from most components
+    - Backgrounds always neutral (bg-surface-glass, bg-white/5)
+    - Accent colors only for small elements (icon backgrounds, prices)
+    - Only one coral CTA per screen
+  - Build verification: TypeScript clean, production build passes
+
+- [2025-12-02 XX:XX] ✅ Completed: Design System Foundation & Token Migration
+  - Design Token Audit:
+    - Extracted 250+ unique values from codebase
+    - Identified 80+ color values, 4 "almost black" inconsistencies
+    - Documented typography (text-xs to text-6xl), radii, shadows
+    - Two different golds found (#FBBF24 vs #F4D03F)
+  - Experimental CourseCard Variants (4 extreme designs):
+    - CourseCardEdgy: Asymmetric, skewed elements, clip-path polygons
+    - CourseCardColorful: Thai sunset gradients, jewel-toned stats
+    - CourseCardPersonality: Golf flag, Thai border, emoji tags
+    - CourseCardComposition: Pill-shaped zones, vertical text, negative space
+  - V2 CourseCard Explorations (usability spectrum):
+    - V2a: 80/20 subtle shift (asymmetric crop, offset badge)
+    - V2b: 50/50 balanced (horizontal split, location promoted)
+    - V2c: 30/70 bold (organic image, price floats outside)
+    - V2d: Context-aware (compact 80px pill ↔ full mode)
+  - UI Primitive Token Migration:
+    - Spinner.tsx: border-accent-coral, rounded-card, text-text-secondary
+    - Toast.tsx: Semantic colors (gold=success, red=error, coral=warning, cyan=info)
+    - ErrorState.tsx: bg-accent-redMuted, rounded-button, bg-background-card
+    - EmptyState.tsx: text-text-disabled, text-text-muted, bg-accent-coral
+    - Skeleton.tsx: Already using shimmer tokens (verified)
+  - Chat Component Token Migration:
+    - User messages: lightweight (bg-white/5, rounded-button, no glass)
+    - AI messages: rich (bg-surface-glass, backdrop-blur-xl, shadow-glass)
+    - ChatInput: bg-surface-glass, ring-accent-coral on focus
+    - TypingIndicator: NeuralDots-inspired (coral, cyan, purple dots)
+    - ChatContainer/MessageList: bg-background-base with token spacing
+  - Tool Widget Token Migration (9 components):
+    - CourseCarousel, CourseDetailCard, FleetCard, AboutCard
+    - TourShowcase, ServiceBento, AuthGateModal, InquiryForm, ItinerarySummary
+    - Pattern: glass surfaces, text hierarchy, coral CTAs, gold prices
+  - ItineraryBuilder Wizard Token Migration (8 components):
+    - index.tsx: Container → rounded-card bg-background-card
+    - RegionStep: Cards → glass, selected → coral ring/glow
+    - VibeStep: Gradients → accent-gold/cyan/purple
+    - LogisticsStep: Toggles → coral, prices → gold
+    - DateGroupStep: Focus → cyan, groups → purple hints
+    - ProgressIndicator: Progress line coral→cyan, steps coral/cyan
+    - WizardNavigation: Next → coral CTA, Back → ghost
+    - PriceCounter: Price → accent-gold
+  - Audit page updated with Experiments + V2 Explorations sections
+
+## Log
+- [2025-12-03 XX:XX] ✅ Completed: Critical UI Fixes (FIX 29-37)
+  - FIX 29: Removed useless golf stats (holes, par, yards) from CourseCard/CourseDetailCard, added "Best For" tags
+  - FIX 30: AboutCard stats now floating bubble pills with glass styling and hover effects
+  - FIX 31: Made 6 educational cards responsive (FleetCard, ClubRentalCard, AirportFastTrackCard, GolfInsuranceCard, DiningCard, AccommodationCard)
+  - FIX 32: ServiceBento modal now renders actual educational card components
+  - FIX 33: Reduced ItinerarySummary spacing (timeline, sections, buttons)
+  - FIX 34: Reordered wizard steps - WHEN (dates) is now FIRST
+  - FIX 35: Toned down wizard buttons (white CTAs, subtle toggles, muted progress indicators)
+  - FIX 36: Verified RegionCard multi-select, removed duplicate continue button
+  - FIX 37: Globally reduced orange/coral usage across all components
+
+- [2025-12-03 XX:XX] ✅ Completed: Proactive UI System
+  - DateIntentModal: Quick popup to capture date/time intent while browsing
+  - DateIntentToast: Confirmation toast after submission
+  - AvailabilityBadge: Live availability status on course cards (checking, available, limited, unavailable)
+  - AvailabilityDot: Compact dot-only variant
+  - AvailabilityBadgeWithInfo: Badge with tooltip showing slot count
+  - ProactiveUIManager: Central orchestrator for rate limits, cooldowns, priority queues
+  - GroupSizeNudge: Quick group size capture
+  - TripBuilderPrompt: Floating pill after viewing 3+ courses
+  - Added "Proactive UI" section to audit page with interactive demos
 
 ## Next Phase
 - Vercel deployment with environment variables

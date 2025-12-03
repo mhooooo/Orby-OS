@@ -496,3 +496,335 @@
 - Key values: DOT_CONFIGS radius 16px (hero), pentagon angles at 72° intervals
 - Animation: Framer Motion springs with stiffness 300 for snap effect
 - Colors: Gold `#D4AF37`, holographic gradient, glassmorphism `white/5`
+
+---
+
+## [2025-12-02] Design System Foundation & Token Migration
+
+### Added
+- **Design Token Audit** - Comprehensive codebase analysis
+  - Extracted 250+ unique styling values
+  - Identified 80+ color values across components
+  - Found 4 inconsistent "almost black" values (#131314, #1E1F20, #282A2C, #0D0D0D)
+  - Discovered duplicate golds (#FBBF24 vs #F4D03F)
+  - Documented typography scale (text-xs to text-6xl + custom text-[10px])
+  - Mapped border radius patterns (rounded-full, rounded-3xl, rounded-2xl, etc.)
+  - Why: Needed visibility into inconsistencies before standardization
+  - Impact: Clear roadmap for design system consolidation
+
+- **Experimental CourseCard Variants** - Boundary exploration
+  - `CourseCardEdgy.tsx` - Asymmetric with skewed elements, clip-path polygons
+  - `CourseCardColorful.tsx` - Thai sunset gradients (orange → pink → purple → cyan)
+  - `CourseCardPersonality.tsx` - Golf flag, Thai decorative border, emoji tags
+  - `CourseCardComposition.tsx` - Pill-shaped zones, vertical text, negative space
+  - Why: Visualize "too far" before dialing back to find sweet spot
+  - Impact: Creative reference for future design decisions
+
+- **V2 CourseCard Explorations** - Usability spectrum
+  - `CourseCardV2a.tsx` - 80/20 subtle shift (asymmetric crop at borderRadius 24px/80px)
+  - `CourseCardV2b.tsx` - 50/50 balanced (horizontal split, location promoted)
+  - `CourseCardV2c.tsx` - 30/70 bold (organic image 65% width, price floats at -bottom-5)
+  - `CourseCardV2d.tsx` - Context-aware (compact 80px pill ↔ full mode with layoutId)
+  - Why: Graduated options for finding right balance of personality vs usability
+  - Impact: Multiple production-ready variants to choose from
+
+- **Audit Page Experiments Section** - Design showcase
+  - Section 4: Experiments with all 4 extreme variants
+  - Section 5: V2 Explorations with usability spectrum visualization
+  - Side-by-side comparisons with same mock data
+  - Why: Visual playground for design exploration
+  - Impact: Easy comparison and stakeholder review
+
+### Changed
+- **Spinner.tsx** - Migrated to design tokens
+  - `border-accent-coral` for accent color variant
+  - `bg-background-card rounded-card shadow-glass` for overlay
+  - `text-text-secondary` for loading text
+  - Why: Consistency with design system
+  - Impact: Unified loading states across app
+
+- **Toast.tsx** - Semantic color mapping
+  - Success: `bg-accent-goldMuted`, `text-accent-gold`
+  - Error: `bg-accent-redMuted`, `text-accent-red`
+  - Warning: `bg-accent-coralMuted`, `text-accent-coral`
+  - Info: `bg-accent-cyanMuted`, `text-accent-cyan`
+  - `bg-surface-glass backdrop-blur-xl rounded-cardSmall`
+  - Why: Semantic colors communicate meaning consistently
+  - Impact: Clear visual feedback for different notification types
+
+- **ErrorState.tsx** - Token-based styling
+  - `bg-accent-redMuted rounded-full` for error icon container
+  - `bg-background-card rounded-card` for error container
+  - `bg-accent-coral rounded-button` for retry button
+  - Why: Unified error presentation
+  - Impact: Professional, consistent error handling
+
+- **EmptyState.tsx** - Text hierarchy tokens
+  - `text-text-disabled` for icons
+  - `text-text-muted` for description
+  - `text-text-secondary` for title
+  - `bg-accent-coral rounded-button` for action button
+  - Why: Clear visual hierarchy in empty states
+  - Impact: Better UX guidance when content is missing
+
+- **Chat Components** - User/AI message distinction
+  - User messages: `bg-white/5 rounded-button` (lightweight, text-forward)
+  - AI messages: `bg-surface-glass backdrop-blur-xl border-white/10 shadow-glass rounded-card` (rich, content-forward)
+  - ChatInput: `bg-surface-glass ring-accent-coral/30` on focus
+  - TypingIndicator: NeuralDots-inspired dots (coral, cyan, purple)
+  - ChatContainer/MessageList: `bg-background-base` with token spacing
+  - Why: Establish clear visual hierarchy between user and AI
+  - Impact: Intuitive conversation flow, premium feel
+
+### Technical Details
+- New directory: `src/components/experiments/`
+- New files: CourseCardEdgy.tsx, CourseCardColorful.tsx, CourseCardPersonality.tsx, CourseCardComposition.tsx, CourseCardV2a.tsx, CourseCardV2b.tsx, CourseCardV2c.tsx, CourseCardV2d.tsx, index.ts
+- Updated: Spinner.tsx, Toast.tsx, ErrorState.tsx, EmptyState.tsx, ChatInput.tsx, Message.tsx, MessageList.tsx, TypingIndicator.tsx, ChatContainer.tsx, audit/page.tsx
+- Key patterns:
+  - `clip-path: polygon()` for edgy shapes
+  - `borderRadius: '200px 40px 40px 200px'` for pill zones
+  - Framer Motion `layoutId` for context-aware morphing
+  - Semantic color mapping: success=gold, error=red, warning=coral, info=cyan
+- Build: TypeScript clean, ESLint warnings only (unused vars)
+
+### Tool Widget Token Migration
+- **9 Components Migrated** - Consistent design tokens
+  - CourseCarousel: Nav arrows → `bg-background-elevated/80 shadow-glass`
+  - CourseDetailCard: Stats → token accents (purple, gold, cyan)
+  - FleetCard: Selection → `accent-cyan`, glass surfaces
+  - AboutCard: Stats icons → coral/cyan/gold hierarchy
+  - TourShowcase: Progress bar → `accent-coral`, controls → background tokens
+  - ServiceBento: Grid items → glass, hover → token accents
+  - AuthGateModal: Gradient → `accent-cyanMuted`, benefits → cyan
+  - InquiryForm: Submit → `accent-coral`, inputs → cyan focus
+  - ItinerarySummary: Timeline → muted accents, total → `accent-gold`
+  - Why: Unified visual language across all tool widgets
+  - Impact: Consistent branding, easier maintenance
+
+### ItineraryBuilder Wizard Token Migration
+- **8 Components Migrated** - Complete wizard redesign
+  - index.tsx: Container → `rounded-card bg-background-card`
+  - RegionStep: Cards → glass surface, selected → `ring-accent-coral shadow-glow-coral`
+  - VibeStep: Gradients → `accent-gold/cyan/purple` for championship/scenic/value
+  - LogisticsStep: Toggles → `bg-accent-coral shadow-glow-coral`, prices → gold
+  - DateGroupStep: Focus states → cyan, group hints → purple
+  - ProgressIndicator: Line → `from-accent-coral to-accent-cyan`, completed → coral, active → cyan
+  - WizardNavigation: Next → `bg-accent-coral shadow-glow-coral`, Back → ghost, Skip → `text-text-muted`
+  - PriceCounter: Price → `text-accent-gold`
+  - Why: Wizard flow needed consistent visual feedback
+  - Impact: Clear progress indication, premium interactions
+
+### Token Pattern Established
+- Surfaces: `bg-surface-glass backdrop-blur-xl border-white/10`
+- Shadows: `shadow-glass` for elevated, `shadow-glow-*` for interactive
+- Radius: `rounded-card` containers, `rounded-cardSmall` cards, `rounded-button` interactive
+- Text: `text-text-primary` → `text-text-secondary` → `text-text-muted`
+- Accents: coral CTAs, cyan info/links, gold prices, purple premium
+
+---
+
+## [2025-12-03] Component Styling Overhaul
+
+### Added
+- **Educational Service Card Pattern** - Info-first, not selection
+  - Structure: Header → "What is this?" → "Why would you want it?" → "What's included" → Soft prompt
+  - Applied to: AirportFastTrackCard, GolfInsuranceCard, FleetCard
+  - No pricing tiers, no selection, no "Book Now" buttons
+  - Why: Educate before asking for commitment
+  - Impact: Reduced friction, builds trust before upsell
+
+- **AirportFastTrackCard Enhancements**
+  - Hero image with gradient overlay
+  - Stats row: 5 min vs 45 min average, 4.9 rating, 100% stress-free
+  - Responsive layout: stack on mobile, side-by-side on desktop
+  - CloudinaryImage for optimized images
+  - Why: Premium look with clear value proposition
+  - Impact: Visual proof of service quality
+
+- **GolfInsuranceCard Enhancements**
+  - Hero image with shield badge overlay
+  - Coverage icons: Heart (medical), Briefcase (equipment), Plane (cancellation)
+  - Responsive grid layout
+  - Why: Make abstract insurance tangible
+  - Impact: Clear visualization of coverage areas
+
+- **FleetCard Enhancements**
+  - Hero image of luxury vehicle
+  - Vehicle images with CloudinaryImage
+  - Feature icons for amenities
+  - Why: Show quality of fleet visually
+  - Impact: Premium perception of transport service
+
+- **CourseCard Information Hierarchy** - New front/back split
+  - Extended Course type: tier, travelTimeFromBangkok, hookLine, caddieFee, cartFee, facilities
+  - Front: Name, tier badge, all-in price (green fee + caddie + cart), travel time, hook line
+  - Back: Price breakdown table, availability notes, facilities list, "Best For" section
+  - Why: All-in pricing reduces cognitive load, tier badges enable quick comparison
+  - Impact: Faster course selection, clear value perception
+
+- **DatesCard Duration Selector** - Improved date selection UX
+  - Changed from start+end date pickers to start date + duration buttons
+  - Duration options: 1-7+ days as horizontally scrollable chips
+  - End date calculated internally from start + duration
+  - Date summary shows full range when selected
+  - Why: "How many days?" is more natural than picking two dates
+  - Impact: Faster trip planning, fewer input errors
+
+- **LogisticsStep Auto-Selection** - Smart defaults
+  - "What's included" section displayed before selection
+  - Auto-select vehicle based on group size: sedan for ≤4, vip-van for >4
+  - useRef to track if auto-selection already occurred
+  - Why: Reduce decisions, sensible defaults for common cases
+  - Impact: Faster wizard completion, fewer confused users
+
+### Changed
+- **Neutral Design System** - Premium over gaming aesthetic
+  - Backgrounds always neutral: `bg-surface-glass`, `bg-white/5`
+  - Accent colors only for small elements: icon backgrounds, prices, CTAs
+  - Removed glow effects (`shadow-glow-*`) from most components
+  - Only one coral CTA button per screen
+  - Selection states: `border-white/30` instead of `border-accent-coral`
+  - Toggle switches: `bg-white/30` instead of coral when enabled
+  - Why: Previous styling was "too neon, too gaming"
+  - Impact: Premium golf aesthetic, not gaming UI
+
+- **CourseCard Flip Animation** - Fixed asymmetry
+  - Changed from separate forward/back durations to unified timing
+  - Added `initial={false}` to AnimatePresence for consistent animation
+  - Duration: 0.4s with easeInOut timing
+  - Why: Forward flip was slow, back flip was normal
+  - Impact: Smooth, consistent card interaction
+
+- **FleetCard/Service Cards Props** - Simplified API
+  - Removed data props (no longer needed for educational cards)
+  - Components now self-contained with static content
+  - Updated: audit/page.tsx, card-demo/page.tsx, Message.tsx
+  - Why: Educational cards don't need dynamic data
+  - Impact: Simpler component usage
+
+### Technical Details
+- New files: None (all updates to existing components)
+- Modified: AirportFastTrackCard.tsx, GolfInsuranceCard.tsx, FleetCard.tsx, CourseCard.tsx, DatesCard.tsx, LogisticsStep.tsx, course.ts, audit/page.tsx, card-demo/page.tsx, Message.tsx
+- Key patterns:
+  - Educational card: Hero image (40%) + Content (60%) responsive split
+  - All-in pricing: `greenFee + caddieFee + cartFee` displayed as single value
+  - Duration selector: `DURATION_OPTIONS` array with {days, label} objects
+  - Auto-selection: `useRef<boolean>` to track first-run
+  - Neutral styling: `border-white/30 ring-white/20` for selection states
+- Build: TypeScript clean, production build passes
+
+### Design Pattern Established
+- Educational cards: Inform before asking for selection
+- All-in pricing: Combine related costs into single displayed value
+- Duration over date range: "How long?" is more natural than "start to end"
+- Auto-selection with opt-out: Smart defaults that can be changed
+- Neutral surfaces with accent punctuation: Premium, not gaming
+
+---
+
+## [2025-12-03] Critical UI Fixes & Proactive UI System
+
+### Fixed - Critical UI Issues (FIX 29-37)
+- **Golf Stats Removal** - Removed holes, par, yards from CourseCard/CourseDetailCard
+  - Added "Best For" tags derived from course.tags
+  - Why: Stats don't help booking decisions, Best For is actionable
+  - Impact: Cleaner cards focused on decision-relevant info
+
+- **AboutCard Floating Bubbles** - Stats as floating pill badges
+  - Glass styling with hover effects
+  - Framer Motion spring animations
+  - Why: Grid layout was static, bubbles are more engaging
+  - Impact: Premium, interactive stat presentation
+
+- **Educational Cards Responsive** - 6 cards now mobile/desktop adaptive
+  - `flex-col md:flex-row` layout pattern
+  - Image: 40% on desktop, full-width stack on mobile
+  - Content: 60% on desktop, full-width on mobile
+  - Cards: FleetCard, ClubRentalCard, AirportFastTrackCard, GolfInsuranceCard, DiningCard, AccommodationCard
+  - Why: Cards were desktop-only
+  - Impact: Full mobile support for educational content
+
+- **ServiceBento Modal** - Now renders actual educational cards
+  - Modal imports and renders card components directly
+  - No duplicate content maintenance
+  - Why: Modal had static duplicate content
+  - Impact: Single source of truth for service info
+
+- **ItinerarySummary Spacing** - Reduced vertical spacing
+  - Timeline items: `mb-4 sm:mb-6` → `mb-2 sm:mb-3`
+  - Section padding: `p-6 lg:p-8` → `p-5 lg:p-6`
+  - Price breakdown: `space-y-4` → `space-y-2`
+  - Why: Too much whitespace, not scannable
+  - Impact: Compact, scannable timeline
+
+- **Wizard Step Order** - WHEN (dates) is now FIRST
+  - Order: dates → region → vibe → logistics → group → summary
+  - Updated WIZARD_STEPS constant and initial state
+  - Why: "When are you going?" is most natural first question
+  - Impact: More intuitive trip planning flow
+
+- **Wizard Buttons Toned Down** - Reduced neon/color
+  - CTA buttons: `bg-white text-background-base` instead of coral
+  - Progress indicators: white/gray instead of coral/cyan
+  - Toggle switches: `bg-white/30` instead of coral
+  - Selection states: `border-white/30` instead of coral ring
+  - Why: Previous styling was "too neon, too gaming"
+  - Impact: Premium, professional aesthetic
+
+- **Global Orange Reduction** - Removed excessive coral usage
+  - RegionCard, GroupCard: White/gray selections
+  - ItinerarySummary: Neutral timeline icons
+  - All wizard components: Subtle white tones
+  - Why: Orange was overused, diluting CTA impact
+  - Impact: Orange reserved for true CTAs only
+
+### Added - Proactive UI System
+- **DateIntentModal** - Quick date/time intent capture
+  - Small, non-intrusive modal from bottom/center
+  - Date preference: This week / Next week / Specific date
+  - Time preference: Morning / Afternoon / Flexible
+  - Golfers count with +/- controls
+  - "Check Availability" CTA, "I'm just looking" dismiss
+  - Why: Capture intent early to check availability in parallel
+  - Impact: Backend can pre-check availability while user browses
+
+- **DateIntentToast** - Confirmation after submission
+  - Floating pill: "Got it! Checking availability as you browse"
+  - Auto-dismiss after 4 seconds
+  - Why: Confirm action without blocking
+  - Impact: User knows their intent was captured
+
+- **AvailabilityBadge** - Live availability status
+  - States: checking, available, limited, unavailable, unknown
+  - `AvailabilityBadge`: Full badge with label and date
+  - `AvailabilityDot`: Compact dot-only for tight spaces
+  - `AvailabilityBadgeWithInfo`: Badge with tooltip showing slots
+  - Colors: emerald (available), amber (limited), gray (unavailable)
+  - Pulse animation for checking/available states
+  - Why: Show availability feedback on course cards
+  - Impact: Users see real-time availability while browsing
+
+- **ProactiveUIManager** - Central orchestration
+  - Rate limits and cooldowns
+  - Priority queue for component display
+  - Session-scoped (only shows once per session)
+  - Components: ProactiveDateIntentModal, GroupSizeNudge, TripBuilderPrompt
+  - Why: Prevent multiple popups fighting for attention
+  - Impact: Controlled, non-annoying proactive UI
+
+- **Audit Page Section** - "Proactive UI" demos
+  - Interactive demos for all proactive components
+  - AvailabilityBadge state variants displayed
+  - ProactiveUIManager orchestration demo
+  - Why: Visual reference for all proactive patterns
+  - Impact: Easy testing and stakeholder review
+
+### Technical Details
+- New files: DateIntentModal.tsx, AvailabilityBadge.tsx, src/components/proactive/*
+- Modified: 20+ component files for FIX 29-37
+- Key patterns:
+  - Responsive: `flex flex-col md:flex-row`
+  - Neutral selection: `border-white/30 ring-white/20`
+  - White CTA: `bg-white text-background-base hover:bg-gray-100`
+  - Status colors: emerald (success), amber (warning), gray (unavailable)
+- Build: TypeScript clean, production build passes

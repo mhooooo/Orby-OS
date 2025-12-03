@@ -1,160 +1,168 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Briefcase, Check, Car, ChevronRight, Info } from 'lucide-react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Check, Users, MessageCircle, Snowflake, Languages, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-interface Vehicle {
-  id: string;
-  type: string;
-  model: string;
-  capacity: number;
-  luggage: number;
-  amenities: string[];
-  pricePerDay: number;
-  image: string;
-}
-
-interface FleetData {
-  vehicles: Vehicle[];
-  notes: string;
-}
+import { CloudinaryImage } from '@/components/ui/CloudinaryImage';
 
 interface FleetCardProps {
-  data: FleetData;
   className?: string;
+  onAction?: (prompt: string) => void;
 }
 
-export function FleetCard({ data, className }: FleetCardProps) {
-  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
+const vehicleTypes = [
+  {
+    name: 'VIP Van',
+    capacity: '4-6 golfers',
+    description: 'Spacious and comfortable with dedicated golf bag storage',
+    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80',
+  },
+  {
+    name: 'VVIP Van',
+    capacity: '4-6 golfers',
+    description: 'Extra legroom, premium interior, refreshments included',
+    image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=600&q=80',
+  },
+];
 
+const includedFeatures = [
+  { icon: Briefcase, text: 'Door-to-door service from airport to hotel to courses' },
+  { icon: Snowflake, text: 'Air-conditioned comfort throughout your journey' },
+  { icon: Languages, text: 'English-speaking driver who knows the golf courses' },
+  { icon: Users, text: 'Golf bags stored safely in dedicated compartment' },
+];
+
+export function FleetCard({ className, onAction }: FleetCardProps) {
   return (
     <motion.div
       className={cn(
-        'relative w-full rounded-[2.5rem] overflow-hidden',
-        'bg-white/5 backdrop-blur-2xl border border-white/10',
-        'shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]',
+        'relative w-full max-w-lg md:max-w-4xl rounded-card overflow-hidden',
+        'bg-surface-glass backdrop-blur-xl border border-white/10',
         className
       )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
     >
-      {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
+      {/* Responsive layout: stack on mobile, side-by-side on desktop */}
+      <div className="flex flex-col md:flex-row">
+        {/* Hero Image - left side on desktop */}
+        <div className="relative h-48 sm:h-56 md:h-auto md:w-2/5 md:min-h-[400px] overflow-hidden">
+          <CloudinaryImage
+            src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&q=80"
+            alt="Luxury private transfer van for golf trips"
+            width={600}
+            height={400}
+            className="w-full h-full"
+            objectFit="cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-background-base via-background-base/50 to-transparent" />
 
-      {/* Header */}
-      <div className="relative p-4 sm:p-6 lg:p-8 border-b border-white/5">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400">
-            <Car size={20} className="sm:w-6 sm:h-6" />
+          {/* Title overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
+            <h2 className="text-2xl font-bold text-text-primary mb-1">
+              Private Transfers
+            </h2>
+            <p className="text-sm text-text-secondary">
+              Your own vehicle and driver for the entire trip
+            </p>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white">
-            Premium Transport
-          </h2>
         </div>
-        <p className="text-gray-400 text-xs sm:text-sm pl-11 sm:pl-12">
-          Select your preferred vehicle for the duration of your trip.
-        </p>
-      </div>
 
-      {/* Vehicle Grid */}
-      <div className="p-4 sm:p-6 lg:p-8 grid gap-4 sm:gap-6 md:grid-cols-2">
-        {data.vehicles.map((vehicle, index) => (
-          <motion.div
-            key={vehicle.id}
-            className={cn(
-              "group relative rounded-3xl overflow-hidden border transition-all duration-300",
-              selectedVehicle === vehicle.id
-                ? "bg-white/10 border-blue-500/50 shadow-[0_0_30px_rgba(59,130,246,0.2)]"
-                : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20"
-            )}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.1 }}
-            onClick={() => setSelectedVehicle(vehicle.id)}
-          >
-            {/* Selection Indicator */}
-            <div className={cn(
-              "absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors z-10",
-              selectedVehicle === vehicle.id
-                ? "bg-blue-500 border-blue-500"
-                : "border-white/30 bg-black/20 backdrop-blur-md"
-            )}>
-              {selectedVehicle === vehicle.id && <Check size={14} className="text-white" />}
-            </div>
-
-            {/* Image Area */}
-            <div className="relative h-40 sm:h-48 overflow-hidden">
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                style={{ backgroundImage: `url(${vehicle.image})` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-80" />
-
-              <div className="absolute bottom-4 left-4">
-                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-white/20 backdrop-blur-md text-white border border-white/10 mb-2 inline-block">
-                  {vehicle.type}
-                </span>
-                <h3 className="text-xl font-bold text-white leading-none">
-                  {vehicle.model}
-                </h3>
-              </div>
-            </div>
-
-            {/* Details */}
-            <div className="p-4 sm:p-5">
-              <div className="flex gap-3 sm:gap-4 mb-4 sm:mb-5">
-                <div className="flex items-center gap-2 text-gray-400 text-xs font-medium bg-white/5 px-3 py-1.5 rounded-lg">
-                  <Users size={14} className="text-blue-400" />
-                  <span>{vehicle.capacity} Pax</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-400 text-xs font-medium bg-white/5 px-3 py-1.5 rounded-lg">
-                  <Briefcase size={14} className="text-purple-400" />
-                  <span>{vehicle.luggage} Bags</span>
-                </div>
-              </div>
-
-              <div className="space-y-2 mb-5">
-                {vehicle.amenities.slice(0, 3).map((amenity) => (
-                  <div key={amenity} className="flex items-center gap-2 text-xs text-gray-300">
-                    <div className="w-1 h-1 rounded-full bg-blue-500" />
-                    <span>{amenity}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex items-end justify-between pt-4 border-t border-white/5">
-                <div>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Daily Rate</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-lg font-bold text-white">฿{vehicle.pricePerDay.toLocaleString()}</span>
-                  </div>
-                </div>
-                <button className={cn(
-                  "px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2",
-                  selectedVehicle === vehicle.id
-                    ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
-                    : "bg-white/10 text-white hover:bg-white/20"
-                )}>
-                  {selectedVehicle === vehicle.id ? 'Selected' : 'Select'}
-                  {selectedVehicle !== vehicle.id && <ChevronRight size={14} />}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Footer Info */}
-      <div className="px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
-        <div className="flex items-start gap-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
-          <Info size={18} className="text-blue-400 shrink-0 mt-0.5" />
-          <p className="text-xs text-blue-200/80 leading-relaxed">
-            {data.notes}
+        {/* Content - right side on desktop */}
+        <div className="p-5 md:p-6 md:w-3/5 space-y-5">
+        {/* What is this? */}
+        <div>
+          <h3 className="text-sm font-medium text-text-primary mb-2">
+            What is this?
+          </h3>
+          <p className="text-sm text-text-secondary leading-relaxed">
+            Your own private vehicle and driver for the entire trip. No shared shuttles, no waiting - just hop in and go whenever you&apos;re ready.
           </p>
+        </div>
+
+        {/* What's Included */}
+        <div>
+          <h3 className="text-sm font-medium text-text-primary mb-3">
+            What&apos;s included
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {includedFeatures.map((feature, index) => (
+              <motion.div
+                key={index}
+                className="flex items-start gap-2"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <feature.icon size={14} className="text-accent-cyan shrink-0 mt-0.5" />
+                <span className="text-xs text-text-secondary leading-relaxed">
+                  {feature.text}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Vehicle Options with Images */}
+        <div>
+          <h3 className="text-sm font-medium text-text-primary mb-3">
+            Vehicle options
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {vehicleTypes.map((vehicle, index) => (
+              <motion.div
+                key={index}
+                className="rounded-lg overflow-hidden bg-white/5 border border-white/5"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+              >
+                {/* Vehicle Image */}
+                <div className="relative h-24 overflow-hidden">
+                  <CloudinaryImage
+                    src={vehicle.image}
+                    alt={vehicle.name}
+                    width={300}
+                    height={150}
+                    className="w-full h-full"
+                    objectFit="cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background-base/80 to-transparent" />
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <span className="text-sm font-medium text-text-primary block">
+                      {vehicle.name}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Vehicle Info */}
+                <div className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Users size={12} className="text-text-muted" />
+                    <span className="text-xs text-text-muted">{vehicle.capacity}</span>
+                  </div>
+                  <p className="text-xs text-text-muted leading-relaxed">
+                    {vehicle.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Clickable Action */}
+        <button
+          onClick={() => onAction?.('Tell me about transport options for my group')}
+          className="w-full flex items-center gap-3 p-4 rounded-button bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all text-left group cursor-pointer"
+        >
+          <MessageCircle size={16} className="text-text-muted group-hover:text-text-secondary transition-colors shrink-0" />
+          <span className="text-sm text-text-secondary">
+            Need transport?{' '}
+            <span className="text-text-primary font-medium">Tap to discuss options</span>
+          </span>
+        </button>
         </div>
       </div>
     </motion.div>

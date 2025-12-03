@@ -14,6 +14,7 @@ const PRICING = {
   transfers: {
     sedan: 2500,
     'vip-van': 4500,
+    'vvip-van': 6500,
   },
 
   // Airport transfer surcharge
@@ -184,7 +185,7 @@ export interface PriceBreakdown {
   };
   transfers: {
     enabled: boolean;
-    vehicleType: 'sedan' | 'vip-van';
+    vehicleType: 'sedan' | 'vip-van' | 'vvip-van';
     perDay: number;
     days: number;
     airportPickup: number;

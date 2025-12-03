@@ -1,50 +1,58 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { NeuralDots } from './NeuralDots';
+import { PersistentActor } from './NeuralDots';
 
 interface MorphingAvatarProps {
   isChatting: boolean;
   isThinking?: boolean;
+  onLoadingComplete?: () => void;
 }
 
-export function MorphingAvatar({ isChatting, isThinking = false }: MorphingAvatarProps) {
+const CONTAINER_SPRING = {
+  type: 'spring' as const,
+  stiffness: 300,
+  damping: 30,
+  mass: 1,
+};
+
+export function MorphingAvatar({ isChatting, isThinking = false, onLoadingComplete }: MorphingAvatarProps) {
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  // Auto-complete loading after a short delay if no explicit loading state
+  // This ensures the avatar doesn't get stuck in loading
+  useEffect(() => {
+    if (!hasLoaded) {
+      const timer = setTimeout(() => {
+        setHasLoaded(true);
+        onLoadingComplete?.();
+      }, 500); // Short delay to allow initial render
+      return () => clearTimeout(timer);
+    }
+  }, [hasLoaded, onLoadingComplete]);
+
   return (
     <motion.div
-      layoutId="agent-avatar"
-      className="fixed z-50"
+      className="absolute z-50 origin-top"
+      style={{
+        left: '50%',
+        x: '-50%'
+      }}
       initial={false}
       animate={{
-        // Hero: centered above "Hi, there!" text
-        // Chat: Dynamic Island style - top center
-        top: isChatting ? 20 : 'calc(35% - 80px)',
-        left: '50%',
-        x: '-50%',
+        // Hero: 35% down the container
+        // Chat: 20px from the top
+        top: isChatting ? '20px' : '35%',
+        // Vertical offset to ensure true visual center
+        y: isChatting ? 0 : '-50%',
       }}
-      transition={{
-        type: 'spring',
-        stiffness: 300,
-        damping: 30,
-      }}
+      transition={CONTAINER_SPRING}
     >
-      <motion.div
-        className="flex items-center justify-center"
-        animate={{
-          width: isChatting ? 48 : 120,
-          height: isChatting ? 48 : 120,
-        }}
-        transition={{
-          type: 'spring',
-          stiffness: 300,
-          damping: 30,
-        }}
-      >
-        <NeuralDots
-          size={isChatting ? 'medium' : 'hero'}
-          isThinking={isThinking}
-        />
-      </motion.div>
+      <PersistentActor
+        state={isChatting ? 'chat' : 'hero'}
+        isThinking={isThinking}
+      />
     </motion.div>
   );
 }

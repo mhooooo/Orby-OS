@@ -16,12 +16,49 @@
 - [ ] Monitor initial user sessions
 - [ ] Document deployment process
 
+### Critical UI Fixes (Completed)
+- [x] FIX 29: Remove golf stats from CourseCard/CourseDetailCard, add "Best For" tags
+- [x] FIX 30: AboutCard floating bubble pills for stats
+- [x] FIX 31: Educational cards responsive layout (6 cards)
+- [x] FIX 32: ServiceBento modal renders educational cards
+- [x] FIX 33: ItinerarySummary reduce spacing
+- [x] FIX 34: Wizard steps reordered - WHEN (dates) first
+- [x] FIX 35: Wizard buttons toned down (white CTAs, subtle toggles)
+- [x] FIX 36: RegionCard multi-select verified
+- [x] FIX 37: Global orange/coral reduction
+
+### Proactive UI System (Completed)
+- [x] DateIntentModal - Quick date/time intent capture
+- [x] AvailabilityBadge - Live availability status badges
+- [x] ProactiveUIManager - Central orchestrator with rate limits
+- [x] GroupSizeNudge - Quick group size capture
+- [x] TripBuilderPrompt - Floating pill after 3+ courses viewed
+- [x] Audit page "Proactive UI" section
+
 ### UI/UX Overhaul Tasks (Completed)
 - [x] Sidebar redesign (Gemini-style with chat history)
 - [x] Chat history system (chats table, API routes, hooks)
 - [x] Header Explore dropdown (Discover + Services sections)
 - [x] Greeting State spectrum pills (4 color-coded mindset triggers)
 - [x] Morphing Avatar with thinking halo (Framer Motion)
+
+### Component Styling Overhaul (Completed)
+- [x] Educational service cards (AirportFastTrackCard, GolfInsuranceCard, FleetCard)
+- [x] CourseCard information hierarchy (front: all-in price, tier; back: breakdown, facilities)
+- [x] CourseCard flip animation fix (initial={false}, unified timing)
+- [x] DatesCard duration selector (start date + duration buttons)
+- [x] LogisticsStep info-first pattern with auto-selection
+- [x] Neutral design system (removed glow, neutral surfaces, accent punctuation only)
+
+### Design System Foundation (Completed)
+- [x] Design token audit (250+ values extracted, inconsistencies documented)
+- [x] Experimental CourseCard variants (Edgy, Colorful, Personality, Composition)
+- [x] V2 CourseCard explorations (80/20, 50/50, 30/70, context-aware)
+- [x] UI primitive migration (Spinner, Toast, ErrorState, EmptyState)
+- [x] Chat component migration (Message, ChatInput, TypingIndicator)
+- [x] Tool widget migration (9 components: CourseCarousel, CourseDetailCard, FleetCard, AboutCard, TourShowcase, ServiceBento, AuthGateModal, InquiryForm, ItinerarySummary)
+- [x] ItineraryBuilder wizard migration (8 components: index, RegionStep, VibeStep, LogisticsStep, DateGroupStep, ProgressIndicator, WizardNavigation, PriceCounter)
+- [x] Audit page updated with design experiments
 
 ### Phase 6 Tasks (Completed)
 - [x] Mobile responsive breakpoints for all components

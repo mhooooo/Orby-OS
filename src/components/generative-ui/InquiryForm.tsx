@@ -94,26 +94,26 @@ export default function InquiryForm({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'spring', duration: 0.5, bounce: 0.3 }}
-        className="bg-[#1a1a1a]/80 backdrop-blur-xl rounded-2xl sm:rounded-[2rem] p-6 sm:p-8 border border-white/10 text-center shadow-2xl"
+        className="bg-background-card/80 backdrop-blur-xl rounded-cardSmall sm:rounded-card p-6 sm:p-8 border border-white/10 text-center shadow-glass"
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: 'spring', duration: 0.6, bounce: 0.4 }}
-          className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 rounded-full bg-emerald-500/20 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+          className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 rounded-full bg-accent-cyanMuted flex items-center justify-center shadow-glow-cyan"
         >
-          <CheckCircle size={36} className="text-emerald-400 sm:w-10 sm:h-10" />
+          <CheckCircle size={36} className="text-accent-cyan sm:w-10 sm:h-10" />
         </motion.div>
 
-        <h3 className="text-white text-2xl sm:text-3xl font-bold mb-3 tracking-tight">Inquiry Sent!</h3>
-        <p className="text-gray-400 mb-6 sm:mb-8 text-base sm:text-lg font-light">
+        <h3 className="text-text-primary text-2xl sm:text-3xl font-bold mb-3 tracking-tight">Inquiry Sent!</h3>
+        <p className="text-text-muted mb-6 sm:mb-8 text-base sm:text-lg font-light">
           We&apos;ll be in touch within 24 hours to help plan your perfect golf trip.
         </p>
 
         {onClose && (
           <button
             onClick={onClose}
-            className="px-8 py-3 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all border border-white/10 hover:border-white/20"
+            className="px-8 py-3 rounded-button bg-surface-glass text-text-primary font-bold text-sm hover:bg-white/20 transition-all border border-white/10 hover:border-white/20"
           >
             Back to browsing
           </button>
@@ -129,21 +129,21 @@ export default function InquiryForm({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       onSubmit={handleSubmit}
-      className="bg-[#1a1a1a]/80 backdrop-blur-xl rounded-2xl sm:rounded-[2.5rem] p-6 sm:p-8 border border-white/10 shadow-2xl"
+      className="bg-background-card/80 backdrop-blur-xl rounded-cardSmall sm:rounded-card p-6 sm:p-8 border border-white/10 shadow-glass"
     >
       <div className="mb-6 sm:mb-8">
-        <h3 className="text-white text-xl sm:text-2xl font-bold mb-2">Send Inquiry</h3>
-        <p className="text-gray-400 text-xs sm:text-sm">Fill out the form below and our team will get back to you shortly.</p>
+        <h3 className="text-text-primary text-xl sm:text-2xl font-bold mb-2">Send Inquiry</h3>
+        <p className="text-text-muted text-xs sm:text-sm">Fill out the form below and our team will get back to you shortly.</p>
       </div>
 
       <div className="space-y-5">
         {/* Name Field */}
         <div className="group">
-          <label htmlFor="name" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
+          <label htmlFor="name" className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2 ml-1">
             Name *
           </label>
           <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-emerald-400 transition-colors">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent-cyan transition-colors">
               <User size={18} />
             </div>
             <input
@@ -153,7 +153,7 @@ export default function InquiryForm({
               onChange={(e) => setName(e.target.value)}
               required
               disabled={status === 'loading'}
-              className="w-full bg-black/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-600 border border-white/5 focus:border-emerald-500/50 focus:bg-black/40 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-background-base/40 rounded-button pl-12 pr-4 py-4 text-text-primary placeholder:text-text-muted border border-white/5 focus:border-accent-cyan/50 focus:bg-background-base/60 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="Your full name"
             />
           </div>
@@ -161,11 +161,11 @@ export default function InquiryForm({
 
         {/* Email Field */}
         <div className="group">
-          <label htmlFor="email" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
+          <label htmlFor="email" className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2 ml-1">
             Email *
           </label>
           <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-emerald-400 transition-colors">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent-cyan transition-colors">
               <Mail size={18} />
             </div>
             <input
@@ -175,7 +175,7 @@ export default function InquiryForm({
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={status === 'loading'}
-              className="w-full bg-black/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-600 border border-white/5 focus:border-emerald-500/50 focus:bg-black/40 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-background-base/40 rounded-button pl-12 pr-4 py-4 text-text-primary placeholder:text-text-muted border border-white/5 focus:border-accent-cyan/50 focus:bg-background-base/60 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="you@example.com"
             />
           </div>
@@ -183,11 +183,11 @@ export default function InquiryForm({
 
         {/* Phone Field */}
         <div className="group">
-          <label htmlFor="phone" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
-            Phone <span className="text-gray-600 font-normal lowercase">(optional)</span>
+          <label htmlFor="phone" className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2 ml-1">
+            Phone <span className="text-text-muted font-normal lowercase">(optional)</span>
           </label>
           <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-emerald-400 transition-colors">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent-cyan transition-colors">
               <Phone size={18} />
             </div>
             <input
@@ -196,7 +196,7 @@ export default function InquiryForm({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               disabled={status === 'loading'}
-              className="w-full bg-black/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-600 border border-white/5 focus:border-emerald-500/50 focus:bg-black/40 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-background-base/40 rounded-button pl-12 pr-4 py-4 text-text-primary placeholder:text-text-muted border border-white/5 focus:border-accent-cyan/50 focus:bg-background-base/60 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="+66 or your country code"
             />
           </div>
@@ -204,11 +204,11 @@ export default function InquiryForm({
 
         {/* Message Field */}
         <div className="group">
-          <label htmlFor="message" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">
-            Message <span className="text-gray-600 font-normal lowercase">(optional)</span>
+          <label htmlFor="message" className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2 ml-1">
+            Message <span className="text-text-muted font-normal lowercase">(optional)</span>
           </label>
           <div className="relative">
-            <div className="absolute left-4 top-6 text-gray-500 group-focus-within:text-emerald-400 transition-colors">
+            <div className="absolute left-4 top-6 text-text-muted group-focus-within:text-accent-cyan transition-colors">
               <MessageSquare size={18} />
             </div>
             <textarea
@@ -217,7 +217,7 @@ export default function InquiryForm({
               onChange={(e) => setMessage(e.target.value)}
               disabled={status === 'loading'}
               rows={4}
-              className="w-full bg-black/20 rounded-xl pl-12 pr-4 py-4 text-white placeholder:text-gray-600 border border-white/5 focus:border-emerald-500/50 focus:bg-black/40 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed resize-none"
+              className="w-full bg-background-base/40 rounded-button pl-12 pr-4 py-4 text-text-primary placeholder:text-text-muted border border-white/5 focus:border-accent-cyan/50 focus:bg-background-base/60 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed resize-none"
               placeholder="Any special requests or dietary requirements?"
             />
           </div>
@@ -229,7 +229,7 @@ export default function InquiryForm({
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center justify-center"
+          className="mt-6 p-4 rounded-button bg-semantic-error/10 border border-semantic-error/20 text-semantic-error text-sm flex items-center justify-center"
         >
           Failed to submit inquiry. Please try again.
         </motion.div>
@@ -242,7 +242,7 @@ export default function InquiryForm({
             type="button"
             onClick={onClose}
             disabled={status === 'loading'}
-            className="sm:flex-1 px-6 py-3 sm:py-4 rounded-xl bg-white/5 text-white font-bold text-sm hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-white/5 hover:border-white/10"
+            className="sm:flex-1 px-6 py-3 sm:py-4 rounded-button bg-surface-glass text-text-primary font-bold text-sm hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-white/5 hover:border-white/10"
           >
             Cancel
           </button>
@@ -251,7 +251,7 @@ export default function InquiryForm({
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="sm:flex-[2] px-6 py-3 sm:py-4 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+          className="sm:flex-[2] px-6 py-3 sm:py-4 rounded-button bg-accent-coral text-text-primary font-bold text-sm hover:bg-accent-coral/90 hover:shadow-glow-coral transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-accent-coral/20"
         >
           {status === 'loading' ? (
             <>

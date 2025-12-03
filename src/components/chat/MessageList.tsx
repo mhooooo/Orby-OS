@@ -23,7 +23,12 @@ export function MessageList({ className }: MessageListProps) {
   }
 
   return (
-    <div className={cn('px-4 md:px-8 lg:px-12 py-6 space-y-6', className)}>
+    <div className={cn(
+      'px-4 md:px-8 lg:px-12 py-6',
+      'space-y-6', // Consistent gap between messages
+      'bg-background-base', // Token-based background
+      className
+    )}>
       {messages.map((message, idx) => (
         <Message
           key={message.id}
@@ -32,7 +37,7 @@ export function MessageList({ className }: MessageListProps) {
         />
       ))}
       {isLoading && messages[messages.length - 1]?.role === 'user' && (
-        <div className="flex justify-start">
+        <div className="flex justify-start max-w-3xl mx-auto">
           <TypingIndicator />
         </div>
       )}

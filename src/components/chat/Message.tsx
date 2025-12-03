@@ -4,18 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Message as MessageType, ToolCall } from '@/types/chat';
 import { cn } from '@/lib/utils';
 import { CourseCarousel } from '@/components/generative-ui/CourseCarousel';
-import { CourseDetailCard } from '@/components/generative-ui/CourseDetailCard';
+import { CourseCard } from '@/components/generative-ui/CourseCard';
 import { FleetCard } from '@/components/generative-ui/FleetCard';
 import { AboutCard } from '@/components/generative-ui/AboutCard';
-import {
-  RegionPicker,
-  VibePicker,
-  TransportPicker,
-  GroupSizePicker,
-  DaysPicker,
-} from '@/components/generative-ui/pickers';
-import { ItineraryBuilder } from '@/components/generative-ui/ItineraryBuilder';
-import { TourShowcase } from '@/components/generative-ui/TourShowcase';
 import { ServiceBento } from '@/components/generative-ui/ServiceBento';
 import { Course } from '@/types/course';
 import AuthGateModal from '@/components/generative-ui/AuthGateModal';
@@ -57,7 +48,7 @@ function TypewriterText({ text, onComplete }: { text: string; onComplete?: () =>
   return (
     <span>
       {displayedText}
-      {!isComplete && <span className="inline-block w-0.5 h-4 bg-gray-400 ml-0.5 animate-pulse" />}
+      {!isComplete && <span className="inline-block w-0.5 h-4 bg-text-muted ml-0.5 animate-pulse" />}
     </span>
   );
 }
@@ -168,24 +159,21 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
       const result = tool.result as ShowCourseDetailResult | undefined;
       if (result?.course) {
         return wrapWithErrorBoundary(
-          <CourseDetailCard course={result.course} />
+          <CourseCard course={result.course} defaultExpanded={true} />
         );
       }
       return wrapWithErrorBoundary(
-        <div className="rounded-xl bg-[#1E1F20] p-4 border border-gray-800">
-          <p className="text-sm text-gray-400">Course not found</p>
+        <div className="rounded-cardSmall bg-background-card p-4 border border-white/5">
+          <p className="text-sm text-text-muted">Course not found</p>
         </div>
       );
     }
 
     case 'show_fleet': {
-      const result = tool.result as FleetData | undefined;
-      if (result) {
-        return wrapWithErrorBoundary(
-          <FleetCard data={result} />
-        );
-      }
-      return null;
+      // FleetCard is now educational - no data needed
+      return wrapWithErrorBoundary(
+        <FleetCard />
+      );
     }
 
     case 'show_about_us': {
@@ -197,41 +185,6 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
       }
       return null;
     }
-
-    // Itinerary Builder wizard
-    case 'start_itinerary_builder': {
-      const input = tool.input as { region?: string } | undefined;
-      const regionMap: Record<string, 'bangkok' | 'phuket' | 'hua_hin' | 'chiang_mai' | 'pattaya'> = {
-        bangkok: 'bangkok',
-        phuket: 'phuket',
-        hua_hin: 'hua_hin',
-        chiang_mai: 'chiang_mai',
-        pattaya: 'pattaya',
-      };
-      const initialRegion = input?.region ? regionMap[input.region] : undefined;
-      return wrapWithErrorBoundary(
-        <ItineraryBuilder initialRegion={initialRegion} />
-      );
-    }
-
-    // Individual pickers (for future segmented flow)
-    case 'pick_region':
-      return wrapWithErrorBoundary(<RegionPicker />);
-
-    case 'pick_group_size':
-      return wrapWithErrorBoundary(<GroupSizePicker />);
-
-    case 'pick_days':
-      return wrapWithErrorBoundary(<DaysPicker />);
-
-    case 'pick_vibe':
-      return wrapWithErrorBoundary(<VibePicker />);
-
-    case 'pick_transport':
-      return wrapWithErrorBoundary(<TransportPicker />);
-
-    case 'start_tour':
-      return wrapWithErrorBoundary(<TourShowcase />);
 
     case 'show_services':
       return wrapWithErrorBoundary(<ServiceBento />);
@@ -258,8 +211,8 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
 
     default:
       return wrapWithErrorBoundary(
-        <div className="rounded-xl bg-[#1E1F20] p-4 border border-gray-800">
-          <p className="text-xs text-gray-500">
+        <div className="rounded-cardSmall bg-background-card p-4 border border-white/5">
+          <p className="text-xs text-text-muted">
             Component: {tool.name}
           </p>
         </div>
@@ -297,28 +250,41 @@ export function Message({ message, isLatest = false }: MessageProps & { isLatest
           'flex max-w-3xl mx-auto',
           isUser ? 'justify-end' : 'justify-start'
         )}>
-          {/* Text Content - inline width based on content */}
-          <div className={cn(
-            'max-w-[80%] px-4 py-3 rounded-2xl',
-            isUser
-              ? 'bg-[#282A2C] text-gray-200'
-              : 'bg-[#1E1F20] text-gray-200'
-          )}>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">
-              {isUser || !isLatest ? (
-                message.content
-              ) : (
-                <TypewriterText
-                  text={message.content}
-                  onComplete={handleTypingComplete}
-                />
-              )}
-            </p>
-          </div>
+          {isUser ? (
+            /* USER MESSAGE: lightweight, text-forward, right-aligned */
+            <div className={cn(
+              'max-w-[80%] px-4 py-2.5 rounded-button',
+              'bg-white/5 text-text-primary'
+              // No glass blur, no glow, no shadow - minimal
+            )}>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                {message.content}
+              </p>
+            </div>
+          ) : (
+            /* AI MESSAGE: rich, content-forward, left-aligned */
+            <div className={cn(
+              'max-w-[85%] px-5 py-4 rounded-card',
+              'bg-surface-glass backdrop-blur-xl border border-white/10',
+              'shadow-glass'
+            )}>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-text-primary">
+                {!isLatest ? (
+                  message.content
+                ) : (
+                  <TypewriterText
+                    text={message.content}
+                    onComplete={handleTypingComplete}
+                  />
+                )}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
       {/* Generative UI components - rendered after typing completes */}
+      {/* These render inside the AI message flow, already have their own styling */}
       {hasToolCalls && showTools && (
         <div className="w-full max-w-5xl mx-auto space-y-4">
           {message.toolCalls!.map((tool) => renderToolComponent(tool, handleAuthRequired))}
