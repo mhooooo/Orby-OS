@@ -183,6 +183,33 @@ Mock mode for UI development, cached mode for integration testing.
 - [2024-12]: Holographic text gradient: `bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent`
 - [2024-12]: Left accent bar on hover: `border-l-2 border-l-transparent hover:border-l-[#FF6B35]` for menu items
 - [2024-12]: Desaturate competing visuals: `opacity-50 grayscale-[30%]` at rest, full color on hover
+- [2024-12]: User/AI message visual hierarchy: User=lightweight (`bg-white/5`), AI=rich glass treatment (`bg-surface-glass backdrop-blur-xl shadow-glass`)
+- [2024-12]: Semantic toast colors: success=gold, error=red, warning=coral, info=cyan - consistent meaning across UI
+- [2024-12]: Design exploration approach: Create extreme variants first ("too far"), then dial back - easier to reduce than add personality
+- [2024-12]: Usability spectrum for cards: 80/20 (subtle), 50/50 (balanced), 30/70 (bold) helps stakeholders pick right balance
+- [2024-12]: Context-aware components with Framer Motion `layoutId`: compact pill mode ↔ full mode transformation for space efficiency
+- [2024-12]: Design token migration pattern: surfaces (glass), text hierarchy (primary→secondary→muted), accents by role (coral=CTA, cyan=info, gold=price, purple=premium)
+- [2024-12]: Wizard progress indicators: completed steps = accent-coral, active = accent-cyan, pending = text-muted - visual momentum shows progression
+- [2024-12]: Toggle switches: active state should use CTA color (coral) with glow (`shadow-glow-coral`) for clear on/off feedback
+- [2024-12]: Price displays: consistently use accent-gold for currency symbols and amounts across all components
+- [2024-12]: Educational card pattern: "What is this?" + "Why would you want it?" + "What's included" + soft prompt - inform before selection
+- [2024-12]: All-in pricing (green fee + caddie + cart) reduces cognitive load vs showing individual line items on card front
+- [2024-12]: Duration selector (start date + days) is more natural than picking two dates for trip planning
+- [2024-12]: Auto-selection with useRef guard: `hasAutoSelected.current` prevents re-triggering on every render
+- [2024-12]: Framer Motion AnimatePresence `initial={false}` ensures consistent animation speed for bidirectional transitions (e.g., card flip)
+- [2024-12]: Neutral design over gaming aesthetic: surfaces always neutral (`bg-surface-glass`, `bg-white/5`), accent colors only for small elements (icon backgrounds, prices, single CTA per screen)
+- [2024-12]: Selection states in neutral mode: `border-white/30` instead of `border-accent-coral` for non-CTA selection
+- [2024-12]: Educational cards don't need data props - self-contained with static content, simpler API
+- [2024-12]: Responsive educational cards: `flex flex-col md:flex-row` with image 40% (`md:w-2/5`) and content 60% (`md:w-3/5`)
+- [2024-12]: Gradient direction for responsive: `bg-gradient-to-t md:bg-gradient-to-r` changes from vertical to horizontal on breakpoint
+- [2024-12]: Wizard step order matters: WHEN (dates) first is more natural than WHERE (region) first
+- [2024-12]: Orange/coral overuse dilutes CTA impact - reserve for single primary action per screen
+- [2024-12]: White CTAs (`bg-white text-background-base`) are premium and don't compete with accent colors
+- [2024-12]: Proactive UI orchestration: Rate limits, cooldowns, session-scoped flags prevent popup fatigue
+- [2024-12]: Availability badge states: checking (spinner), available (green pulse), limited (amber), unavailable (gray)
+- [2024-12]: DateIntentModal pattern: "Quick question" header, date/time/golfers, "Check Availability" CTA, "I'm just looking" dismiss
+- [2024-12]: Confirmation toasts: Auto-dismiss (4s), floating pill, glass surface, check icon + message
+- [2024-12]: Compact spacing for timelines: `mb-2 sm:mb-3` instead of `mb-4 sm:mb-6` makes content scannable
 
 ---
 
@@ -195,6 +222,8 @@ Mock mode for UI development, cached mode for integration testing.
 - `src/components/generative-ui/` - All generative UI components
 - `src/components/generative-ui/TourShowcase.tsx` - Full service tour
 - `src/components/generative-ui/ServiceBento.tsx` - Bento grid for services
+- `src/components/proactive/` - Proactive UI system (orchestrator, modals, badges)
+- `docs/references/` - Design pattern documentation (6 reference docs)
 - `src/components/generative-ui/AuthGateModal.tsx` - Auth conversion modal
 - `src/components/generative-ui/InquiryForm.tsx` - Booking inquiry form
 - `src/components/generative-ui/pickers/` - Chipotle-style trip pickers

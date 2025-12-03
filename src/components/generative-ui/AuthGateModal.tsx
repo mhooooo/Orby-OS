@@ -78,27 +78,27 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', duration: 0.5, bounce: 0.3 }}
             className={cn(
-              "relative w-full max-w-md overflow-hidden rounded-2xl sm:rounded-[2rem]",
-              "bg-[#1a1a1a]/80 backdrop-blur-2xl border border-white/10",
-              "shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)]"
+              "relative w-full max-w-md overflow-hidden rounded-cardSmall sm:rounded-card",
+              "bg-background-card/80 backdrop-blur-2xl border border-white/10",
+              "shadow-glass"
             )}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Decorative Gradient */}
+            <div className="absolute top-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-b from-accent-cyanMuted to-transparent pointer-events-none" />
+
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-3 sm:top-4 right-3 sm:right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+              className="absolute top-3 sm:top-4 right-3 sm:right-4 p-2 rounded-full bg-surface-glass hover:bg-white/10 text-text-muted hover:text-text-primary transition-colors z-10"
             >
               <X size={20} />
             </button>
 
-            {/* Decorative Gradient */}
-            <div className="absolute top-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-b from-emerald-500/20 to-transparent pointer-events-none" />
-
             <div className="relative p-6 sm:p-8 pt-10 sm:pt-12">
               {/* Icon */}
-              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-5 sm:mb-6 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white sm:w-8 sm:h-8">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-5 sm:mb-6 rounded-cardSmall bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center shadow-lg shadow-accent-cyan/20">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-text-primary sm:w-8 sm:h-8">
                   <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -106,25 +106,25 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
               </div>
 
               {/* Heading */}
-              <h2 className="text-white text-xl sm:text-2xl font-bold mb-2 text-center">
+              <h2 className="text-text-primary text-xl sm:text-2xl font-bold mb-2 text-center">
                 {getHeading()}
               </h2>
-              <p className="text-gray-400 text-center mb-6 sm:mb-8 text-xs sm:text-sm">
+              <p className="text-text-muted text-center mb-6 sm:mb-8 text-xs sm:text-sm">
                 Sign in to unlock the full Golf Okay experience.
               </p>
 
               {/* Benefits List */}
-              <div className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8 bg-white/5 rounded-2xl p-3 sm:p-4 border border-white/5">
+              <div className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8 bg-surface-glass rounded-cardSmall p-3 sm:p-4 border border-white/5">
                 {benefits.map((benefit, index) => (
                   <motion.div
                     key={benefit}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="flex items-center gap-3 text-gray-300"
+                    className="flex items-center gap-3 text-text-secondary"
                   >
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                      <Check size={12} className="text-emerald-400" />
+                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-accent-cyanMuted flex items-center justify-center">
+                      <Check size={12} className="text-accent-cyan" />
                     </div>
                     <span className="text-sm font-medium">{benefit}</span>
                   </motion.div>
@@ -135,11 +135,11 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
               <button
                 onClick={handleSignIn}
                 disabled={isSigningIn || loading}
-                className="w-full py-4 px-6 rounded-xl bg-white text-black font-bold text-sm hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mb-3 shadow-lg shadow-white/5"
+                className="w-full py-4 px-6 rounded-button bg-white text-background-base font-bold text-sm hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mb-3 shadow-lg shadow-white/5"
               >
                 {isSigningIn ? (
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-background-base/30 border-t-background-base rounded-full animate-spin" />
                     <span>Signing in...</span>
                   </div>
                 ) : (
@@ -154,7 +154,7 @@ export default function AuthGateModal({ isOpen, onClose, triggerReason }: AuthGa
               <button
                 onClick={onClose}
                 disabled={isSigningIn}
-                className="w-full py-3 text-gray-500 text-xs font-medium hover:text-white transition-colors disabled:opacity-50"
+                className="w-full py-3 text-text-muted text-xs font-medium hover:text-text-primary transition-colors disabled:opacity-50"
               >
                 Maybe later
               </button>

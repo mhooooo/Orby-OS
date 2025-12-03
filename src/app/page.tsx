@@ -9,10 +9,11 @@ import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { MessageList, ChatInput } from '@/components/chat';
 import { GreetingStateContent } from '@/components/GreetingState';
-import { PersistentActor } from '@/components/NeuralDots';
+import { MorphingAvatar } from '@/components/MorphingAvatar';
 
 function PageContent() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Sidebar starts COLLAPSED during intro, expands after loading completes
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [loading, setLoading] = useState(true);
   const { messages, isLoading } = useChatContext();
@@ -24,18 +25,17 @@ function PageContent() {
     text: theme === 'dark' ? 'text-gray-200' : 'text-gray-800',
   };
 
-  const handleLoadingComplete = useCallback(() => {
+  // When intro animation finishes, expand the sidebar
+  const handleIntroComplete = useCallback(() => {
     setLoading(false);
+    setIsSidebarOpen(true); // Trigger sidebar expansion
   }, []);
 
-  // Determine actor state
-  const actorState = loading ? 'loading' : isChatting ? 'chat' : 'hero';
-
-  // Sidebar width for chat layout padding
+  // Sidebar width for layout calculations
   const sidebarWidth = isSidebarOpen ? 280 : 68;
 
   return (
-    <div className={`relative min-h-screen w-full font-sans overflow-hidden ${colors.bg} ${colors.text}`}>
+    <div className={`flex h-screen w-full font-sans overflow-hidden bg-[#0a0a0a] ${colors.text}`}>
       <style jsx global>{`
         @keyframes golfRoll {
           0% { transform: translate(-40px, -40px) rotate(-180deg); opacity: 0; }
@@ -70,91 +70,86 @@ function PageContent() {
         />
       </motion.div>
 
-      {/* ===== 1.5 HEADER (Fixed on top, always visible when not loading) ===== */}
-      {!loading && (
-        <motion.div
-          className="fixed top-0 right-0 z-[70]"
-          style={{ left: sidebarWidth }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
-          <Header theme={theme} showLogo={!isChatting} />
-        </motion.div>
-      )}
+      {/* ===== 2. MAIN CONTENT AREA (Reference point for avatar) ===== */}
+      {/* Background is on <main> so it shifts with content when sidebar expands */}
+      <main
+        className={`relative flex-1 flex flex-col min-w-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${colors.bg}`}
+        style={{ marginLeft: sidebarWidth }}
+      >
+        {/* ===== 2.0 AMBIENT GLOW (Moves with content area) ===== */}
+        {!loading && !isChatting && (
+          <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[90vw] max-w-[800px] h-[60vh] bg-gradient-to-b from-purple-500/20 via-orange-500/10 to-transparent rounded-full blur-[150px] opacity-50 pointer-events-none z-0" />
+        )}
 
-      {/* ===== 2. HERO LAYER (Wallpaper - Viewport Centered, ignores sidebar) ===== */}
-      <AnimatePresence>
-        {!isChatting && !loading && (
+        {/* ===== 2.1 HEADER (Fixed on top of content area) ===== */}
+        {!loading && (
           <motion.div
-            key="hero-layer"
+            className="absolute top-0 left-0 right-0 z-[70]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-10 flex flex-col items-center justify-center pointer-events-none"
+            transition={{ delay: 0.4, duration: 0.5 }}
           >
-            {/* Re-enable pointer events for interactive content */}
-            <div className="pointer-events-auto flex flex-col items-center w-full max-w-3xl px-4">
-              {/* Space for the actor above */}
-              <div className="h-32 mb-6" />
-
-              {/* Hero content from GreetingState */}
-              <GreetingStateContent />
-            </div>
+            <Header theme={theme} showLogo={!isChatting} />
           </motion.div>
         )}
-      </AnimatePresence>
 
-      {/* ===== 3. CHAT LAYER (Document - Respects sidebar) ===== */}
-      {isChatting && !loading && (
+        {/* ===== 2.2 THE AVATAR (Centered in main content area) ===== */}
+        {/* Uses absolute positioning so it centers relative to <main>, not viewport */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-50">
+          <MorphingAvatar
+            isChatting={isChatting}
+            isThinking={isLoading || loading}
+            onLoadingComplete={handleIntroComplete}
+          />
+        </div>
+
+        {/* ===== 2.3 HERO LAYER ===== */}
+        <AnimatePresence>
+          {!isChatting && !loading && (
+            <motion.div
+              key="hero-layer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none"
+            >
+              {/* Re-enable pointer events for interactive content */}
+              <div className="pointer-events-auto flex flex-col items-center w-full max-w-3xl px-4">
+                {/* Space for the actor above */}
+                <div className="h-32 mb-6" />
+
+                {/* Hero content from GreetingState */}
+                <GreetingStateContent />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ===== 2.4 CHAT LAYER ===== */}
+        {isChatting && !loading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col h-full relative z-[60]"
+          >
+            {/* Header spacer */}
+            <div className="h-16" />
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
+              <MessageList />
+            </div>
+            <ChatInput />
+          </motion.div>
+        )}
+
+        {/* ===== 2.5 THE CURTAIN (Black overlay during loading) ===== */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-col h-screen transition-all duration-300 relative z-[60]"
-          style={{ paddingLeft: sidebarWidth }}
-        >
-          {/* Header spacer - actual header is fixed above */}
-          <div className="h-16" />
-          <div className="flex-1 overflow-y-auto">
-            <MessageList />
-          </div>
-          <ChatInput />
-        </motion.div>
-      )}
-
-      {/* ===== 4. THE CURTAIN (Black overlay during loading) ===== */}
-      <motion.div
-        className="fixed inset-0 bg-[#050505] z-40 pointer-events-none"
-        initial={{ opacity: 1 }}
-        animate={{ opacity: loading ? 1 : 0 }}
-        transition={{ duration: 0.8, delay: loading ? 0 : 0.2 }}
-      />
-
-      {/* ===== 5. THE ACTOR (Viewport centered - Never unmounts) ===== */}
-      <motion.div
-        layout
-        className={`fixed flex items-center justify-center pointer-events-none ${
-          loading
-            ? 'inset-0 z-50' // Center of VIEWPORT during loading (above curtain)
-            : isChatting
-            ? 'top-5 left-1/2 -translate-x-1/2 z-10' // Dynamic Island (BELOW header)
-            : 'top-[28%] left-1/2 -translate-x-1/2 z-50' // Hero position
-        }`}
-        transition={{
-          layout: {
-            type: 'spring',
-            stiffness: 50,
-            damping: 20,
-          },
-        }}
-      >
-        <PersistentActor
-          state={actorState}
-          isThinking={isLoading}
-          onLoadingComplete={handleLoadingComplete}
+          className="absolute inset-0 bg-[#050505] z-40 pointer-events-none"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: loading ? 1 : 0 }}
+          transition={{ duration: 0.8, delay: loading ? 0 : 0.2 }}
         />
-      </motion.div>
+      </main>
     </div>
   );
 }

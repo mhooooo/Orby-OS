@@ -30,18 +30,19 @@ export interface ItineraryDay {
 // Transfer options
 export interface TransferOption {
   enabled: boolean;
-  vehicleType: 'sedan' | 'vip-van';
+  vehicleType: 'vip-van' | 'vvip-van';
   includesAirportPickup: boolean;
 }
 
 // The main draft itinerary being built
 export interface ItineraryDraft {
   id: string;
-  region: Region | null;
+  region: Region[]; // Multi-select support
   startDate: string | null; // ISO date string
   endDate: string | null; // ISO date string
   numberOfDays: number;
   groupSize: number;
+  nonGolferCount: number;
   vibe: TripVibe | null;
   days: ItineraryDay[];
   transfers: TransferOption;
@@ -51,7 +52,7 @@ export interface ItineraryDraft {
 }
 
 // Wizard step tracking
-export type WizardStep = 'region' | 'vibe' | 'logistics' | 'dates' | 'summary';
+export type WizardStep = 'region' | 'vibe' | 'logistics' | 'dates' | 'group' | 'summary';
 
 // Context state for the wizard
 export interface ItineraryWizardState {
@@ -64,10 +65,11 @@ export interface ItineraryWizardState {
 
 // Context actions
 export type ItineraryAction =
-  | { type: 'SET_REGION'; payload: Region }
+  | { type: 'SET_REGION'; payload: Region[] }
   | { type: 'SET_VIBE'; payload: TripVibe }
   | { type: 'SET_DATES'; payload: { startDate: string; endDate: string; numberOfDays: number } }
   | { type: 'SET_GROUP_SIZE'; payload: number }
+  | { type: 'SET_NON_GOLFER_COUNT'; payload: number }
   | { type: 'SET_TRANSFERS'; payload: Partial<TransferOption> }
   | { type: 'SET_CADDIE_TIPS'; payload: boolean }
   | { type: 'ADD_ACTIVITY'; payload: { dayNumber: number; activity: Activity } }
@@ -92,11 +94,12 @@ export const createId = () => {
 // Initial draft state
 export const createInitialDraft = (region?: Region | null): ItineraryDraft => ({
   id: createId(),
-  region: region || null,
+  region: region ? [region] : [],
   startDate: null,
   endDate: null,
   numberOfDays: 3,
   groupSize: 4,
+  nonGolferCount: 0,
   vibe: null,
   days: [],
   transfers: {
@@ -109,8 +112,8 @@ export const createInitialDraft = (region?: Region | null): ItineraryDraft => ({
   status: 'draft',
 });
 
-// Step order for navigation
-export const WIZARD_STEPS: WizardStep[] = ['region', 'vibe', 'logistics', 'dates', 'summary'];
+// Step order for navigation - WHEN (dates) first for natural flow
+export const WIZARD_STEPS: WizardStep[] = ['dates', 'region', 'vibe', 'logistics', 'group', 'summary'];
 
 // Region display names
 export const REGION_NAMES: Record<Region, string> = {

@@ -4,31 +4,31 @@ export type SpinnerSize = 'sm' | 'md' | 'lg';
 
 interface SpinnerProps {
   size?: SpinnerSize;
-  color?: 'inherit' | 'accent';
+  color?: 'inherit' | 'accent' | 'muted';
   className?: string;
 }
 
+// Token-based sizing
 const sizeMap: Record<SpinnerSize, string> = {
-  sm: 'w-4 h-4 border-2',
-  md: 'w-8 h-8 border-2',
-  lg: 'w-12 h-12 border-3',
+  sm: 'w-4 h-4 border-2',    // 16px
+  md: 'w-6 h-6 border-2',    // 24px
+  lg: 'w-10 h-10 border-3',  // 40px
 };
 
+// Token-based colors
 const colorMap = {
   inherit: 'border-current',
-  accent: 'border-[#FF6B35]',
+  accent: 'border-accent-coral',  // Primary accent color
+  muted: 'border-text-muted',     // Subtle spinner
 };
 
 export function Spinner({ size = 'md', color = 'accent', className }: SpinnerProps) {
-  const sizeClasses = sizeMap[size];
-  const colorClasses = colorMap[color];
-
   return (
     <div
       className={cn(
         'inline-block rounded-full border-t-transparent animate-spin',
-        sizeClasses,
-        colorClasses,
+        sizeMap[size],
+        colorMap[color],
         className
       )}
       role="status"
@@ -41,6 +41,7 @@ export function Spinner({ size = 'md', color = 'accent', className }: SpinnerPro
 
 /**
  * Full-screen loading overlay
+ * Uses glass surface and card styling from tokens
  */
 interface LoadingOverlayProps {
   message?: string;
@@ -48,11 +49,11 @@ interface LoadingOverlayProps {
 
 export function LoadingOverlay({ message = 'Loading...' }: LoadingOverlayProps) {
   return (
-    <div className="fixed inset-0 bg-[#131314]/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[#1E1F20] rounded-3xl p-8 flex flex-col items-center gap-4">
+    <div className="fixed inset-0 bg-background-elevated/80 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-background-card rounded-card p-8 flex flex-col items-center gap-4 border border-white/10 shadow-glass">
         <Spinner size="lg" />
         {message && (
-          <p className="text-white/70 text-sm">{message}</p>
+          <p className="text-text-secondary text-sm">{message}</p>
         )}
       </div>
     </div>
@@ -69,7 +70,7 @@ interface InlineLoadingProps {
 
 export function InlineLoading({ message, size = 'sm' }: InlineLoadingProps) {
   return (
-    <div className="flex items-center gap-2 text-white/70">
+    <div className="flex items-center gap-2 text-text-secondary">
       <Spinner size={size} />
       {message && <span className="text-sm">{message}</span>}
     </div>
@@ -87,7 +88,7 @@ interface ButtonLoadingProps {
 export function ButtonLoading({ children, isLoading }: ButtonLoadingProps) {
   return (
     <>
-      {isLoading && <Spinner size="sm" className="mr-2" />}
+      {isLoading && <Spinner size="sm" color="inherit" className="mr-2" />}
       {children}
     </>
   );

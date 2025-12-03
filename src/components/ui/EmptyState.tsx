@@ -14,13 +14,6 @@ interface EmptyStateProps {
   compact?: boolean;
 }
 
-const defaultIcons = {
-  search: Search,
-  bookmarks: BookmarkX,
-  courses: MapPin,
-  messages: MessageSquareX,
-};
-
 export function EmptyState({
   icon: Icon = Search,
   title = 'No results found',
@@ -32,8 +25,8 @@ export function EmptyState({
   if (compact) {
     return (
       <div className={cn('flex flex-col items-center justify-center py-8 px-4', className)}>
-        <Icon size={32} className="text-white/20 mb-3" />
-        <p className="text-white/60 text-sm text-center">{title}</p>
+        <Icon size={32} className="text-text-disabled mb-3" />
+        <p className="text-text-muted text-sm text-center">{title}</p>
       </div>
     );
   }
@@ -44,7 +37,7 @@ export function EmptyState({
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         'flex flex-col items-center justify-center p-12 text-center',
-        'bg-[#1E1F20] rounded-3xl border border-white/10',
+        'bg-background-card rounded-card border border-white/10',
         className
       )}
     >
@@ -54,18 +47,21 @@ export function EmptyState({
         transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
         className="w-20 h-20 mb-6 rounded-full bg-white/5 flex items-center justify-center"
       >
-        <Icon size={40} className="text-white/20" />
+        <Icon size={40} className="text-text-disabled" />
       </motion.div>
 
-      <h3 className="text-white text-xl font-bold mb-2">{title}</h3>
-      <p className="text-white/60 text-sm mb-8 max-w-md">{description}</p>
+      <h3 className="text-text-primary text-xl font-bold mb-2">{title}</h3>
+      <p className="text-text-secondary text-sm mb-8 max-w-md">{description}</p>
 
       {action && (
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={action.onClick}
-          className="px-6 py-3 rounded-2xl bg-[#FF6B35] text-white font-bold text-sm hover:bg-[#FF6B35]/90 transition-colors"
+          className={cn(
+            'px-6 py-3 rounded-button font-bold text-sm transition-colors',
+            'bg-accent-coral hover:bg-accent-coral/90 text-text-primary'
+          )}
         >
           {action.label}
         </motion.button>
@@ -115,7 +111,7 @@ export function NoMessages() {
  */
 export function EmptyList({ message = 'No items to display' }: { message?: string }) {
   return (
-    <div className="flex items-center justify-center py-12 text-white/40 text-sm">
+    <div className="flex items-center justify-center py-12 text-text-muted text-sm">
       {message}
     </div>
   );

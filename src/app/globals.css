@@ -1,22 +1,122 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ==========================================================================
+   GOLF OKAY DESIGN TOKENS
+   Extracted from src/styles/design-tokens.ts - keep in sync
+   ========================================================================== */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* --------------------------------------------------------------------------
+     BACKGROUND COLORS
+     Usage: bg-background-base, bg-background-card, bg-background-elevated
+     -------------------------------------------------------------------------- */
+  --color-background-base: #0a0a0a;
+  --color-background-elevated: #131314;
+  --color-background-card: #1E1F20;
+  --color-background-hover: #282A2C;
+  --color-background-input: #282A2C;
+
+  /* --------------------------------------------------------------------------
+     SURFACE COLORS
+     Usage: bg-surface-glass, bg-surface-solid
+     -------------------------------------------------------------------------- */
+  --color-surface-glass: rgba(255, 255, 255, 0.03);
+  --color-surface-solid: #1E1F20;
+
+  /* --------------------------------------------------------------------------
+     ACCENT COLORS (from NeuralDots orb)
+     Usage: text-accent-coral, bg-accent-coral, bg-accent-coralMuted
+     -------------------------------------------------------------------------- */
+  --color-accent-coral: #FF6B35;
+  --color-accent-coralMuted: rgba(255, 107, 53, 0.20);
+  --color-accent-coralStrong: rgba(255, 107, 53, 0.30);
+
+  --color-accent-cyan: #00D4FF;
+  --color-accent-cyanMuted: rgba(0, 212, 255, 0.20);
+  --color-accent-cyanStrong: rgba(0, 212, 255, 0.30);
+
+  --color-accent-purple: #A855F7;
+  --color-accent-purpleMuted: rgba(168, 85, 247, 0.20);
+  --color-accent-purpleStrong: rgba(168, 85, 247, 0.30);
+
+  --color-accent-red: #FF3B3B;
+  --color-accent-redMuted: rgba(255, 59, 59, 0.20);
+  --color-accent-redStrong: rgba(255, 59, 59, 0.30);
+
+  --color-accent-gold: #FBBF24;
+  --color-accent-goldMuted: rgba(251, 191, 36, 0.20);
+  --color-accent-goldStrong: rgba(251, 191, 36, 0.30);
+
+  /* --------------------------------------------------------------------------
+     SHIMMER COLORS (for skeleton loading animations)
+     Usage: bg-shimmer-base, bg-shimmer-highlight
+     -------------------------------------------------------------------------- */
+  --color-shimmer-base: #282A2C;
+  --color-shimmer-highlight: #333537;
+
+  /* --------------------------------------------------------------------------
+     TEXT COLORS
+     Usage: text-text-primary, text-text-secondary, text-text-muted
+     -------------------------------------------------------------------------- */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #9CA3AF;
+  --color-text-muted: #6B7280;
+  --color-text-disabled: #4B5563;
+
+  /* --------------------------------------------------------------------------
+     SEMANTIC COLORS
+     Usage: text-semantic-success, bg-semantic-error
+     -------------------------------------------------------------------------- */
+  --color-semantic-success: #FBBF24;
+  --color-semantic-error: #FF3B3B;
+  --color-semantic-warning: #FF6B35;
+  --color-semantic-info: #00D4FF;
+
+  /* --------------------------------------------------------------------------
+     BORDER RADIUS
+     Usage: rounded-card, rounded-input, rounded-pill, rounded-button
+     -------------------------------------------------------------------------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-pill: 9999px;
+
+  /* Semantic radius aliases */
+  --radius-button: 12px;
+  --radius-input: 20px;
+  --radius-card: 32px;
+  --radius-cardSmall: 16px;
+  --radius-modal: 32px;
+  --radius-tag: 9999px;
+
+  /* --------------------------------------------------------------------------
+     SHADOWS
+     Usage: shadow-glass, shadow-glow-coral, shadow-glow-cyan
+     -------------------------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.36);
+  --shadow-inset: inset 0 0 20px rgba(255, 255, 255, 0.02);
+
+  /* Accent glows */
+  --shadow-glow-coral: 0 0 20px rgba(255, 107, 53, 0.3);
+  --shadow-glow-cyan: 0 0 20px rgba(0, 212, 255, 0.3);
+  --shadow-glow-purple: 0 0 20px rgba(168, 85, 247, 0.3);
+  --shadow-glow-gold: 0 0 20px rgba(251, 191, 36, 0.3);
+  --shadow-glow-white: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
