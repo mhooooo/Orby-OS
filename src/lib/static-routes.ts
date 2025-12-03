@@ -158,7 +158,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
       'i want to plan a trip',
       'help me plan',
     ],
-    responseText: 'Let\'s build your perfect Thailand golf experience! First, when are you looking to travel?',
+    responseText: 'Let\'s start with your dates:',
     toolCalls: [
       {
         id: generateId(),
