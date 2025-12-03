@@ -26,7 +26,6 @@ export function MessageList({ className }: MessageListProps) {
     <div className={cn(
       'px-4 md:px-8 lg:px-12 py-6',
       'space-y-6', // Consistent gap between messages
-      'bg-background-base', // Token-based background
       className
     )}>
       {messages.map((message, idx) => (

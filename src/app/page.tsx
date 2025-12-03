@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { ChatProvider, useChatContext } from '@/context/ChatContext';
 import { ChatHistoryProvider } from '@/context/ChatHistoryContext';
 import { ToastProvider } from '@/context/ToastContext';
@@ -77,8 +78,13 @@ function PageContent() {
         style={{ marginLeft: sidebarWidth }}
       >
         {/* ===== 2.0 AMBIENT GLOW (Moves with content area) ===== */}
-        {!loading && !isChatting && (
-          <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[90vw] max-w-[800px] h-[60vh] bg-gradient-to-b from-purple-500/20 via-orange-500/10 to-transparent rounded-full blur-[150px] opacity-50 pointer-events-none z-0" />
+        {!loading && (
+          <div className={cn(
+            "absolute top-[10%] left-1/2 -translate-x-1/2 w-[90vw] max-w-[800px] h-[60vh] rounded-full blur-[150px] pointer-events-none z-0 transition-opacity duration-500",
+            isChatting
+              ? "bg-gradient-to-b from-purple-500/10 via-orange-500/5 to-transparent opacity-30"
+              : "bg-gradient-to-b from-purple-500/20 via-orange-500/10 to-transparent opacity-50"
+          )} />
         )}
 
         {/* ===== 2.1 HEADER (Fixed on top of content area) ===== */}
