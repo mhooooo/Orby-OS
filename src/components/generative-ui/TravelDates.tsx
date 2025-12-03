@@ -341,10 +341,10 @@ export function TravelDates({
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7">
           {calendarDays.map((date, idx) => {
             if (!date) {
-              return <div key={`empty-${idx}`} className="aspect-square" />;
+              return <div key={`empty-${idx}`} className="h-10" />;
             }
 
             const past = isPast(date);
@@ -352,35 +352,45 @@ export function TravelDates({
             const isEnd = endDate && isSameDay(date, endDate);
             const inRange = isInRange(date, startDate, endDate);
             const isToday = isSameDay(date, new Date());
+            const dayOfWeek = idx % 7;
+            const isRangeStart = isStart && endDate;
+            const isRangeEnd = isEnd && startDate;
 
             return (
-              <button
+              <div
                 key={date.toISOString()}
-                onClick={() => handleDayClick(date)}
-                disabled={past}
                 className={cn(
-                  'aspect-square rounded-lg text-sm font-medium transition-all relative',
-                  // Base states
-                  past && 'text-zinc-700 cursor-not-allowed',
-                  !past && !inRange && !isStart && !isEnd && 'text-zinc-300 hover:bg-zinc-800',
-                  // Range highlight
-                  inRange && !isStart && !isEnd && 'bg-zinc-800 text-white',
-                  // Start/End
-                  isStart && 'bg-white text-zinc-900',
-                  isEnd && !isStart && 'bg-white text-zinc-900',
-                  // Today indicator
-                  isToday && !isStart && !isEnd && !inRange && 'ring-1 ring-zinc-600'
+                  'h-10 relative flex items-center justify-center',
+                  // Range background - full width fill
+                  inRange && !isStart && !isEnd && 'bg-white/10',
+                  // Start of range - right half filled
+                  isRangeStart && !isEnd && 'bg-gradient-to-r from-transparent to-white/10',
+                  // End of range - left half filled
+                  isRangeEnd && !isStart && 'bg-gradient-to-l from-transparent to-white/10',
+                  // Round corners on row edges
+                  inRange && dayOfWeek === 0 && 'rounded-l-lg',
+                  inRange && dayOfWeek === 6 && 'rounded-r-lg',
                 )}
               >
-                {date.getDate()}
-                {/* Range connector */}
-                {inRange && !isStart && (
-                  <div className="absolute inset-y-0 -left-0.5 w-1 bg-zinc-800" />
-                )}
-                {inRange && !isEnd && (
-                  <div className="absolute inset-y-0 -right-0.5 w-1 bg-zinc-800" />
-                )}
-              </button>
+                <button
+                  onClick={() => handleDayClick(date)}
+                  disabled={past}
+                  className={cn(
+                    'w-9 h-9 rounded-full text-sm font-medium transition-all flex items-center justify-center',
+                    // Base states
+                    past && 'text-zinc-600 cursor-not-allowed',
+                    !past && !inRange && !isStart && !isEnd && 'text-zinc-300 hover:bg-white/10',
+                    // In range but not endpoints
+                    inRange && !isStart && !isEnd && 'text-white',
+                    // Start/End - white circle
+                    (isStart || isEnd) && 'bg-white text-zinc-900 font-semibold',
+                    // Today indicator (when not selected)
+                    isToday && !isStart && !isEnd && !inRange && 'ring-1 ring-inset ring-zinc-500'
+                  )}
+                >
+                  {date.getDate()}
+                </button>
+              </div>
             );
           })}
         </div>
