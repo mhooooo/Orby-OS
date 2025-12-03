@@ -279,6 +279,11 @@ export function Message({ message, isLatest = false }: MessageProps & { isLatest
   const hasToolCalls = message.toolCalls && message.toolCalls.length > 0;
   const hasContent = !!message.content;
 
+  // Don't render empty assistant messages (placeholder while loading)
+  if (!isUser && !hasContent && !hasToolCalls) {
+    return null;
+  }
+
   // Show tools immediately if:
   // - Not the latest message, OR
   // - User message, OR

@@ -36,7 +36,7 @@ export function MessageList({ className }: MessageListProps) {
           isLatest={idx === messages.length - 1}
         />
       ))}
-      {isLoading && messages[messages.length - 1]?.role === 'user' && (
+      {isLoading && (
         <div className="flex justify-start max-w-3xl mx-auto">
           <TypingIndicator />
         </div>
