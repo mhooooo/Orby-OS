@@ -148,7 +148,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
     ],
   },
 
-  // Plan a Trip - Itinerary Builder
+  // Plan a Trip - Dates Card
   {
     patterns: [
       'help me plan a golf trip',
@@ -158,13 +158,13 @@ export const STATIC_ROUTES: StaticRoute[] = [
       'i want to plan a trip',
       'help me plan',
     ],
-    responseText: 'Let\'s build your perfect Thailand golf experience!',
+    responseText: 'Let\'s build your perfect Thailand golf experience! First, when are you looking to travel?',
     toolCalls: [
       {
         id: generateId(),
-        name: 'start_itinerary_builder',
+        name: 'show_dates_card',
         input: {},
-        result: { region: null },
+        result: {},
       },
     ],
   },

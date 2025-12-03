@@ -55,7 +55,7 @@ Mock mode for UI development, cached mode for integration testing.
 **AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
 - Tool execution loop: Claude → tool_use → execute handler → tool_result → final response
-- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`, `pick_region`, `pick_group_size`, `pick_days`, `pick_vibe`, `pick_transport`, `start_tour`, `show_services`, `trigger_auth_gate`, `start_inquiry`
+- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `show_dates_card`, `show_region_map`, `show_logistics_card`, `start_tour`, `show_services`, `trigger_auth_gate`, `start_inquiry`
 - Model: `claude-sonnet-4-20250514`
 
 **Data Flow (Implemented):**
