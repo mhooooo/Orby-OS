@@ -26,6 +26,7 @@ import AuthGateModal from '@/components/generative-ui/AuthGateModal';
 // NEW STANDALONE CARDS (Tier 3)
 import { TacticalMap } from '@/components/TacticalMap';
 import { DatesCard } from '@/components/generative-ui/DatesCard';
+import { TravelDates } from '@/components/generative-ui/TravelDates';
 import { GroupCard } from '@/components/generative-ui/GroupCard';
 import { LogisticsCard } from '@/components/LogisticsCard';
 import { ComparisonTable } from '@/components/ComparisonTable';
@@ -677,8 +678,16 @@ function AuditPageContent() {
             </WidgetWrapper>
           </SubSection>
 
-          <SubSection title="DatesCard">
-            <WidgetWrapper label="<DatesCard /> - Dates only">
+          <SubSection title="TravelDates (NEW)">
+            <WidgetWrapper label="<TravelDates /> - Inline calendar with range selection">
+              <TravelDates
+                onSubmit={(dates) => console.log('Dates submitted:', dates)}
+              />
+            </WidgetWrapper>
+          </SubSection>
+
+          <SubSection title="DatesCard (Legacy)">
+            <WidgetWrapper label="<DatesCard /> - Old date input style">
               <DatesCard
                 startDate={new Date('2025-03-15')}
                 duration={4}

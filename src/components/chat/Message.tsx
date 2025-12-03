@@ -8,7 +8,7 @@ import { CourseCard } from '@/components/generative-ui/CourseCard';
 import { FleetCard } from '@/components/generative-ui/FleetCard';
 import { AboutCard } from '@/components/generative-ui/AboutCard';
 import { ServiceBento } from '@/components/generative-ui/ServiceBento';
-import { DatesCard } from '@/components/generative-ui/DatesCard';
+import { TravelDates } from '@/components/generative-ui/TravelDates';
 import { TacticalMap } from '@/components/TacticalMap';
 import { LogisticsCard } from '@/components/LogisticsCard';
 import { Course } from '@/types/course';
@@ -106,12 +106,6 @@ interface AuthGateResult {
 interface InquiryFormResult {
   type: 'inquiry_form';
   context: string | null;
-}
-
-interface DatesCardResult {
-  start_date?: string;
-  duration?: number;
-  golfers?: number;
 }
 
 interface RegionMapResult {
@@ -229,13 +223,9 @@ function renderToolComponent(tool: ToolCall, onAuthRequired?: () => void) {
     }
 
     case 'show_dates_card': {
-      const result = tool.result as DatesCardResult | undefined;
       return wrapWithErrorBoundary(
-        <DatesCard
-          startDate={result?.start_date ? new Date(result.start_date) : undefined}
-          duration={result?.duration}
-          onDateChange={(date) => console.log('Date changed:', date)}
-          onDurationChange={(days) => console.log('Duration changed:', days)}
+        <TravelDates
+          onSubmit={(dates) => console.log('Dates submitted:', dates)}
         />
       );
     }
