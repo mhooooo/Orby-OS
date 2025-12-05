@@ -27,6 +27,9 @@
 
 ## Development Constraints
 
+**MANDATORY - Context7 MCP:**
+Always use Context7 when code generation, setup or configuration steps, or library/API documentation is needed. Automatically use the Context7 MCP tools to resolve library IDs and get library docs without being explicitly asked.
+
 **Framework:**
 - React 19 with Next.js 16 App Router
 - Use `"use client"` directive for interactive components
@@ -55,7 +58,7 @@ Mock mode for UI development, cached mode for integration testing.
 **AI Integration (Implemented):**
 - Anthropic Claude API with tool use for generative UI
 - Tool execution loop: Claude → tool_use → execute handler → tool_result → final response
-- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `show_dates_card`, `show_region_map`, `show_logistics_card`, `start_tour`, `show_services`, `trigger_auth_gate`, `start_inquiry`
+- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`, `pick_region`, `pick_group_size`, `pick_days`, `pick_vibe`, `pick_transport`, `start_tour`, `show_services`, `trigger_auth_gate`, `start_inquiry`
 - Model: `claude-sonnet-4-20250514`
 
 **Data Flow (Implemented):**
@@ -67,13 +70,21 @@ Mock mode for UI development, cached mode for integration testing.
 
 ## Success Metrics
 
+### Phase 7 - Admin MVP (Complete)
+- [x] Database migrations: clients, course_rates, transport_rates, quotes tables
+- [x] Admin shell: layout, auth guard (email whitelist), sidebar, header
+- [x] Course management: DataTable, detail/edit page, CSV rate import
+- [x] Transport rates: DataTable with vehicle types, CSV import
+- [x] Client management: Add/edit modal, country/type/markup fields
+- [x] Quote builder: Client selector, line items, margin calculator
+
 ### Phase 6 - Polish & Launch (Complete)
 - [x] Mobile responsive design - Responsive layouts tested across viewports
 - [x] Image optimization - Next.js Image component with proper loading
 - [x] Error handling + offline states - Error boundaries and graceful degradation
 - [x] Analytics + conversion tracking - Plausible integration ready (requires domain config)
 
-### Proven Foundation (Phases 1-5 Complete)
+### Proven Foundation (Phases 1-6 Complete)
 - Chat engine with streaming display
 - 14 AI tools registered and functional
 - CourseCarousel, CourseDetailCard, FleetCard, AboutCard
@@ -95,17 +106,18 @@ Mock mode for UI development, cached mode for integration testing.
 
 ## Current Phase
 
-**Focus:** Phase 6 - Polish & Launch
+**Focus:** Phase 7 - Admin MVP (Complete)
 
-**Priorities:**
-1. Mobile responsive design
-2. Image optimization and performance
-3. Error handling + offline states
-4. Analytics + conversion tracking
+**What was built:**
+- B2B operations dashboard at `/admin/*`
+- Course rate import via CSV
+- Transport rate management
+- Client CRM with markup percentages
+- Quote builder with margin calculator
 
 **Setup Required:**
-1. Add Cloudinary API keys for image optimization
-2. Set up analytics (PostHog or Plausible)
+1. Add `ADMIN_EMAILS=email1@example.com,email2@example.com` to env
+2. Run database migrations: `supabase db push`
 3. Configure Vercel deployment
 
 **Decisions Made (Previous Phases):**
@@ -183,33 +195,10 @@ Mock mode for UI development, cached mode for integration testing.
 - [2024-12]: Holographic text gradient: `bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent`
 - [2024-12]: Left accent bar on hover: `border-l-2 border-l-transparent hover:border-l-[#FF6B35]` for menu items
 - [2024-12]: Desaturate competing visuals: `opacity-50 grayscale-[30%]` at rest, full color on hover
-- [2024-12]: User/AI message visual hierarchy: User=lightweight (`bg-white/5`), AI=rich glass treatment (`bg-surface-glass backdrop-blur-xl shadow-glass`)
-- [2024-12]: Semantic toast colors: success=gold, error=red, warning=coral, info=cyan - consistent meaning across UI
-- [2024-12]: Design exploration approach: Create extreme variants first ("too far"), then dial back - easier to reduce than add personality
-- [2024-12]: Usability spectrum for cards: 80/20 (subtle), 50/50 (balanced), 30/70 (bold) helps stakeholders pick right balance
-- [2024-12]: Context-aware components with Framer Motion `layoutId`: compact pill mode ↔ full mode transformation for space efficiency
-- [2024-12]: Design token migration pattern: surfaces (glass), text hierarchy (primary→secondary→muted), accents by role (coral=CTA, cyan=info, gold=price, purple=premium)
-- [2024-12]: Wizard progress indicators: completed steps = accent-coral, active = accent-cyan, pending = text-muted - visual momentum shows progression
-- [2024-12]: Toggle switches: active state should use CTA color (coral) with glow (`shadow-glow-coral`) for clear on/off feedback
-- [2024-12]: Price displays: consistently use accent-gold for currency symbols and amounts across all components
-- [2024-12]: Educational card pattern: "What is this?" + "Why would you want it?" + "What's included" + soft prompt - inform before selection
-- [2024-12]: All-in pricing (green fee + caddie + cart) reduces cognitive load vs showing individual line items on card front
-- [2024-12]: Duration selector (start date + days) is more natural than picking two dates for trip planning
-- [2024-12]: Auto-selection with useRef guard: `hasAutoSelected.current` prevents re-triggering on every render
-- [2024-12]: Framer Motion AnimatePresence `initial={false}` ensures consistent animation speed for bidirectional transitions (e.g., card flip)
-- [2024-12]: Neutral design over gaming aesthetic: surfaces always neutral (`bg-surface-glass`, `bg-white/5`), accent colors only for small elements (icon backgrounds, prices, single CTA per screen)
-- [2024-12]: Selection states in neutral mode: `border-white/30` instead of `border-accent-coral` for non-CTA selection
-- [2024-12]: Educational cards don't need data props - self-contained with static content, simpler API
-- [2024-12]: Responsive educational cards: `flex flex-col md:flex-row` with image 40% (`md:w-2/5`) and content 60% (`md:w-3/5`)
-- [2024-12]: Gradient direction for responsive: `bg-gradient-to-t md:bg-gradient-to-r` changes from vertical to horizontal on breakpoint
-- [2024-12]: Wizard step order matters: WHEN (dates) first is more natural than WHERE (region) first
-- [2024-12]: Orange/coral overuse dilutes CTA impact - reserve for single primary action per screen
-- [2024-12]: White CTAs (`bg-white text-background-base`) are premium and don't compete with accent colors
-- [2024-12]: Proactive UI orchestration: Rate limits, cooldowns, session-scoped flags prevent popup fatigue
-- [2024-12]: Availability badge states: checking (spinner), available (green pulse), limited (amber), unavailable (gray)
-- [2024-12]: DateIntentModal pattern: "Quick question" header, date/time/golfers, "Check Availability" CTA, "I'm just looking" dismiss
-- [2024-12]: Confirmation toasts: Auto-dismiss (4s), floating pill, glass surface, check icon + message
-- [2024-12]: Compact spacing for timelines: `mb-2 sm:mb-3` instead of `mb-4 sm:mb-6` makes content scannable
+- [2024-12]: Admin auth guard: email whitelist via ADMIN_EMAILS env var, comma-separated, case-insensitive
+- [2024-12]: Reusable DataTable component: generic TypeScript with sorting, pagination, search, custom cell renderers
+- [2024-12]: CSV import pattern: FormData + parseCSV utility, validate against existing records, return line-specific errors
+- [2024-12]: Quote builder: JSONB items array for flexible line items, auto-calculate sell_rate from net_rate + client markup
 
 ---
 
@@ -222,8 +211,6 @@ Mock mode for UI development, cached mode for integration testing.
 - `src/components/generative-ui/` - All generative UI components
 - `src/components/generative-ui/TourShowcase.tsx` - Full service tour
 - `src/components/generative-ui/ServiceBento.tsx` - Bento grid for services
-- `src/components/proactive/` - Proactive UI system (orchestrator, modals, badges)
-- `docs/references/` - Design pattern documentation (6 reference docs)
 - `src/components/generative-ui/AuthGateModal.tsx` - Auth conversion modal
 - `src/components/generative-ui/InquiryForm.tsx` - Booking inquiry form
 - `src/components/generative-ui/pickers/` - Chipotle-style trip pickers
@@ -253,12 +240,33 @@ Mock mode for UI development, cached mode for integration testing.
 - `supabase/migrations/002_user_data.sql` - User data tables
 - `supabase/migrations/003_inquiries.sql` - Inquiries table
 - `supabase/migrations/004_memory_system.sql` - Memory system schema
+- `supabase/migrations/20241203000001_clients.sql` - Clients table
+- `supabase/migrations/20241203000002_course_rates.sql` - Course rates table
+- `supabase/migrations/20241203000003_transport_rates.sql` - Transport rates table
+- `supabase/migrations/20241203000004_quotes.sql` - Quotes table
+- `supabase/migrations/20241203000005_expand_courses.sql` - B2B fields for courses
+- `src/app/admin/layout.tsx` - Admin layout with auth guard
+- `src/app/admin/page.tsx` - Admin dashboard
+- `src/app/admin/courses/page.tsx` - Course management
+- `src/app/admin/courses/[id]/page.tsx` - Course detail/edit
+- `src/app/admin/courses/import/page.tsx` - CSV import for courses
+- `src/app/admin/transport/page.tsx` - Transport rates
+- `src/app/admin/transport/import/page.tsx` - CSV import for transport
+- `src/app/admin/clients/page.tsx` - Client management
+- `src/app/admin/quotes/page.tsx` - Quote list
+- `src/app/admin/quotes/new/page.tsx` - Quote builder
+- `src/components/admin/AdminSidebar.tsx` - Admin navigation
+- `src/components/admin/AdminHeader.tsx` - Admin header
+- `src/components/admin/DataTable.tsx` - Reusable data table
+- `src/types/admin.ts` - Admin TypeScript types
+- `src/lib/csv-parser.ts` - CSV parsing utility
 - `playwright.config.ts` - E2E test configuration
 - `tests/audit/sprint-phase4-auth.spec.ts` - Auth flow tests
 - `tests/audit/sprint-phase5-booking.spec.ts` - Booking flow tests
 - `tests/audit/sprint-phase6-polish.spec.ts` - Polish & responsive tests
 - `tests/audit/sprint-memory-architecture.spec.ts` - Memory architecture tests
 - `tests/audit/sprint-memory-pipeline.spec.ts` - Memory pipeline tests
+- `tests/audit/sprint-phase7-admin.spec.ts` - Admin MVP tests
 - `src/lib/embeddings.ts` - OpenAI embedding service (1536 dimensions)
 - `src/lib/memory-retrieval.ts` - Memory retrieval with semantic search
 - `src/lib/context-builder.ts` - Enhanced system prompt builder
@@ -287,6 +295,9 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...  # For Edge Functions
 
 # Email
 RESEND_API_KEY=re_...
+
+# Admin
+ADMIN_EMAILS=admin@golfokay.co,ops@golfokay.co  # Comma-separated whitelist
 
 # Future
 CLOUDINARY_API_KEY=...
