@@ -1,15 +1,15 @@
-# Golf Okay
-*A conversational AI golf concierge for Thailand - where the chat window becomes a dynamic canvas for trip discovery, customization, and booking.*
+# Orby OS
+*The Operating System for Golf Tourism - a multi-tenant B2B platform where partners get AI-powered tools and their customers get branded trip portals.*
 
 ---
 
 ## Why This Exists
 
-**Problem:** International golf tourists planning Thailand trips face fragmented information, language barriers, and opaque pricing across dozens of courses and logistics providers.
+**Problem:** Golf tour operators struggle with fragmented tools - separate systems for email, quotes, bookings, and client management. No unified inbox, no AI assistance, no scalable operations.
 
-**Solution:** An AI-powered conversational interface that renders interactive React components (course carousels, itinerary builders, fleet configurators) directly in the chat - guiding users from discovery → customization → booking.
+**Solution:** Orby OS provides partners (tour operators, travel agents) with a unified operations dashboard featuring AI-powered inbox, quote generation, and client management. Golf Okay becomes Partner #0, dogfooding the platform.
 
-**Anti-Pitch:** Not a chatbot with text responses. Not a static booking form. The UI is generative - the AI decides what to show based on user intent.
+**Anti-Pitch:** Not just a CRM. Not just a booking system. The platform aggregates all communication channels (email, WhatsApp, web) into one AI-enhanced inbox with automatic quote generation.
 
 ---
 
@@ -17,11 +17,45 @@
 
 | Choice | Rationale | Trade-off |
 |--------|-----------|-----------|
-| **Next.js 16 (App Router)** | Latest stable, RSC for data fetching, streaming support for AI | Newer = less community patterns |
-| **Tailwind CSS v4** | Already in prototype, dark mode default, rapid iteration | Config migration from v3 |
-| **Claude API** | Best tool use, streaming, agentic patterns | Cost per token |
-| **Supabase** | Auth + DB + RLS in one, Google OAuth built-in | Vendor lock-in |
-| **Generative UI Pattern** | AI tool calls → React components in chat | Complex state management |
+| **Next.js 16 (App Router)** | RSC for data fetching, streaming support for AI | Newer = less community patterns |
+| **tRPC 11.x** | End-to-end type safety, middleware for tenant isolation | Learning curve |
+| **Zustand 5.x** | Simple state management, replaces Context for UI state | Another state tool |
+| **Trigger.dev 3.x** | Durable background jobs with retries, replaces Edge Functions | External dependency |
+| **Supabase** | Auth + DB + RLS + Realtime in one | Vendor lock-in |
+| **Stripe** | Subscriptions, usage billing, invoicing | Transaction fees |
+| **Multi-Tenant RLS** | Data isolation via `partner_id` in every table | Query complexity |
+
+### System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              ORBY OS                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  PORTALS                                                                    │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐          │
+│  │   golfokay.co    │  │ golfokay.co/office│  │trips.golfokay.co │          │
+│  │   (Customer)     │  │    (Partner)      │  │    (Client)      │          │
+│  │  • AI Chat       │  │  • Unified Inbox  │  │  • Trip Details  │          │
+│  │  • Discovery     │  │  • Quote Builder  │  │  • Itinerary     │          │
+│  │  • Inquiry       │  │  • Client CRM     │  │  • Documents     │          │
+│  └────────┬─────────┘  └────────┬──────────┘  └────────┬─────────┘          │
+│           └─────────────────────┼──────────────────────┘                    │
+│                                 ▼                                           │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │                         tRPC API LAYER                                │  │
+│  │  Type-safe, middleware-protected, tenant-aware                       │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│           ┌─────────────────────┼─────────────────────┐                    │
+│           ▼                     ▼                     ▼                    │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐          │
+│  │    SUPABASE      │  │   TRIGGER.DEV    │  │   EXTERNAL APIs  │          │
+│  │  • PostgreSQL    │  │  • Background    │  │  • Stripe        │          │
+│  │  • Auth          │  │  • Scheduled     │  │  • Resend        │          │
+│  │  • Realtime      │  │  • Retries       │  │  • WhatsApp      │          │
+│  │  • Storage       │  │  • Workflows     │  │  • Claude AI     │          │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘          │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -32,8 +66,9 @@ Always use Context7 when code generation, setup or configuration steps, or libra
 
 **Framework:**
 - React 19 with Next.js 16 App Router
+- tRPC for API layer with tenant middleware
+- Zustand for client state (replacing Context where appropriate)
 - Use `"use client"` directive for interactive components
-- Route handlers in `app/api/` for backend
 - Next.js 16: Route params are Promises - use `await params` in route handlers
 
 **Styling:**
@@ -42,92 +77,107 @@ Always use Context7 when code generation, setup or configuration steps, or libra
 - Radii: `rounded-3xl` (cards), `rounded-full` (buttons/pills)
 
 **Accent Colors:**
-- `#FF6B35` - Bright Orange (highlights, warnings)
-- `#00D4FF` - Bluesky/Cyan (info, links)
+- `#FF6B35` - Bright Orange (CTAs, highlights)
+- `#00D4FF` - Cyan (info, links)
 - `#FF3B3B` - Red (errors, critical)
 - `#A855F7` - Purple (premium features)
-- `#FBBF24` - Yellow (caution, attention)
+- `#FBBF24` - Gold (prices, success)
 
-**Dev Modes (Cost Optimization):**
-- `DEV_MODE=mock` - Zero API calls, reads from `/dev/mock-responses.json`
-- `DEV_MODE=cached` - Cache-first, falls back to API, stores responses
-- `DEV_MODE=live` - Direct API calls (production)
+**Multi-Tenancy:**
+- All partner data scoped by `partner_id`
+- RLS policies enforce tenant isolation
+- tRPC middleware injects `partnerId` into context
+- Golf Okay = Partner #0 (dogfooding)
 
-Mock mode for UI development, cached mode for integration testing.
-
-**AI Integration (Implemented):**
-- Anthropic Claude API with tool use for generative UI
-- Tool execution loop: Claude → tool_use → execute handler → tool_result → final response
-- Tools: `show_courses`, `show_course_detail`, `show_fleet`, `show_about_us`, `start_itinerary_builder`, `pick_region`, `pick_group_size`, `pick_days`, `pick_vibe`, `pick_transport`, `start_tour`, `show_services`, `trigger_auth_gate`, `start_inquiry`
-- Model: `claude-sonnet-4-20250514`
-
-**Data Flow (Implemented):**
-- Supabase database with 15 seeded courses
-- Tool results embedded as base64 markers in response stream
-- Frontend parses markers and renders components with real data
+**Background Jobs:**
+- Trigger.dev for all async work (email processing, AI classification, quote generation)
+- Fire-and-forget triggers from API routes
+- Built-in retries and observability
 
 ---
 
 ## Success Metrics
 
-### Phase 7 - Admin MVP (Complete)
-- [x] Database migrations: clients, course_rates, transport_rates, quotes tables
-- [x] Admin shell: layout, auth guard (email whitelist), sidebar, header
-- [x] Course management: DataTable, detail/edit page, CSV rate import
-- [x] Transport rates: DataTable with vehicle types, CSV import
-- [x] Client management: Add/edit modal, country/type/markup fields
-- [x] Quote builder: Client selector, line items, margin calculator
+### Active: Orby OS Phase 0-1 (Foundation + Office Shell)
+- [ ] Install tRPC, Zustand, Trigger.dev, Stripe, PostHog, Sentry
+- [ ] Configure tRPC with Next.js App Router
+- [ ] Set up Zustand stores (parallel to existing Context)
+- [ ] Create multi-tenant database migrations
+- [ ] /office layout with auth protection
+- [ ] Partner context and middleware
+- [ ] Golf Okay seeded as Partner #0
+- [ ] Dashboard with placeholder metrics
 
-### Phase 6 - Polish & Launch (Complete)
-- [x] Mobile responsive design - Responsive layouts tested across viewports
-- [x] Image optimization - Next.js Image component with proper loading
-- [x] Error handling + offline states - Error boundaries and graceful degradation
-- [x] Analytics + conversion tracking - Plausible integration ready (requires domain config)
+### Orby OS Roadmap
 
-### Proven Foundation (Phases 1-6 Complete)
-- Chat engine with streaming display
-- 14 AI tools registered and functional
-- CourseCarousel, CourseDetailCard, FleetCard, AboutCard
-- ItineraryBuilder 4-step wizard with pricing
-- TourShowcase auto-playing carousel
-- ServiceBento interactive grid
-- Supabase database with 15 courses
-- Authentication with Google OAuth
-- User features: save courses, save itineraries
-- AuthGateModal with intent-based triggers
-- Booking flow: inquiry submission + email notifications
+**Phase 0-1 (Week 1-3):** Foundation + Office Shell
+**Phase 2 (Week 4-5):** Unified Inbox - Email aggregation, AI classification, draft generation
+**Phase 3 (Week 6-7):** Quote Engine - AI quote generation, PDF export, versioning
+**Phase 4 (Week 8):** Client CRM - Client management, activity timeline
+**Phase 5 (Week 9):** Rate Management - Course/transport rates, seasons
+**Phase 6 (Week 10):** Billing Integration - Stripe subscriptions, usage tracking
+**Phase 7 (Week 11-12):** Polish & Launch
 
-### Business Targets (Post-Launch)
-- Guest → Signed Up conversion: 15% target
-- Average turns per session: 5+ target
-- Time from landing to inquiry: <10 min target
+### Proven Foundation (Golf Okay B2C - Complete)
+- Chat engine with streaming, 14 AI tools, generative UI pattern
+- CourseCarousel, CourseDetailCard, FleetCard, AboutCard, ItineraryBuilder
+- TourShowcase, ServiceBento, AuthGateModal, InquiryForm
+- Supabase database, Google OAuth, saved courses/itineraries
+- Memory system with passive profiler, embeddings, semantic retrieval
+- Admin MVP: B2B dashboard, rate management, CSV import, quote builder
 
 ---
 
 ## Current Phase
 
-**Focus:** Phase 7 - Admin MVP (Complete)
+**Focus:** Orby OS Phase 0 - Foundation Setup
 
-**What was built:**
-- B2B operations dashboard at `/admin/*`
-- Course rate import via CSV
-- Transport rate management
-- Client CRM with markup percentages
-- Quote builder with margin calculator
+**Priorities:**
+1. Install new dependencies (tRPC, Zustand, Trigger.dev, etc.)
+2. Configure tRPC with Next.js App Router
+3. Set up Zustand stores
+4. Configure Trigger.dev project
+5. Add Sentry and PostHog
+6. Create multi-tenant database migrations
+7. Verify existing B2C functionality still works
 
-**Setup Required:**
-1. Add `ADMIN_EMAILS=email1@example.com,email2@example.com` to env
-2. Run database migrations: `supabase db push`
-3. Configure Vercel deployment
+**Key Decisions Made:**
+- Architecture: Option C - Platform Architecture (future-proof, enterprise-grade)
+- Strategy: Golf Okay becomes Partner #0, dogfooding before external partners
+- State: Zustand for UI state, tRPC for server state
+- Background: Trigger.dev replaces Supabase Edge Functions for complex workflows
+- Billing: Stripe for subscriptions and usage billing
 
-**Decisions Made (Previous Phases):**
-- State management: React Context (ItineraryContext) for wizard
-- Pricing: THB base, with group discounts at 8+ and 12+ golfers
-- Tool result encoding: Base64 markers in response (not streaming during tool use)
-- Auth trigger: Intent-based (save/book actions) via trigger_auth_gate tool
-- Session persistence: Guest drafts migrated on sign-up (future enhancement)
-- Email provider: Resend (simple, reliable API)
-- Inquiry form: In-chat component rendered by AI tool
+**New File Structure:**
+```
+src/
+├── server/
+│   ├── trpc.ts              # tRPC initialization
+│   ├── context.ts           # Request context with partnerId
+│   └── routers/             # tRPC routers (partner, client, quote, inbox, etc.)
+├── stores/
+│   ├── partner.ts           # Partner state
+│   ├── inbox.ts             # Inbox filters, selection
+│   └── quotes.ts            # Quote filters, draft state
+├── trigger/
+│   ├── client.ts            # Trigger.dev client
+│   └── tasks/               # Background tasks
+├── trpc/
+│   ├── client.tsx           # Client provider
+│   └── server.ts            # Server caller
+└── app/
+    ├── (customer)/          # Existing B2C routes
+    ├── (office)/            # Partner dashboard
+    │   └── office/
+    │       ├── layout.tsx
+    │       ├── page.tsx     # Dashboard
+    │       ├── inbox/
+    │       ├── quotes/
+    │       ├── clients/
+    │       └── settings/
+    └── (portal)/            # Client trip portals
+        └── trips/[token]/
+```
 
 ---
 
@@ -136,10 +186,10 @@ Mock mode for UI development, cached mode for integration testing.
 | Tension | Resolution |
 |---------|------------|
 | **Rich UI vs Token Cost** | Components rendered client-side; AI returns minimal tool call data |
-| **Guest Freedom vs Data Capture** | Allow 3+ turns before soft auth gate at save/book intent |
-| **Real-time Availability vs Complexity** | V1 uses "request" mode; real-time for V2 |
-| **B2B vs B2C** | Separate subdomain (partners.golfokay.co), shared Supabase backend |
-| **Streaming vs Tool Results** | Tool execution requires non-streaming; results appended to final response |
+| **B2B vs B2C** | Separate routes: `/` for B2C, `/office` for B2B partners |
+| **Multi-tenant Complexity** | RLS + tRPC middleware + service role key for admin operations |
+| **Background Job Reliability** | Trigger.dev with retries > Edge Functions for critical workflows |
+| **State Management Migration** | Zustand alongside Context, gradual migration |
 
 ---
 
@@ -147,6 +197,7 @@ Mock mode for UI development, cached mode for integration testing.
 
 **Architecture**
 - [2024-11]: Design system emerges from implementation - don't build a separate design phase. The prototype IS the reference.
+- [2024-12]: Multi-tenant RLS requires `get_user_partner_id()` helper function for clean policies
 
 **Implementation Gotchas**
 - [2024-11]: ESLint `react-hooks/set-state-in-effect` error - use `useMemo` for derived state instead of `useEffect` + `setState`
@@ -169,143 +220,151 @@ Mock mode for UI development, cached mode for integration testing.
 - [2024-11]: Resend API requires RESEND_API_KEY env var at build time - ensure it's in .env.local with correct case
 - [2024-11]: ESLint react/no-unescaped-entities requires &apos; for apostrophes in JSX text
 - [2024-11]: Playwright tests need proper selectors for components without semantic HTML tags - look for actual DOM structure, not assumed tags
-- [2024-11]: Logo visibility depends on intro animation state (showLogo prop) - tests should account for conditional rendering
-- [2024-11]: Phase 6 polish complete - responsive design tested, build verified, analytics ready for deployment
 - [2024-12]: SessionProvider must wrap inside AuthProvider to access user state for merge workflow
 - [2024-12]: Supabase type inference issues with new tables - use `as any` with eslint-disable for upsert/rpc calls until types are regenerated
-- [2024-12]: getSessionUuid called during SSR throws error - initialize session UUID in useEffect on client-side only, not in useMemo/useState initializer
-- [2024-12]: Supabase Edge Functions use Deno runtime - exclude `supabase/functions` from tsconfig.json and eslint to avoid Node/Deno conflicts
-- [2024-12]: Service role key required for server-side Supabase operations that bypass RLS - anon key subject to RLS policies
-- [2024-12]: Edge Function generating IDs before message persistence causes FK violations - either remove FK constraint or ensure parent row exists first
-- [2024-12]: Fire-and-forget async patterns (no await) for non-blocking operations like memory extraction - use `.catch()` for error handling
-- [2024-12]: Token budgeting for AI prompts - set explicit limits per section (e.g., 500 for memories, 1000 for history) to prevent context overflow
-- [2024-12]: Chat history requires atomic state updates - use single `loadChat()` function in ChatContext instead of separate selectChat + setMessages to avoid race conditions
-- [2024-12]: Nested buttons cause React hydration errors - use `<div>` with `cursor-pointer` for clickable containers that have button children
-- [2024-12]: Visual hierarchy in menus: use color (orange vs gray) for importance, not shapes/backgrounds - unified list design looks more premium
-- [2024-12]: Framer Motion `layoutId` enables smooth position morphing between components - great for hero-to-header avatar transitions
-- [2024-12]: Conic gradients with blur create elegant "thinking halo" effects for AI loading states
-- [2024-12]: Date grouping for chat history: Today, Yesterday, Previous 7 Days, Previous 30 Days, Older - intuitive temporal organization
-- [2024-12]: Snap-to-Static animation pattern - constant breathing creates anxiety; lock to fixed position on state change (Chaos → Order)
-- [2024-12]: Pentagon formation for 5-dot logos: use 72° intervals starting at -90° (top) for closed shape, not C-arc
-- [2024-12]: Dark Glass orb (glassmorphism): `bg-white/5 backdrop-blur-md border-white/10` - unified material language
+- [2024-12]: getSessionUuid called during SSR throws error - initialize session UUID in useEffect on client-side only
+- [2024-12]: Supabase Edge Functions use Deno runtime - exclude `supabase/functions` from tsconfig.json and eslint
+- [2024-12]: Service role key required for server-side Supabase operations that bypass RLS
+- [2024-12]: Fire-and-forget async patterns (no await) for non-blocking operations - use `.catch()` for error handling
+- [2024-12]: Token budgeting for AI prompts - set explicit limits per section to prevent context overflow
+- [2024-12]: Chat history requires atomic state updates - use single `loadChat()` function instead of separate calls
+- [2024-12]: Nested buttons cause React hydration errors - use `<div>` with `cursor-pointer` for clickable containers
+- [2024-12]: Visual hierarchy in menus: use color for importance, not shapes/backgrounds
+- [2024-12]: Framer Motion `layoutId` enables smooth position morphing between components
+- [2024-12]: Conic gradients with blur create elegant "thinking halo" effects
+- [2024-12]: Dark Glass orb (glassmorphism): `bg-white/5 backdrop-blur-md border-white/10`
 - [2024-12]: backdrop-blur creates stacking context issues - use explicit z-index on parent containers
-- [2024-12]: Sidebar transparency with border (`bg-transparent border-r border-white/5`) lets background flow through
-- [2024-12]: Demote loud buttons (orange gradients) to ghost buttons when they steal focus from hero content
-- [2024-12]: Profile cards: Credit card aspect ratio (340×195), matte black with noise texture, gold accents for premium
-- [2024-12]: Holographic text gradient: `bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent`
-- [2024-12]: Left accent bar on hover: `border-l-2 border-l-transparent hover:border-l-[#FF6B35]` for menu items
-- [2024-12]: Desaturate competing visuals: `opacity-50 grayscale-[30%]` at rest, full color on hover
+- [2024-12]: Sidebar transparency with border lets background flow through
+- [2024-12]: Demote loud buttons to ghost buttons when they steal focus from hero content
 - [2024-12]: Admin auth guard: email whitelist via ADMIN_EMAILS env var, comma-separated, case-insensitive
 - [2024-12]: Reusable DataTable component: generic TypeScript with sorting, pagination, search, custom cell renderers
 - [2024-12]: CSV import pattern: FormData + parseCSV utility, validate against existing records, return line-specific errors
 - [2024-12]: Quote builder: JSONB items array for flexible line items, auto-calculate sell_rate from net_rate + client markup
 
+**tRPC Patterns (New)**
+- tRPC middleware chain: `isAuthed` → `hasPartner` → `hasPermission(resource, action)`
+- Use `protectedProcedure` for all partner routes (includes auth + partner check)
+- SuperJSON transformer for Date, Map, Set serialization
+- Prefetch queries in server components with `queryClient.prefetchQuery()`
+
+**Zustand Patterns (New)**
+- Persist filters to sessionStorage, not localStorage (per-tab state)
+- Use `partialize` to exclude transient state from persistence
+- Create stores are singletons - no need for providers
+
+**Trigger.dev Patterns (New)**
+- `task()` for simple jobs, `workflow()` for multi-step processes
+- Always set `retry` config with exponential backoff
+- Fire-and-forget: `await task.trigger(payload)` returns immediately
+
 ---
 
 ## Quick Reference
 
-**Key Files:**
-- `src/app/page.tsx` - Main page with ChatProvider wrapper
-- `src/app/api/chat/route.ts` - Tool execution loop + Anthropic
+**Key Files (Existing B2C):**
+- `src/app/page.tsx` - Main customer chat page
+- `src/app/api/chat/route.ts` - AI tool execution loop
 - `src/components/chat/Message.tsx` - Tool → Component routing
 - `src/components/generative-ui/` - All generative UI components
-- `src/components/generative-ui/TourShowcase.tsx` - Full service tour
-- `src/components/generative-ui/ServiceBento.tsx` - Bento grid for services
-- `src/components/generative-ui/AuthGateModal.tsx` - Auth conversion modal
-- `src/components/generative-ui/InquiryForm.tsx` - Booking inquiry form
-- `src/components/generative-ui/pickers/` - Chipotle-style trip pickers
-- `src/app/api/inquiries/route.ts` - Inquiry submission API
-- `src/lib/email.ts` - Email notification service (Resend)
-- `src/context/ItineraryContext.tsx` - Wizard state management
-- `src/context/AuthContext.tsx` - Auth state management
-- `src/context/SessionContext.tsx` - Session state management
-- `src/lib/session.ts` - Session UUID utilities
-- `src/lib/api-client.ts` - Fetch wrapper with session header
-- `src/hooks/useChat.ts` - Chat state + tool result parsing + loadChat
-- `src/hooks/useChatHistory.ts` - Chat history list management
-- `src/hooks/useAuth.ts` - Auth session hooks
-- `src/hooks/useSavedCourses.ts` - Saved courses CRUD
-- `src/hooks/useItineraryDrafts.ts` - Itinerary drafts CRUD
-- `src/hooks/useRealtimeItinerary.ts` - Realtime itinerary subscription
-- `src/context/ChatHistoryContext.tsx` - Chat history provider
-- `src/components/AgentAvatar.tsx` - Avatar with thinking halo
-- `src/components/MorphingAvatar.tsx` - Position morphing wrapper
-- `src/lib/tools.ts` - AI tool definitions and system prompt
+- `src/lib/tools.ts` - AI tool definitions
 - `src/lib/tool-handlers.ts` - Tool execution handlers
-- `src/lib/supabase.ts` - Database client (anon key)
-- `src/lib/supabase-server.ts` - Server-side client (service role key, bypasses RLS)
-- `src/lib/auth.ts` - Auth helper functions
-- `public/golfokay-logo.svg` - Brand logo (white, no background)
-- `supabase/schema.sql` - Database schema + seed data
-- `supabase/migrations/002_user_data.sql` - User data tables
-- `supabase/migrations/003_inquiries.sql` - Inquiries table
-- `supabase/migrations/004_memory_system.sql` - Memory system schema
-- `supabase/migrations/20241203000001_clients.sql` - Clients table
-- `supabase/migrations/20241203000002_course_rates.sql` - Course rates table
-- `supabase/migrations/20241203000003_transport_rates.sql` - Transport rates table
-- `supabase/migrations/20241203000004_quotes.sql` - Quotes table
-- `supabase/migrations/20241203000005_expand_courses.sql` - B2B fields for courses
-- `src/app/admin/layout.tsx` - Admin layout with auth guard
-- `src/app/admin/page.tsx` - Admin dashboard
-- `src/app/admin/courses/page.tsx` - Course management
-- `src/app/admin/courses/[id]/page.tsx` - Course detail/edit
-- `src/app/admin/courses/import/page.tsx` - CSV import for courses
-- `src/app/admin/transport/page.tsx` - Transport rates
-- `src/app/admin/transport/import/page.tsx` - CSV import for transport
-- `src/app/admin/clients/page.tsx` - Client management
-- `src/app/admin/quotes/page.tsx` - Quote list
-- `src/app/admin/quotes/new/page.tsx` - Quote builder
-- `src/components/admin/AdminSidebar.tsx` - Admin navigation
-- `src/components/admin/AdminHeader.tsx` - Admin header
-- `src/components/admin/DataTable.tsx` - Reusable data table
-- `src/types/admin.ts` - Admin TypeScript types
-- `src/lib/csv-parser.ts` - CSV parsing utility
-- `playwright.config.ts` - E2E test configuration
-- `tests/audit/sprint-phase4-auth.spec.ts` - Auth flow tests
-- `tests/audit/sprint-phase5-booking.spec.ts` - Booking flow tests
-- `tests/audit/sprint-phase6-polish.spec.ts` - Polish & responsive tests
-- `tests/audit/sprint-memory-architecture.spec.ts` - Memory architecture tests
-- `tests/audit/sprint-memory-pipeline.spec.ts` - Memory pipeline tests
-- `tests/audit/sprint-phase7-admin.spec.ts` - Admin MVP tests
-- `src/lib/embeddings.ts` - OpenAI embedding service (1536 dimensions)
-- `src/lib/memory-retrieval.ts` - Memory retrieval with semantic search
-- `src/lib/context-builder.ts` - Enhanced system prompt builder
-- `supabase/functions/extract-memories/index.ts` - Passive profiler Edge Function
+
+**Key Files (New Orby OS):**
+- `src/server/trpc.ts` - tRPC initialization with tenant middleware
+- `src/server/routers/index.ts` - Root router aggregating all routers
+- `src/stores/` - Zustand stores for UI state
+- `src/trigger/tasks/` - Background job definitions
+- `src/app/(office)/office/` - Partner dashboard routes
+- `src/trpc/client.tsx` - tRPC React Query provider
+
+**Database Schema (Multi-Tenant):**
+- `partners` - Organizations with settings, billing, branding
+- `partner_members` - Team members with roles/permissions
+- `clients` - Partner's customers
+- `channels` - Connected communication channels (email, WhatsApp, etc.)
+- `contacts` - Unified contacts across channels
+- `conversations` - Thread per contact per channel
+- `inbox_messages` - All messages, all channels
+- `quotes` - Quote with line items, versioning, status
+- `quote_items` - Line items (golf, transport, service)
+- `bookings` - Confirmed quotes with portal access
+- `course_rates` / `transport_rates` - Rate management
+- `usage_records` - AI token tracking, billing metrics
+- `audit_logs` - Action history for compliance
 
 **Design Tokens:**
 ```typescript
 const colors = {
   bg: '#131314',
-  sidebar: '#1E1F20',
+  card: '#1E1F20',
   hover: '#282A2C',
-  accent: '',
+  coral: '#FF6B35',
+  cyan: '#00D4FF',
+  red: '#FF3B3B',
+  purple: '#A855F7',
+  gold: '#FBBF24',
 };
 ```
 
 **Environment Variables:**
 ```env
-# AI
+# Existing
 ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-...  # For embeddings (text-embedding-3-small)
-
-# Database
+OPENAI_API_KEY=sk-...
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...  # For Edge Functions
-
-# Email
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
 RESEND_API_KEY=re_...
+ADMIN_EMAILS=admin@golfokay.co,ops@golfokay.co
 
-# Admin
-ADMIN_EMAILS=admin@golfokay.co,ops@golfokay.co  # Comma-separated whitelist
+# New for Orby OS
+TRIGGER_API_KEY=tr_...
+TRIGGER_API_URL=https://api.trigger.dev
+STRIPE_SECRET_KEY=sk_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_...
+NEXT_PUBLIC_POSTHOG_KEY=phc_...
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+SENTRY_DSN=https://...@sentry.io/...
+ENCRYPTION_KEY=...  # 32-byte hex for API key encryption
+RESEND_WEBHOOK_SECRET=...
+```
 
-# Future
-CLOUDINARY_API_KEY=...
+**New Dependencies to Install:**
+```json
+{
+  "dependencies": {
+    "@trpc/server": "^11.0.0",
+    "@trpc/client": "^11.0.0",
+    "@trpc/react-query": "^11.0.0",
+    "@tanstack/react-query": "^5.0.0",
+    "zustand": "^5.0.0",
+    "@trigger.dev/sdk": "^3.0.0",
+    "@trigger.dev/react-hooks": "^3.0.0",
+    "stripe": "^14.0.0",
+    "@stripe/stripe-js": "^2.0.0",
+    "posthog-js": "^1.0.0",
+    "@sentry/nextjs": "^8.0.0",
+    "superjson": "^2.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0",
+    "@testing-library/react": "^16.0.0",
+    "msw": "^2.0.0"
+  }
+}
 ```
 
 **Run Commands:**
 ```bash
-npm run dev    # Start dev server
-npm run build  # Production build
-npm run lint   # ESLint
+npm run dev       # Start dev server
+npm run build     # Production build
+npm run lint      # ESLint
+npx trigger dev   # Start Trigger.dev dev server
 ```
+
+**Implementation Reference:**
+- See `coding-prompt.md` for complete implementation guide
+- Includes: database schema, tRPC patterns, Zustand stores, Trigger.dev tasks
+- Week-by-week execution plan with success criteria

@@ -1,241 +1,306 @@
-# Golf Okay: Implementation Plan
+# Orby OS: Implementation Plan
 
-## 📍 Current Phase: Phase 7 - Admin MVP
-**Goal:** B2B operations dashboard to serve Vietnam client and import existing rate data
+## 📍 Current Phase: Phase 0 - Foundation Setup
+**Goal:** Set up new tech stack without breaking existing B2C functionality
 
 ### Active Priorities
-1. Admin route structure (`/admin/*`)
-2. Course data import from Excel
-3. Rate sheet PDF generator
-4. Quote builder for B2B clients
+1. Install new dependencies (tRPC, Zustand, Trigger.dev, etc.)
+2. Configure tRPC with Next.js App Router
+3. Set up Zustand stores (parallel to existing Context)
+4. Configure Trigger.dev project
+5. Add Sentry and PostHog
+6. Create multi-tenant database migrations
 
 ### Immediate Task List
-- [ ] Create admin layout and sidebar
-- [ ] Build CSV/Excel import tool for courses
-- [ ] Create database migration for rates, clients, quotes tables
-- [ ] Import 50+ courses from existing spreadsheets
-- [ ] Build rate sheet export (PDF + Excel)
-- [ ] Create quote builder interface
-- [ ] Add client/inquiry tracker
-- [ ] Respond to Vietnam B2B client
+- [ ] Install tRPC packages (@trpc/server, @trpc/client, @trpc/react-query)
+- [ ] Install Zustand and configure stores
+- [ ] Install Trigger.dev SDK and configure project
+- [ ] Install Stripe packages
+- [ ] Install PostHog and Sentry
+- [ ] Create `src/server/trpc.ts` with tenant middleware
+- [ ] Create `src/server/context.ts` for request context
+- [ ] Create `src/server/routers/index.ts` root router
+- [ ] Create `src/stores/` directory with partner, inbox, quotes stores
+- [ ] Create `src/trigger/` directory with client and tasks
+- [ ] Create `src/trpc/client.tsx` provider
+- [ ] Run migration: `20241205000001_multi_tenant.sql`
+- [ ] Seed Golf Okay as Partner #0
+- [ ] Verify existing B2C chat still works
+
+### Pending Decisions
+- None for Phase 0 (foundational setup)
 
 ---
 
 ## 🏗 Architecture Reference
 
-### Tech Stack
+### Tech Stack (New)
+- **API Layer:** tRPC 11.x (type-safe, middleware-protected)
+- **State:** Zustand 5.x (client state management)
+- **Background:** Trigger.dev 3.x (durable functions, retries)
+- **Billing:** Stripe (subscriptions, usage billing)
+- **Analytics:** PostHog (product analytics, feature flags)
+- **Errors:** Sentry 8.x (error monitoring)
+
+### Tech Stack (Existing)
 - **Framework:** Next.js 16 (App Router), React 19
 - **Styling:** Tailwind CSS v4 (dark mode default)
 - **AI:** Anthropic Claude API (claude-sonnet-4-20250514)
 - **Database:** Supabase (Postgres) with RLS
-- **Animation:** Framer Motion
 - **Email:** Resend
-- **PDF:** (TBD - react-pdf or @react-pdf/renderer)
 - **Hosting:** Vercel
 
 ### Route Structure
 ```
-golfokay.co/              → Consumer chat (existing demo)
-golfokay.co/admin         → Operations dashboard (Phase 7)
-golfokay.co/admin/courses → Course & rate management
-golfokay.co/admin/quotes  → Quote builder & export
-golfokay.co/admin/clients → B2B client management
-golfokay.co/admin/bookings→ Booking tracker
+golfokay.co/              → Customer chat (existing B2C)
+golfokay.co/office        → Partner dashboard (new)
+golfokay.co/office/inbox  → Unified inbox
+golfokay.co/office/quotes → Quote management
+golfokay.co/office/clients→ Client CRM
+golfokay.co/office/rates  → Rate management
+trips.golfokay.co/[token] → Client trip portals (future)
 ```
 
-### Admin File Structure
+### New File Structure
 ```
-src/app/admin/
-├── layout.tsx              # Admin layout with sidebar
-├── page.tsx                # Dashboard
-├── courses/
-│   ├── page.tsx            # Course list
-│   ├── [id]/page.tsx       # Course detail/edit
-│   └── import/page.tsx     # Bulk import
-├── transport/
-│   ├── page.tsx            # Transport rates
-│   └── import/page.tsx     # Bulk import
-├── clients/
-│   ├── page.tsx            # Client list
-│   └── [id]/page.tsx       # Client detail
-├── quotes/
-│   ├── page.tsx            # Quote list
-│   ├── new/page.tsx        # Quote builder
-│   └── [id]/page.tsx       # Quote detail/edit
-├── bookings/
-│   ├── page.tsx            # Booking list
-│   └── [id]/page.tsx       # Booking detail
-└── components/
-    ├── AdminSidebar.tsx
-    ├── AdminHeader.tsx
-    ├── DataTable.tsx
-    ├── QuoteBuilder.tsx
-    ├── RateSheetExport.tsx
-    └── PDFGenerator.tsx
+src/
+├── server/
+│   ├── trpc.ts              # tRPC initialization
+│   ├── context.ts           # Request context with partnerId
+│   └── routers/
+│       ├── index.ts         # Root router
+│       ├── partner.ts
+│       ├── client.ts
+│       ├── quote.ts
+│       ├── booking.ts
+│       ├── inbox.ts
+│       ├── rate.ts
+│       └── analytics.ts
+├── stores/
+│   ├── partner.ts           # Partner state
+│   ├── inbox.ts             # Inbox filters, selection
+│   └── quotes.ts            # Quote filters, draft state
+├── trigger/
+│   ├── client.ts            # Trigger.dev client
+│   └── tasks/
+│       ├── process-email.ts
+│       ├── classify-message.ts
+│       ├── generate-draft.ts
+│       ├── generate-quote.ts
+│       └── send-quote-email.ts
+├── trpc/
+│   ├── client.tsx           # Client provider
+│   └── server.ts            # Server caller
+└── app/
+    ├── (customer)/          # Existing B2C routes
+    ├── (office)/            # Partner dashboard
+    │   └── office/
+    │       ├── layout.tsx
+    │       ├── page.tsx     # Dashboard
+    │       ├── inbox/
+    │       ├── quotes/
+    │       ├── clients/
+    │       ├── rates/
+    │       └── settings/
+    ├── api/
+    │   ├── trpc/[trpc]/route.ts
+    │   └── webhooks/
+    │       ├── email/route.ts
+    │       ├── whatsapp/route.ts
+    │       └── stripe/route.ts
+    └── (portal)/            # Client trip portals
+        └── trips/[token]/
 ```
 
-### Database Schema (New Tables)
-- **clients** - B2B partners (tour operators, travel agents)
-- **course_rates** - Net rates, rack rates, seasonal pricing
-- **transport_rates** - Vehicle and route pricing
-- **quotes** - Quote builder with line items
-- **bookings** - Confirmed bookings from quotes
-
-### Existing Assets
-- **50+ courses** with net rates (in Excel)
-- **Transport rates** (in Excel)
-- **Course contacts** (direct relationships)
-- **Vietnam B2B inquiry** (active lead)
+### Database Schema (Multi-Tenant)
+- **partners** - Organizations with settings, billing, branding
+- **partner_members** - Team members with roles/permissions
+- **clients** - Partner's customers
+- **channels** - Connected communication channels
+- **contacts** - Unified contacts across channels
+- **conversations** - Thread per contact per channel
+- **inbox_messages** - All messages, all channels
+- **quotes** - Quote with line items, versioning
+- **quote_items** - Line items (golf, transport, service)
+- **bookings** - Confirmed quotes with portal access
+- **course_rates** / **transport_rates** - Rate management
+- **usage_records** - AI token tracking, billing metrics
+- **audit_logs** - Action history
 
 ---
 
 ## 📅 Roadmap
 
-### Phase 7: Admin MVP (Current - 1-2 Weeks)
-**Goal:** Serve Vietnam client, import existing data
+### Phase 0: Foundation Setup (Current - Week 1)
+- [ ] Install all new dependencies
+- [ ] Configure tRPC with tenant middleware
+- [ ] Set up Zustand stores
+- [ ] Configure Trigger.dev
+- [ ] Create multi-tenant migrations
+- [ ] Verify B2C still works
 
-Week 1: Data Foundation
-- [ ] CSV/Excel bulk import tool
-- [ ] Course rates table + import
-- [ ] Transport rates table + import
-- [ ] Admin CRUD interface
+### Phase 1: Office Foundation (Week 2-3)
+- [ ] /office layout with auth protection
+- [ ] Partner context and middleware
+- [ ] Dashboard with placeholder metrics
+- [ ] Basic navigation sidebar
+- [ ] Golf Okay seeded as Partner #0
 
-Week 2: Operations Tools
-- [ ] Rate sheet PDF generator
-- [ ] Quote builder
-- [ ] Client/inquiry tracker
-- [ ] Dashboard with metrics
+### Phase 2: Unified Inbox - Email (Week 4-5)
+- [ ] Email inbound webhook (Resend)
+- [ ] Trigger.dev task for email processing
+- [ ] AI classification (intent, sentiment, priority)
+- [ ] AI draft response generation
+- [ ] Inbox UI with conversation list
+- [ ] Conversation detail view
+- [ ] Reply composition and sending
+- [ ] Real-time updates via Supabase
 
-### Phase 8: Quote & Booking Workflow (2-3 Weeks)
-- [ ] Quote templates
-- [ ] Version tracking
-- [ ] Convert quote → booking
-- [ ] Booking confirmation workflow
-- [ ] Payment tracking
-- [ ] Reporting
+### Phase 3: Quote Engine (Week 6-7)
+- [ ] Quote builder UI
+- [ ] AI quote generation from conversation
+- [ ] Rate lookup and margin calculation
+- [ ] PDF export (React PDF)
+- [ ] Email quote to client
+- [ ] Quote versioning
 
-### Phase 9: B2B Partner Portal (4-6 Weeks)
-- [ ] Partner login
-- [ ] View contracted rates
-- [ ] Submit booking requests
-- [ ] Track bookings
-- [ ] Download invoices
+### Phase 4: Client CRM (Week 8)
+- [ ] Client list with search/filters
+- [ ] Client detail view
+- [ ] Link clients to contacts
+- [ ] Activity timeline
+- [ ] Preferences tracking
 
-### Phase 10: Consumer Enhancement (Lower Priority)
-- [ ] Connect chat to real course data
-- [ ] Real pricing display
-- [ ] Inquiry → Admin notification
-- [ ] SEO/content
+### Phase 5: Rate Management (Week 9)
+- [ ] Course rate editor
+- [ ] Transport rate editor
+- [ ] Season and validity management
+- [ ] Partner-specific vs global rates
 
-### Foundation (Completed)
+### Phase 6: Billing Integration (Week 10)
+- [ ] Stripe customer creation
+- [ ] Subscription management
+- [ ] Usage tracking and metering
+- [ ] Invoice generation
 
-**Phase 1 - Chat Foundation:**
-Chat engine with streaming, Anthropic integration, CourseCarousel with 3D flip animation
+### Phase 7: Polish & Launch (Week 11-12)
+- [ ] Error handling and edge cases
+- [ ] Performance optimization
+- [ ] Mobile responsiveness
+- [ ] Help documentation
 
-**Phase 2 - Data Layer:**
-Supabase integration, 15 seed courses, tool execution loop, CourseDetailCard, FleetCard, AboutCard
-
-**Phase 3 - ItineraryBuilder:**
-4-step wizard (Region → Vibe → Logistics → Dates), pricing with group discounts, ItinerarySummary
-
-**Phase 3b - Tour & Services:**
-TourShowcase auto-playing carousel, ServiceBento grid, GolfOkay logo, Chipotle-style pickers
-
-**Phase 4 - Authentication:**
-Supabase Auth with Google OAuth, AuthGateModal, saved courses + itinerary drafts
-
-**Phase 5 - Booking Flow:**
-InquiryForm component, inquiry API routes, Resend email integration
-
-**Phase 6 - Polish & Launch:**
-Mobile responsive design, error boundaries, loading states, Plausible analytics ready
-
-**Memory System:**
-Session identity, passive profiler Edge Function, OpenAI embeddings, semantic retrieval, context builder
-
-**UI/UX Overhaul:**
-Gemini-style sidebar, chat history, Header Explore dropdown, NeuralDots avatar, thinking halo
+### Foundation (Completed - Golf Okay B2C)
+**Phases 1-7:** Chat engine, 14 AI tools, CourseCarousel, CourseDetailCard, FleetCard, AboutCard, ItineraryBuilder wizard, TourShowcase, ServiceBento, AuthGateModal, InquiryForm, Supabase database, Google OAuth, memory system, admin MVP
 
 ---
 
 ## 📝 Implementation Notes
 
-### Admin Security
+### tRPC Setup Pattern
 ```typescript
-// Protect admin routes with email whitelist
-const ADMIN_EMAILS = ['your-email@gmail.com'];
+// src/server/trpc.ts
+const hasPartner = t.middleware(async ({ ctx, next }) => {
+  const { data: membership } = await ctx.supabase
+    .from('partner_members')
+    .select('partner_id, role, permissions')
+    .eq('user_id', ctx.user.id)
+    .eq('status', 'active')
+    .single();
 
-// In admin layout.tsx
-const { user } = await getUser();
-if (!user || !ADMIN_EMAILS.includes(user.email)) {
-  redirect('/');
-}
+  if (!membership) {
+    throw new TRPCError({ code: 'FORBIDDEN' });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      partnerId: membership.partner_id,
+      role: membership.role,
+      permissions: membership.permissions,
+    },
+  });
+});
+
+export const protectedProcedure = t.procedure.use(isAuthed).use(hasPartner);
 ```
 
-### Rate Sheet Export Pattern
+### Zustand Store Pattern
 ```typescript
-// Generate PDF with course rates
-interface RateSheetOptions {
-  courses: Course[];
-  region?: string;
-  dateRange: { from: Date; to: Date };
-  markupPercent: number;
-  format: 'pdf' | 'excel';
-}
+// src/stores/inbox.ts
+export const useInboxStore = create<InboxState>()(
+  persist(
+    (set) => ({
+      statusFilter: 'open',
+      channelFilter: null,
+      selectedConversationId: null,
+      setStatusFilter: (status) => set({ statusFilter: status }),
+      selectConversation: (id) => set({ selectedConversationId: id }),
+    }),
+    { name: 'inbox-store' }
+  )
+);
 ```
 
-### Quote Builder Pattern
+### Trigger.dev Task Pattern
 ```typescript
-interface QuoteLineItem {
-  type: 'golf' | 'transport' | 'service';
-  description: string;
-  quantity: number;
-  netRate: number;
-  sellRate: number;
-  date?: Date;
-}
-
-interface Quote {
-  client: Client;
-  items: QuoteLineItem[];
-  validUntil: Date;
-  notes: string;
-}
+// src/trigger/tasks/process-email.ts
+export const processInboundEmail = task({
+  id: "process-inbound-email",
+  retry: { maxAttempts: 3, factor: 2 },
+  run: async (payload) => {
+    // 1. Find or create contact
+    // 2. Find or create conversation
+    // 3. Store message
+    // 4. Classify with AI
+    // 5. Generate draft if appropriate
+    // 6. Notify if urgent
+  },
+});
 ```
 
 ---
 
 ## 📊 Success Metrics
 
-### Phase 7 (Admin MVP)
-- [ ] 50+ courses imported with net rates
-- [ ] Transport rates in system
-- [ ] Generate rate sheet PDF in <5 minutes
-- [ ] Create custom quote in <10 minutes
-- [ ] Vietnam client served professionally
+### Phase 0-1 Complete When:
+- [ ] All dependencies installed
+- [ ] tRPC routes respond correctly
+- [ ] Zustand stores persist state
+- [ ] Trigger.dev dashboard shows project
+- [ ] Golf Okay team can log into /office
+- [ ] Existing B2C chat unaffected
 
-### Business (Ongoing)
-- B2B clients onboarded: Target 5
-- Quotes sent per month: Track
-- Quote → Booking conversion: Track
-- Revenue pipeline: Track
+### MVP Complete When:
+- [ ] Golf Okay operates entirely from /office for 2 weeks
+- [ ] Emails appear in unified inbox
+- [ ] AI classifies and drafts responses
+- [ ] Quotes can be created and sent
+- [ ] Response time < 1 second for all operations
 
 ---
 
-## Environment Variables
+## Environment Variables (New)
 
 ```env
-# Required
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-...
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-RESEND_API_KEY=re_...
-
-# Admin
-ADMIN_EMAILS=your-email@gmail.com
-
-# Future
+# New for Orby OS
+TRIGGER_API_KEY=tr_...
+TRIGGER_API_URL=https://api.trigger.dev
 STRIPE_SECRET_KEY=sk_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_...
+NEXT_PUBLIC_POSTHOG_KEY=phc_...
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+SENTRY_DSN=https://...@sentry.io/...
+ENCRYPTION_KEY=...  # 32-byte hex for API key encryption
+RESEND_WEBHOOK_SECRET=...
 ```
+
+---
+
+## References
+
+- `coding-prompt.md` - Complete implementation guide with code patterns
+- [tRPC Documentation](https://trpc.io/docs)
+- [Zustand Documentation](https://zustand-demo.pmnd.rs/)
+- [Trigger.dev Documentation](https://trigger.dev/docs)
+- [Supabase RLS Guide](https://supabase.com/docs/guides/auth/row-level-security)
